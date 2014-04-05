@@ -14,10 +14,20 @@ import (
 func TestToInt(t *testing.T) {
 	var eight interface{} = 8
 	assert.Equal(t, ToInt(8), 8)
+	assert.Equal(t, ToInt(8.31), 8)
 	assert.Equal(t, ToInt("8"), 8)
 	assert.Equal(t, ToInt(true), 1)
 	assert.Equal(t, ToInt(false), 0)
 	assert.Equal(t, ToInt(eight), 8)
+}
+
+func TestToString(t *testing.T) {
+	var foo interface{} = "one more time"
+	assert.Equal(t, ToString(8), "8")
+	assert.Equal(t, ToString(8.12), "8.12")
+	assert.Equal(t, ToString([]byte("one time")), "one time")
+	assert.Equal(t, ToString(foo), "one more time")
+	assert.Equal(t, ToString(nil), "")
 }
 
 func TestMaps(t *testing.T) {

@@ -53,6 +53,84 @@ func ToBoolE(i interface{}) (bool, bool) {
 	return false, false
 }
 
+func ToFloat64E(i interface{}) (float64, bool) {
+	switch s := i.(type) {
+	case float64:
+		return s, true
+	case float32:
+		return float64(s), true
+	case string:
+		v, err := strconv.ParseFloat(s, 64)
+		if err == nil {
+			return float64(v), true
+		} else {
+			jww.ERROR.Printf("Unable to Cast %#v to float", i)
+			jww.ERROR.Println(err)
+		}
+
+	default:
+		jww.ERROR.Printf("Unable to Cast %#v to float", i)
+	}
+
+	return 0.0, false
+}
+
+func ToIntE(i interface{}) (int, bool) {
+	switch s := i.(type) {
+	case int:
+		return s, true
+	case int64:
+		return int(s), true
+	case int32:
+		return int(s), true
+	case int16:
+		return int(s), true
+	case int8:
+		return int(s), true
+	case string:
+		v, err := strconv.ParseInt(s, 0, 0)
+		if err == nil {
+			return int(v), true
+		} else {
+			jww.ERROR.Printf("Unable to Cast %#v to int", i)
+			jww.ERROR.Println(err)
+		}
+	case float64:
+		return int(s), true
+	case bool:
+		if bool(s) {
+			return 1, true
+		} else {
+			return 0, true
+		}
+	case nil:
+		return 0, true
+	default:
+		jww.ERROR.Printf("Unable to Cast %#v to int", i)
+	}
+
+	return 0, false
+}
+
+func ToStringE(i interface{}) (string, bool) {
+	switch s := i.(type) {
+	case string:
+		return s, true
+	case float64:
+		return strconv.FormatFloat(i.(float64), 'f', -1, 64), true
+	case int:
+		return strconv.FormatInt(int64(i.(int)), 10), true
+	case []byte:
+		return string(s), true
+	case nil:
+		return "", true
+	default:
+		jww.ERROR.Printf("Unable to Cast %#v to string", i)
+	}
+
+	return "", false
+}
+
 func ToStringMapStringE(i interface{}) (map[string]string, bool) {
 	var m = map[string]string{}
 
@@ -96,79 +174,6 @@ func ToStringSliceE(i interface{}) ([]string, bool) {
 	}
 
 	return a, true
-}
-
-func ToFloat64E(i interface{}) (float64, bool) {
-	switch s := i.(type) {
-	case float64:
-		return s, true
-	case float32:
-		return float64(s), true
-
-	case string:
-		v, err := strconv.ParseFloat(s, 64)
-		if err == nil {
-			return float64(v), true
-		} else {
-			jww.ERROR.Printf("Unable to Cast %#v to float", i)
-			jww.ERROR.Println(err)
-		}
-
-	default:
-		jww.ERROR.Printf("Unable to Cast %#v to float", i)
-	}
-
-	return 0.0, false
-}
-
-func ToIntE(i interface{}) (int, bool) {
-	switch s := i.(type) {
-	case int:
-		return s, true
-	case int64:
-		return int(s), true
-	case int32:
-		return int(s), true
-	case int16:
-		return int(s), true
-	case int8:
-		return int(s), true
-	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
-		if err == nil {
-			return int(v), true
-		} else {
-			jww.ERROR.Printf("Unable to Cast %#v to int", i)
-			jww.ERROR.Println(err)
-		}
-	case bool:
-		if bool(s) {
-			return 1, true
-		} else {
-			return 0, true
-		}
-	default:
-		jww.ERROR.Printf("Unable to Cast %#v to int", i)
-	}
-
-	return 0, false
-}
-
-func ToStringE(i interface{}) (string, bool) {
-	switch s := i.(type) {
-	case string:
-		return s, true
-	case float64:
-		return strconv.FormatFloat(i.(float64), 'f', -1, 64), true
-	case int:
-		return strconv.FormatInt(int64(i.(int)), 10), true
-	case nil:
-		return "", true
-	default:
-		jww.ERROR.Printf("Unable to Cast %#v to string", i)
-	}
-
-	return "", false
 }
 
 func StringToDate(s string) (time.Time, error) {
