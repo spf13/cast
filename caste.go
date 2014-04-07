@@ -59,6 +59,16 @@ func ToFloat64E(i interface{}) (float64, bool) {
 		return s, true
 	case float32:
 		return float64(s), true
+	case int64:
+		return float64(s), true
+	case int32:
+		return float64(s), true
+	case int16:
+		return float64(s), true
+	case int8:
+		return float64(s), true
+	case int:
+		return float64(s), true
 	case string:
 		v, err := strconv.ParseFloat(s, 64)
 		if err == nil {
