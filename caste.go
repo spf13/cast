@@ -139,6 +139,8 @@ func ToStringMapStringE(i interface{}) (map[string]string, bool) {
 		for k, val := range v {
 			m[ToString(k)] = ToString(val)
 		}
+	case map[string]string:
+		return v, true
 	default:
 		return m, false
 	}
@@ -154,6 +156,8 @@ func ToStringMapE(i interface{}) (map[string]interface{}, bool) {
 		for k, val := range v {
 			m[ToString(k)] = val
 		}
+	case map[string]interface{}:
+		return v, true
 	default:
 		return m, false
 	}
@@ -169,6 +173,8 @@ func ToStringSliceE(i interface{}) ([]string, bool) {
 		for _, u := range v {
 			a = append(a, ToString(u))
 		}
+	case []string:
+		return v, true
 	default:
 		return a, false
 	}
