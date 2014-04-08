@@ -149,6 +149,10 @@ func ToStringMapStringE(i interface{}) (map[string]string, bool) {
 		for k, val := range v {
 			m[ToString(k)] = ToString(val)
 		}
+	case map[string]interface{}:
+		for k, val := range v {
+			m[ToString(k)] = ToString(val)
+		}
 	case map[string]string:
 		return v, true
 	default:
