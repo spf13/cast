@@ -8,140 +8,136 @@ package cast
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strconv"
 	"time"
 
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-func ToTimeE(i interface{}) (tim time.Time, ok bool) {
+func ToTimeE(i interface{}) (tim time.Time, err error) {
+	jww.DEBUG.Println("ToTimeE called on type:", reflect.TypeOf(i))
+
 	switch s := i.(type) {
 	case time.Time:
-		return s, true
+		return s, nil
 	case string:
 		d, e := StringToDate(s)
 		if e == nil {
-			return d, true
+			return d, nil
 		}
-
-		jww.ERROR.Println("Could not parse Date/Time format:", e)
-		return time.Time{}, false
+		return time.Time{}, fmt.Errorf("Could not parse Date/Time format: %v\n", e)
 	default:
-		jww.ERROR.Printf("Unable to Cast %#v to Time", i)
-		return time.Time{}, false
+		return time.Time{}, fmt.Errorf("Unable to Cast %#v to Time\n", i)
 	}
-
-	return time.Time{}, false
 }
 
-func ToBoolE(i interface{}) (bool, bool) {
+func ToBoolE(i interface{}) (bool, error) {
+	jww.DEBUG.Println("ToBoolE called on type:", reflect.TypeOf(i))
+
 	switch b := i.(type) {
 	case bool:
-		return b, true
+		return b, nil
 	case nil:
-		return false, true
+		return false, nil
 	case int:
 		if i.(int) > 0 {
-			return true, true
+			return true, nil
 		}
-		return false, true
+		return false, nil
 	default:
-		return false, false
-		jww.ERROR.Printf("Unable to Cast %#v to bool", i)
+		return false, fmt.Errorf("Unable to Cast %#v to bool", i)
 	}
-
-	return false, false
 }
 
-func ToFloat64E(i interface{}) (float64, bool) {
+func ToFloat64E(i interface{}) (float64, error) {
+	jww.DEBUG.Println("ToFloat64E called on type:", reflect.TypeOf(i))
+
 	switch s := i.(type) {
 	case float64:
-		return s, true
+		return s, nil
 	case float32:
-		return float64(s), true
+		return float64(s), nil
 	case int64:
-		return float64(s), true
+		return float64(s), nil
 	case int32:
-		return float64(s), true
+		return float64(s), nil
 	case int16:
-		return float64(s), true
+		return float64(s), nil
 	case int8:
-		return float64(s), true
+		return float64(s), nil
 	case int:
-		return float64(s), true
+		return float64(s), nil
 	case string:
 		v, err := strconv.ParseFloat(s, 64)
 		if err == nil {
-			return float64(v), true
+			return float64(v), nil
 		} else {
-			jww.ERROR.Printf("Unable to Cast %#v to float", i)
-			jww.ERROR.Println(err)
+			return 0.0, fmt.Errorf("Unable to Cast %#v to float", i)
 		}
-
 	default:
-		jww.ERROR.Printf("Unable to Cast %#v to float", i)
+		return 0.0, fmt.Errorf("Unable to Cast %#v to float", i)
 	}
-
-	return 0.0, false
 }
 
-func ToIntE(i interface{}) (int, bool) {
+func ToIntE(i interface{}) (int, error) {
+	jww.DEBUG.Println("ToIntE called on type:", reflect.TypeOf(i))
+
 	switch s := i.(type) {
 	case int:
-		return s, true
+		return s, nil
 	case int64:
-		return int(s), true
+		return int(s), nil
 	case int32:
-		return int(s), true
+		return int(s), nil
 	case int16:
-		return int(s), true
+		return int(s), nil
 	case int8:
-		return int(s), true
+		return int(s), nil
 	case string:
 		v, err := strconv.ParseInt(s, 0, 0)
 		if err == nil {
-			return int(v), true
+			return int(v), nil
 		} else {
-			jww.ERROR.Printf("Unable to Cast %#v to int", i)
-			jww.ERROR.Println(err)
+			return 0, fmt.Errorf("Unable to Cast %#v to int", i)
 		}
 	case float64:
-		return int(s), true
+		return int(s), nil
 	case bool:
 		if bool(s) {
-			return 1, true
+			return 1, nil
 		} else {
-			return 0, true
+			return 0, nil
 		}
 	case nil:
-		return 0, true
+		return 0, nil
 	default:
-		jww.ERROR.Printf("Unable to Cast %#v to int", i)
+		return 0, fmt.Errorf("Unable to Cast %#v to int", i)
 	}
-
-	return 0, false
 }
 
-func ToStringE(i interface{}) (string, bool) {
+func ToStringE(i interface{}) (string, error) {
+	jww.DEBUG.Println("ToStringE called on type:", reflect.TypeOf(i))
+
 	switch s := i.(type) {
 	case string:
-		return s, true
+		return s, nil
 	case float64:
-		return strconv.FormatFloat(i.(float64), 'f', -1, 64), true
+		return strconv.FormatFloat(i.(float64), 'f', -1, 64), nil
 	case int:
-		return strconv.FormatInt(int64(i.(int)), 10), true
+		return strconv.FormatInt(int64(i.(int)), 10), nil
 	case []byte:
-		return string(s), true
+		return string(s), nil
 	case nil:
-		return "", true
+		return "", nil
 	default:
-		jww.ERROR.Printf("Unable to Cast %#v to string", i)
+		return "", fmt.Errorf("Unable to Cast %#v to string", i)
 	}
-
-	return "", false
 }
 
-func ToStringMapStringE(i interface{}) (map[string]string, bool) {
+func ToStringMapStringE(i interface{}) (map[string]string, error) {
+	jww.DEBUG.Println("ToStringMapStringE called on type:", reflect.TypeOf(i))
+
 	var m = map[string]string{}
 
 	switch v := i.(type) {
@@ -149,20 +145,23 @@ func ToStringMapStringE(i interface{}) (map[string]string, bool) {
 		for k, val := range v {
 			m[ToString(k)] = ToString(val)
 		}
+		return m, nil
 	case map[string]interface{}:
 		for k, val := range v {
 			m[ToString(k)] = ToString(val)
 		}
+		return m, nil
 	case map[string]string:
-		return v, true
+		return v, nil
 	default:
-		return m, false
+		return m, fmt.Errorf("Unable to Cast %#v to map[string]string", i)
 	}
-
-	return m, true
+	return m, fmt.Errorf("Unable to Cast %#v to map[string]string", i)
 }
 
-func ToStringMapE(i interface{}) (map[string]interface{}, bool) {
+func ToStringMapE(i interface{}) (map[string]interface{}, error) {
+	jww.DEBUG.Println("ToStringMapE called on type:", reflect.TypeOf(i))
+
 	var m = map[string]interface{}{}
 
 	switch v := i.(type) {
@@ -170,16 +169,19 @@ func ToStringMapE(i interface{}) (map[string]interface{}, bool) {
 		for k, val := range v {
 			m[ToString(k)] = val
 		}
+		return m, nil
 	case map[string]interface{}:
-		return v, true
+		return v, nil
 	default:
-		return m, false
+		return m, fmt.Errorf("Unable to Cast %#v to map[string]interface{}", i)
 	}
 
-	return m, true
+	return m, fmt.Errorf("Unable to Cast %#v to map[string]interface{}", i)
 }
 
-func ToStringSliceE(i interface{}) ([]string, bool) {
+func ToStringSliceE(i interface{}) ([]string, error) {
+	jww.DEBUG.Println("ToStringSliceE called on type:", reflect.TypeOf(i))
+
 	var a []string
 
 	switch v := i.(type) {
@@ -187,13 +189,14 @@ func ToStringSliceE(i interface{}) ([]string, bool) {
 		for _, u := range v {
 			a = append(a, ToString(u))
 		}
+		return a, nil
 	case []string:
-		return v, true
+		return v, nil
 	default:
-		return a, false
+		return a, fmt.Errorf("Unable to Cast %#v to []string", i)
 	}
 
-	return a, true
+	return a, fmt.Errorf("Unable to Cast %#v to []string", i)
 }
 
 func StringToDate(s string) (time.Time, error) {
