@@ -179,6 +179,30 @@ func ToStringMapE(i interface{}) (map[string]interface{}, error) {
 	return m, fmt.Errorf("Unable to Cast %#v to map[string]interface{}", i)
 }
 
+func ToSliceE(i interface{}) ([]interface{}, error) {
+	jww.DEBUG.Println("ToSliceE called on type:", reflect.TypeOf(i))
+
+	var s []interface{}
+
+	switch v := i.(type) {
+	case []interface{}:
+		fmt.Println("here")
+		for _, u := range v {
+			s = append(s, u)
+		}
+		return s, nil
+	case []map[string]interface{}:
+		for _, u := range v {
+			s = append(s, u)
+		}
+		return s, nil
+	default:
+		return s, fmt.Errorf("Unable to Cast %#v of type %v to []interface{}", i, reflect.TypeOf(i))
+	}
+
+	return s, fmt.Errorf("Unable to Cast %#v to []interface{}", i)
+}
+
 func ToStringSliceE(i interface{}) ([]string, error) {
 	jww.DEBUG.Println("ToStringSliceE called on type:", reflect.TypeOf(i))
 
