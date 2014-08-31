@@ -186,7 +186,6 @@ func ToSliceE(i interface{}) ([]interface{}, error) {
 
 	switch v := i.(type) {
 	case []interface{}:
-		fmt.Println("here")
 		for _, u := range v {
 			s = append(s, u)
 		}
