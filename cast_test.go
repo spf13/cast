@@ -42,3 +42,23 @@ func TestMaps(t *testing.T) {
 	var taxonomies = map[interface{}]interface{}{"tag": "tags", "group": "groups"}
 	assert.Equal(t, ToStringMap(taxonomies), map[string]interface{}{"tag": "tags", "group": "groups"})
 }
+
+func TestToBool(t *testing.T) {
+	assert.Equal(t, ToBool(0), false)
+	assert.Equal(t, ToBool(nil), false)
+	assert.Equal(t, ToBool("false"), false)
+	assert.Equal(t, ToBool("FALSE"), false)
+	assert.Equal(t, ToBool("False"), false)
+	assert.Equal(t, ToBool("f"), false)
+	assert.Equal(t, ToBool("F"), false)
+	assert.Equal(t, ToBool(false), false)
+	assert.Equal(t, ToBool("foo"), false)
+	
+	assert.Equal(t, ToBool("true"), true)
+	assert.Equal(t, ToBool("TRUE"), true)
+	assert.Equal(t, ToBool("True"), true)
+	assert.Equal(t, ToBool("t"), true)
+	assert.Equal(t, ToBool("T"), true)
+	assert.Equal(t, ToBool(1), true)
+	assert.Equal(t, ToBool(true), true)
+}
