@@ -63,4 +63,5 @@ func TestToBool(t *testing.T) {
 	assert.Equal(t, ToBool("T"), true)
 	assert.Equal(t, ToBool(1), true)
 	assert.Equal(t, ToBool(true), true)
+	assert.Equal(t, ToBool(-1), true)
 }
