@@ -8,6 +8,7 @@ package cast
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"reflect"
 	"strconv"
 	"time"
@@ -129,6 +130,8 @@ func ToStringE(i interface{}) (string, error) {
 	case int:
 		return strconv.FormatInt(int64(i.(int)), 10), nil
 	case []byte:
+		return string(s), nil
+	case template.HTML:
 		return string(s), nil
 	case nil:
 		return "", nil
