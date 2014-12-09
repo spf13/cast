@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"html/template"
 )
 
 func TestToInt(t *testing.T) {
@@ -34,6 +35,7 @@ func TestToString(t *testing.T) {
 	assert.Equal(t, ToString(8), "8")
 	assert.Equal(t, ToString(8.12), "8.12")
 	assert.Equal(t, ToString([]byte("one time")), "one time")
+	assert.Equal(t, ToString(template.HTML("one time")), "one time")
 	assert.Equal(t, ToString(foo), "one more time")
 	assert.Equal(t, ToString(nil), "")
 }
