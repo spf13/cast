@@ -97,3 +97,12 @@ func TestToBool(t *testing.T) {
 	assert.Equal(t, ToBool(true), true)
 	assert.Equal(t, ToBool(-1), true)
 }
+
+func TestIndirectPointers(t *testing.T) {
+	x := 13
+	y := &x
+	z := &y
+
+	assert.Equal(t, ToInt(y), 13)
+	assert.Equal(t, ToInt(z), 13)
+}
