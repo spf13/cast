@@ -17,6 +17,7 @@ import (
 )
 
 func ToTimeE(i interface{}) (tim time.Time, err error) {
+	i = indirect(i)
 	jww.DEBUG.Println("ToTimeE called on type:", reflect.TypeOf(i))
 
 	switch s := i.(type) {
@@ -34,6 +35,7 @@ func ToTimeE(i interface{}) (tim time.Time, err error) {
 }
 
 func ToBoolE(i interface{}) (bool, error) {
+	i = indirect(i)
 	jww.DEBUG.Println("ToBoolE called on type:", reflect.TypeOf(i))
 
 	switch b := i.(type) {
@@ -54,6 +56,7 @@ func ToBoolE(i interface{}) (bool, error) {
 }
 
 func ToFloat64E(i interface{}) (float64, error) {
+	i = indirect(i)
 	jww.DEBUG.Println("ToFloat64E called on type:", reflect.TypeOf(i))
 
 	switch s := i.(type) {
@@ -84,6 +87,7 @@ func ToFloat64E(i interface{}) (float64, error) {
 }
 
 func ToIntE(i interface{}) (int, error) {
+	i = indirect(i)
 	jww.DEBUG.Println("ToIntE called on type:", reflect.TypeOf(i))
 
 	switch s := i.(type) {
@@ -119,8 +123,47 @@ func ToIntE(i interface{}) (int, error) {
 	}
 }
 
+// From html/template/content.go
+// Copyright 2011 The Go Authors. All rights reserved.
+// indirect returns the value, after dereferencing as many times
+// as necessary to reach the base type (or nil).
+func indirect(a interface{}) interface{} {
+	if a == nil {
+		return nil
+	}
+	if t := reflect.TypeOf(a); t.Kind() != reflect.Ptr {
+		// Avoid creating a reflect.Value if it's not a pointer.
+		return a
+	}
+	v := reflect.ValueOf(a)
+	for v.Kind() == reflect.Ptr && !v.IsNil() {
+		v = v.Elem()
+	}
+	return v.Interface()
+}
+
+// From html/template/content.go
+// Copyright 2011 The Go Authors. All rights reserved.
+// indirectToStringerOrError returns the value, after dereferencing as many times
+// as necessary to reach the base type (or nil) or an implementation of fmt.Stringer
+// or error,
+func indirectToStringerOrError(a interface{}) interface{} {
+	if a == nil {
+		return nil
+	}
+
+	var errorType = reflect.TypeOf((*error)(nil)).Elem()
+	var fmtStringerType = reflect.TypeOf((*fmt.Stringer)(nil)).Elem()
+
+	v := reflect.ValueOf(a)
+	for !v.Type().Implements(fmtStringerType) && !v.Type().Implements(errorType) && v.Kind() == reflect.Ptr && !v.IsNil() {
+		v = v.Elem()
+	}
+	return v.Interface()
+}
 
 func ToStringE(i interface{}) (string, error) {
+	i = indirectToStringerOrError(i)
 	jww.DEBUG.Println("ToStringE called on type:", reflect.TypeOf(i))
 
 	switch s := i.(type) {
