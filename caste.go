@@ -34,6 +34,22 @@ func ToTimeE(i interface{}) (tim time.Time, err error) {
 	}
 }
 
+func ToDurationE(i interface{}) (d time.Duration, err error) {
+	i = indirect(i)
+	jww.DEBUG.Println("ToDurationE called on type:", reflect.TypeOf(i))
+
+	switch s := i.(type) {
+	case time.Duration:
+		return s, nil
+	case string:
+		d, err = time.ParseDuration(s)
+		return
+	default:
+		err = fmt.Errorf("Unable to Cast %#v to Duration\n", i)
+		return
+	}
+}
+
 func ToBoolE(i interface{}) (bool, error) {
 	i = indirect(i)
 	jww.DEBUG.Println("ToBoolE called on type:", reflect.TypeOf(i))
