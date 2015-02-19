@@ -294,7 +294,7 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 	case []string:
 		return v, nil
 	case string:
-		return strings.Split(v, " "), nil
+		return strings.Fields(v), nil
 	default:
 		return a, fmt.Errorf("Unable to Cast %#v to []string", i)
 	}
