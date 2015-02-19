@@ -11,6 +11,7 @@ import (
 	"html/template"
 	"reflect"
 	"strconv"
+	"strings"
 	"time"
 
 	jww "github.com/spf13/jwalterweatherman"
@@ -292,6 +293,8 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 		return a, nil
 	case []string:
 		return v, nil
+	case string:
+		return strings.Split(v, " "), nil
 	default:
 		return a, fmt.Errorf("Unable to Cast %#v to []string", i)
 	}
