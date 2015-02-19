@@ -17,6 +17,11 @@ func ToTime(i interface{}) time.Time {
 	return v
 }
 
+func ToDuration(i interface{}) time.Duration {
+	v, _ := ToDurationE(i)
+	return v
+}
+
 func ToFloat64(i interface{}) float64 {
 	v, _ := ToFloat64E(i)
 	return v
