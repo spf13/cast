@@ -318,6 +318,26 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 	return a, fmt.Errorf("Unable to Cast %#v to []string", i)
 }
 
+func ToIntSliceE(i interface{}) ([]int, error) {
+	jww.DEBUG.Println("ToIntSliceE called on type:", reflect.TypeOf(i))
+
+	var a []int
+
+	switch v := i.(type) {
+	case []interface{}:
+		for _, u := range v {
+			a = append(a, ToInt(u))
+		}
+		return a, nil
+	case []int:
+		return v, nil
+	default:
+		return a, fmt.Errorf("Unable to Cast %#v to []int", i)
+	}
+
+	return a, fmt.Errorf("Unable to Cast %#v to []int", i)
+}
+
 func StringToDate(s string) (time.Time, error) {
 	return parseDateWith(s, []string{
 		time.RFC3339,
