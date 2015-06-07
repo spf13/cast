@@ -194,6 +194,8 @@ func ToStringE(i interface{}) (string, error) {
 		return string(s), nil
 	case template.HTML:
 		return string(s), nil
+	case template.URL:
+		return string(s), nil
 	case nil:
 		return "", nil
 	case fmt.Stringer:
