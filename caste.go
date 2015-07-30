@@ -229,6 +229,45 @@ func ToStringMapStringE(i interface{}) (map[string]string, error) {
 	return m, fmt.Errorf("Unable to Cast %#v to map[string]string", i)
 }
 
+func ToStringMapStringSliceE(i interface{}) (map[string][]string, error) {
+	jww.DEBUG.Println("ToStringMapStringSliceE called on type:", reflect.TypeOf(i))
+
+	var m = map[string][]string{}
+
+	switch v := i.(type) {
+	case map[interface{}]interface{}:
+		for k, val := range v {
+			m[ToString(k)] = ToStringSlice(val)
+		}
+		return m, nil
+	case map[interface{}][]interface{}:
+		for k, val := range v {
+			m[ToString(k)] = ToStringSlice(val)
+		}
+		return m, nil
+	case map[string][]interface{}:
+		for k, val := range v {
+			m[ToString(k)] = ToStringSlice(val)
+		}
+		return m, nil
+	case map[string]interface{}:
+		for k, val := range v {
+			m[ToString(k)] = []string{ToString(val)}
+		}
+		return m, nil
+	case map[string][]string:
+		return v, nil
+	case map[string]string:
+		for k, val := range v {
+			m[ToString(k)] = []string{val}
+		}
+	default:
+		fmt.Printf("unexpected type %T", v)
+		return m, fmt.Errorf("Unable to Cast %#v to map[string][]string", i)
+	}
+	return m, fmt.Errorf("Unable to Cast %#v to map[string][]string", i)
+}
+
 func ToStringMapBoolE(i interface{}) (map[string]bool, error) {
 	jww.DEBUG.Println("ToStringMapBoolE called on type:", reflect.TypeOf(i))
 
