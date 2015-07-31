@@ -6,7 +6,6 @@
 package cast
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
 	"reflect"
@@ -17,6 +16,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
+// ToTimeE casts an empty interface to time.Time.
 func ToTimeE(i interface{}) (tim time.Time, err error) {
 	i = indirect(i)
 	jww.DEBUG.Println("ToTimeE called on type:", reflect.TypeOf(i))
@@ -35,6 +35,7 @@ func ToTimeE(i interface{}) (tim time.Time, err error) {
 	}
 }
 
+// ToDurationE casts an empty interface to time.Duration.
 func ToDurationE(i interface{}) (d time.Duration, err error) {
 	i = indirect(i)
 	jww.DEBUG.Println("ToDurationE called on type:", reflect.TypeOf(i))
@@ -51,6 +52,7 @@ func ToDurationE(i interface{}) (d time.Duration, err error) {
 	}
 }
 
+// ToBoolE casts an empty interface to a bool.
 func ToBoolE(i interface{}) (bool, error) {
 	i = indirect(i)
 	jww.DEBUG.Println("ToBoolE called on type:", reflect.TypeOf(i))
@@ -72,6 +74,7 @@ func ToBoolE(i interface{}) (bool, error) {
 	}
 }
 
+// ToFloat64E casts an empty interface to a float64.
 func ToFloat64E(i interface{}) (float64, error) {
 	i = indirect(i)
 	jww.DEBUG.Println("ToFloat64E called on type:", reflect.TypeOf(i))
@@ -95,14 +98,14 @@ func ToFloat64E(i interface{}) (float64, error) {
 		v, err := strconv.ParseFloat(s, 64)
 		if err == nil {
 			return float64(v), nil
-		} else {
-			return 0.0, fmt.Errorf("Unable to Cast %#v to float", i)
 		}
+		return 0.0, fmt.Errorf("Unable to Cast %#v to float", i)
 	default:
 		return 0.0, fmt.Errorf("Unable to Cast %#v to float", i)
 	}
 }
 
+// ToIntE casts an empty interface to an int.
 func ToIntE(i interface{}) (int, error) {
 	i = indirect(i)
 	jww.DEBUG.Println("ToIntE called on type:", reflect.TypeOf(i))
@@ -122,17 +125,15 @@ func ToIntE(i interface{}) (int, error) {
 		v, err := strconv.ParseInt(s, 0, 0)
 		if err == nil {
 			return int(v), nil
-		} else {
-			return 0, fmt.Errorf("Unable to Cast %#v to int", i)
 		}
+		return 0, fmt.Errorf("Unable to Cast %#v to int", i)
 	case float64:
 		return int(s), nil
 	case bool:
 		if bool(s) {
 			return 1, nil
-		} else {
-			return 0, nil
 		}
+		return 0, nil
 	case nil:
 		return 0, nil
 	default:
@@ -179,6 +180,7 @@ func indirectToStringerOrError(a interface{}) interface{} {
 	return v.Interface()
 }
 
+// ToStringE casts an empty interface to a string.
 func ToStringE(i interface{}) (string, error) {
 	i = indirectToStringerOrError(i)
 	jww.DEBUG.Println("ToStringE called on type:", reflect.TypeOf(i))
@@ -207,6 +209,7 @@ func ToStringE(i interface{}) (string, error) {
 	}
 }
 
+// ToStringMapStringE casts an empty interface to a map[string]string.
 func ToStringMapStringE(i interface{}) (map[string]string, error) {
 	jww.DEBUG.Println("ToStringMapStringE called on type:", reflect.TypeOf(i))
 
@@ -233,9 +236,9 @@ func ToStringMapStringE(i interface{}) (map[string]string, error) {
 	default:
 		return m, fmt.Errorf("Unable to Cast %#v to map[string]string", i)
 	}
-	return m, fmt.Errorf("Unable to Cast %#v to map[string]string", i)
 }
 
+// ToStringMapStringSliceE casts an empty interface to a map[string][]string.
 func ToStringMapStringSliceE(i interface{}) (map[string][]string, error) {
 	jww.DEBUG.Println("ToStringMapStringSliceE called on type:", reflect.TypeOf(i))
 
@@ -285,10 +288,13 @@ func ToStringMapStringSliceE(i interface{}) (map[string][]string, error) {
 			}
 			m[key] = value
 		}
+	default:
+		return m, fmt.Errorf("Unable to Cast %#v to map[string][]string", i)
 	}
 	return m, nil
 }
 
+// ToStringMapBoolE casts an empty interface to a map[string]bool.
 func ToStringMapBoolE(i interface{}) (map[string]bool, error) {
 	jww.DEBUG.Println("ToStringMapBoolE called on type:", reflect.TypeOf(i))
 
@@ -310,9 +316,9 @@ func ToStringMapBoolE(i interface{}) (map[string]bool, error) {
 	default:
 		return m, fmt.Errorf("Unable to Cast %#v to map[string]bool", i)
 	}
-	return m, fmt.Errorf("Unable to Cast %#v to map[string]bool", i)
 }
 
+// ToStringMapE casts an empty interface to a map[string]interface{}.
 func ToStringMapE(i interface{}) (map[string]interface{}, error) {
 	jww.DEBUG.Println("ToStringMapE called on type:", reflect.TypeOf(i))
 
@@ -329,10 +335,9 @@ func ToStringMapE(i interface{}) (map[string]interface{}, error) {
 	default:
 		return m, fmt.Errorf("Unable to Cast %#v to map[string]interface{}", i)
 	}
-
-	return m, fmt.Errorf("Unable to Cast %#v to map[string]interface{}", i)
 }
 
+// ToSliceE casts an empty interface to a []interface{}.
 func ToSliceE(i interface{}) ([]interface{}, error) {
 	jww.DEBUG.Println("ToSliceE called on type:", reflect.TypeOf(i))
 
@@ -352,10 +357,9 @@ func ToSliceE(i interface{}) ([]interface{}, error) {
 	default:
 		return s, fmt.Errorf("Unable to Cast %#v of type %v to []interface{}", i, reflect.TypeOf(i))
 	}
-
-	return s, fmt.Errorf("Unable to Cast %#v to []interface{}", i)
 }
 
+// ToStringSliceE casts an empty interface to a []string.
 func ToStringSliceE(i interface{}) ([]string, error) {
 	jww.DEBUG.Println("ToStringSliceE called on type:", reflect.TypeOf(i))
 
@@ -371,17 +375,18 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 		return v, nil
 	case string:
 		return strings.Fields(v), nil
-	default:
+	case interface{}:
 		str, err := ToStringE(v)
 		if err != nil {
 			return a, fmt.Errorf("Unable to Cast %#v to []string", i)
 		}
 		return []string{str}, nil
+	default:
+		return a, fmt.Errorf("Unable to Cast %#v to []string", i)
 	}
-
-	return a, fmt.Errorf("Unable to Cast %#v to []string", i)
 }
 
+// ToIntSliceE casts an empty interface to a []int.
 func ToIntSliceE(i interface{}) ([]int, error) {
 	jww.DEBUG.Println("ToIntSliceE called on type:", reflect.TypeOf(i))
 
@@ -410,10 +415,9 @@ func ToIntSliceE(i interface{}) ([]int, error) {
 	default:
 		return []int{}, fmt.Errorf("Unable to Cast %#v to []int", i)
 	}
-
-	return []int{}, fmt.Errorf("Unable to Cast %#v to []int", i)
 }
 
+// StringToDate casts an empty interface to a time.Time.
 func StringToDate(s string) (time.Time, error) {
 	return parseDateWith(s, []string{
 		time.RFC3339,
@@ -438,5 +442,5 @@ func parseDateWith(s string, dates []string) (d time.Time, e error) {
 			return
 		}
 	}
-	return d, errors.New(fmt.Sprintf("Unable to parse date: %s", s))
+	return d, fmt.Errorf("Unable to parse date: %s", s)
 }
