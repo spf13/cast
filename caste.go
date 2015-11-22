@@ -43,6 +43,12 @@ func ToDurationE(i interface{}) (d time.Duration, err error) {
 	switch s := i.(type) {
 	case time.Duration:
 		return s, nil
+	case int64:
+		d = time.Duration(s)
+		return
+	case float64:
+		d = time.Duration(s)
+		return
 	case string:
 		d, err = time.ParseDuration(s)
 		return
