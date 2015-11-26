@@ -40,6 +40,8 @@ func TestToString(t *testing.T) {
 	assert.Equal(t, ToString(template.URL("http://somehost.foo")), "http://somehost.foo")
 	assert.Equal(t, ToString(foo), "one more time")
 	assert.Equal(t, ToString(nil), "")
+	assert.Equal(t, ToString(true), "true")
+	assert.Equal(t, ToString(false), "false")
 }
 
 type foo struct {
