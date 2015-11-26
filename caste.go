@@ -188,6 +188,8 @@ func ToStringE(i interface{}) (string, error) {
 	switch s := i.(type) {
 	case string:
 		return s, nil
+	case bool:
+		return strconv.FormatBool(s), nil
 	case float64:
 		return strconv.FormatFloat(i.(float64), 'f', -1, 64), nil
 	case int:
