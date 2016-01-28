@@ -34,6 +34,7 @@ func TestToFloat64(t *testing.T) {
 func TestToString(t *testing.T) {
 	var foo interface{} = "one more time"
 	assert.Equal(t, ToString(8), "8")
+	assert.Equal(t, ToString(int64(16)), "16")
 	assert.Equal(t, ToString(8.12), "8.12")
 	assert.Equal(t, ToString([]byte("one time")), "one time")
 	assert.Equal(t, ToString(template.HTML("one time")), "one time")
