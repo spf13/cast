@@ -18,6 +18,13 @@ import (
 
 // ToTimeE casts an empty interface to time.Time.
 func ToTimeE(i interface{}) (tim time.Time, err error) {
+	return ToTimeInDefaultLocationE(i, time.UTC)
+}
+
+// ToTimeInDefaultLocationE casts an empty interface to time.Time,
+// interpreting inputs without a timezone to be in the given location,
+// or the local timezone if nil.
+func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.Time, err error) {
 	i = indirect(i)
 	jww.DEBUG.Println("ToTimeE called on type:", reflect.TypeOf(i))
 
@@ -25,7 +32,7 @@ func ToTimeE(i interface{}) (tim time.Time, err error) {
 	case time.Time:
 		return s, nil
 	case string:
-		d, e := StringToDate(s)
+		d, e := StringToDateInDefaultLocation(s, location)
 		if e == nil {
 			return d, nil
 		}
@@ -471,28 +478,57 @@ func ToIntSliceE(i interface{}) ([]int, error) {
 
 // StringToDate casts an empty interface to a time.Time.
 func StringToDate(s string) (time.Time, error) {
-	return parseDateWith(s, []string{
-		time.RFC3339,
-		"2006-01-02T15:04:05", // iso8601 without timezone
-		time.RFC1123Z,
-		time.RFC1123,
-		time.RFC822Z,
-		time.RFC822,
-		time.ANSIC,
-		time.UnixDate,
-		time.RubyDate,
-		"2006-01-02 15:04:05Z07:00",
-		"02 Jan 06 15:04 MST",
-		"2006-01-02",
-		"02 Jan 2006",
-		"2006-01-02 15:04:05 -07:00",
-		"2006-01-02 15:04:05 -0700",
-	})
+	return StringToDateInDefaultLocation(s, time.UTC)
 }
 
-func parseDateWith(s string, dates []string) (d time.Time, e error) {
-	for _, dateType := range dates {
-		if d, e = time.Parse(dateType, s); e == nil {
+// StringToDateInDefaultLocation casts an empty interface to a time.Time,
+// interpreting inputs without a timezone to be in the given location,
+// or the local timezone if nil.
+func StringToDateInDefaultLocation(s string, location *time.Location) (time.Time, error) {
+	if location == nil {
+		location = time.Local
+	}
+	return parseDateWith(s, location, timeFormats)
+}
+
+type timeFormat struct {
+	format      string
+	hasTimezone bool
+}
+
+var (
+	timeFormats = []timeFormat{
+		timeFormat{time.RFC3339, true},
+		timeFormat{"2006-01-02T15:04:05", false}, // iso8601 without timezone
+		timeFormat{time.RFC1123Z, true},
+		timeFormat{time.RFC1123, false},
+		timeFormat{time.RFC822Z, true},
+		timeFormat{time.RFC822, false},
+		timeFormat{time.ANSIC, false},
+		timeFormat{time.UnixDate, false},
+		timeFormat{time.RubyDate, true},
+		timeFormat{"2006-01-02 15:04:05Z07:00", true},
+		timeFormat{"02 Jan 06 15:04 MST", false},
+		timeFormat{"2006-01-02", false},
+		timeFormat{"02 Jan 2006", false},
+		timeFormat{"2006-01-02 15:04:05 -07:00", true},
+		timeFormat{"2006-01-02 15:04:05 -0700", true},
+	}
+)
+
+func parseDateWith(s string, defaultLocation *time.Location, formats []timeFormat) (d time.Time, e error) {
+	for _, format := range formats {
+		if d, e = time.Parse(format.format, s); e == nil {
+
+			// Some time formats have a zone name, but no offset, so it gets
+			// put in that zone name (not the default one passed in to us), but
+			// without that zone's offset. So set the location manually.
+			if !format.hasTimezone && defaultLocation != nil {
+				year, month, day := d.Date()
+				hour, min, sec := d.Clock()
+				d = time.Date(year, month, day, hour, min, sec, d.Nanosecond(), defaultLocation)
+			}
+
 			return
 		}
 	}
