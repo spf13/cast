@@ -108,6 +108,9 @@ func TestMaps(t *testing.T) {
 	var stringMapStringSliceMultiple = map[string][]string{"key 1": []string{"value 1", "value 2", "value 3"}, "key 2": []string{"value 1", "value 2", "value 3"}, "key 3": []string{"value 1", "value 2", "value 3"}}
 	var stringMapStringSliceSingle = map[string][]string{"key 1": []string{"value 1"}, "key 2": []string{"value 2"}, "key 3": []string{"value 3"}}
 
+	var stringMapInterface1 = map[string]interface{}{"key 1": []string{"value 1"}, "key 2": []string{"value 2"}}
+	var stringMapInterfaceResult1 = map[string][]string{"key 1": []string{"value 1"}, "key 2": []string{"value 2"}}
+
 	assert.Equal(t, ToStringMap(taxonomies), map[string]interface{}{"tag": "tags", "group": "groups"})
 	assert.Equal(t, ToStringMapBool(stringMapBool), map[string]bool{"v1": true, "v2": false})
 
@@ -128,6 +131,7 @@ func TestMaps(t *testing.T) {
 	assert.Equal(t, ToStringMapStringSlice(interfaceMapInterfaceSlice), stringMapStringSlice)
 	assert.Equal(t, ToStringMapStringSlice(interfaceMapString), stringMapStringSingleSliceFieldsResult)
 	assert.Equal(t, ToStringMapStringSlice(interfaceMapInterface), stringMapStringSingleSliceFieldsResult)
+	assert.Equal(t, ToStringMapStringSlice(stringMapInterface1), stringMapInterfaceResult1)
 }
 
 func TestSlices(t *testing.T) {
