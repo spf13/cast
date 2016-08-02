@@ -310,7 +310,11 @@ func ToStringMapStringSliceE(i interface{}) (map[string][]string, error) {
 		}
 	case map[string]interface{}:
 		for k, val := range v {
-			m[ToString(k)] = []string{ToString(val)}
+			if reflect.TypeOf(val).Kind() == reflect.Slice {
+				m[ToString(k)] = ToStringSlice(val)
+			} else {
+				m[ToString(k)] = []string{ToString(val)}
+			}
 		}
 		return m, nil
 	case map[interface{}][]string:
