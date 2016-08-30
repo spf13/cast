@@ -469,6 +469,37 @@ func ToIntSliceE(i interface{}) ([]int, error) {
 	}
 }
 
+// ToIntSliceE casts an empty interface to a []int.
+func ToInt64SliceE(i interface{}) ([]int64, error) {
+	jww.TRACE.Println("ToInt64SliceE called on type:", reflect.TypeOf(i))
+
+	if i == nil {
+		return []int64{}, fmt.Errorf("Unable to Cast %#v to []int", i)
+	}
+
+	switch v := i.(type) {
+	case []int64:
+		return v, nil
+	}
+
+	kind := reflect.TypeOf(i).Kind()
+	switch kind {
+	case reflect.Slice, reflect.Array:
+		s := reflect.ValueOf(i)
+		a := make([]int64, s.Len())
+		for j := 0; j < s.Len(); j++ {
+			val, err := ToInt64E(s.Index(j).Interface())
+			if err != nil {
+				return []int64{}, fmt.Errorf("Unable to Cast %#v to []int64", i)
+			}
+			a[j] = val
+		}
+		return a, nil
+	default:
+		return []int64{}, fmt.Errorf("Unable to Cast %#v to []int64", i)
+	}
+}
+
 // StringToDate casts an empty interface to a time.Time.
 func StringToDate(s string) (time.Time, error) {
 	return parseDateWith(s, []string{

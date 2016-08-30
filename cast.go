@@ -76,3 +76,8 @@ func ToIntSlice(i interface{}) []int {
 	v, _ := ToIntSliceE(i)
 	return v
 }
+
+func ToInt64Slice(i interface{}) []int64 {
+	v, _ := ToInt64SliceE(i)
+	return v
+}

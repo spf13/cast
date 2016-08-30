@@ -137,6 +137,13 @@ func TestSlices(t *testing.T) {
 	assert.Equal(t, []int{1, 3}, ToIntSlice([]interface{}{1.2, 3.2}))
 	assert.Equal(t, []int{2, 3}, ToIntSlice([]string{"2", "3"}))
 	assert.Equal(t, []int{2, 3}, ToIntSlice([2]string{"2", "3"}))
+
+	// ToInt64Slice tests
+	assert.Equal(t, []int64{1, 3}, ToInt64Slice([]int{1, 3}))
+	assert.Equal(t, []int64{1, 3}, ToInt64Slice([]interface{}{1.2, 3.2}))
+	assert.Equal(t, []int64{2, 3}, ToInt64Slice([]string{"2", "3"}))
+	assert.Equal(t, []int64{2, 3}, ToInt64Slice([2]string{"2", "3"}))
+	assert.Equal(t, []int64{2000000, 392233724}, ToInt64Slice([2]string{"2000000", "392233724"}))
 }
 
 func TestToBool(t *testing.T) {
