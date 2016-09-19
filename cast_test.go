@@ -141,6 +141,10 @@ func TestSlices(t *testing.T) {
 	assert.Equal(t, []int{1, 3}, ToIntSlice([]interface{}{1.2, 3.2}))
 	assert.Equal(t, []int{2, 3}, ToIntSlice([]string{"2", "3"}))
 	assert.Equal(t, []int{2, 3}, ToIntSlice([2]string{"2", "3"}))
+	assert.Equal(t, []bool{true, false, true}, ToBoolSlice([]bool{true, false, true}))
+	assert.Equal(t, []bool{true, false, true}, ToBoolSlice([]interface{}{true, false, true}))
+	assert.Equal(t, []bool{true, false, true}, ToBoolSlice([]int{1,0,1}))
+	assert.Equal(t, []bool{true, false, true}, ToBoolSlice([]string{"true","false","true"}))
 }
 
 func TestToBool(t *testing.T) {
