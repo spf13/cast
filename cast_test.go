@@ -174,10 +174,29 @@ func TestIndirectPointers(t *testing.T) {
 }
 
 func TestToDuration(t *testing.T) {
-	a := time.Second * 5
-	ai := int64(a)
-	b := time.Second * 5
-	bf := float64(b)
-	assert.Equal(t, ToDuration(ai), a)
-	assert.Equal(t, ToDuration(bf), b)
+	var td time.Duration = 5
+	tests := []struct {
+		input    interface{}
+		expected time.Duration
+	}{
+		{time.Duration(5), td},
+		{int64(5), td},
+		{int32(5), td},
+		{int16(5), td},
+		{int8(5), td},
+		{int(5), td},
+		{float64(5), td},
+		{float32(5), td},
+		{string("5"), td},
+		{string("5ns"), td},
+		{string("5us"), time.Microsecond * td},
+		{string("5µs"), time.Microsecond * td},
+		{string("5ms"), time.Millisecond * td},
+		{string("5s"), time.Second * td},
+		{string("5m"), time.Minute * td},
+		{string("5h"), time.Hour * td},
+	}
+	for _, v := range tests {
+		assert.Equal(t, v.expected, ToDuration(v.input))
+	}
 }
