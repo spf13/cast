@@ -422,6 +422,38 @@ func ToSliceE(i interface{}) ([]interface{}, error) {
 	}
 }
 
+// ToBoolSliceE casts an empty interface to a []bool.
+func ToBoolSliceE(i interface{}) ([]bool, error) {
+	jww.DEBUG.Println("ToBoolSliceE called on type:", reflect.TypeOf(i))
+
+	if i == nil {
+		return []bool{}, fmt.Errorf("Unable to Cast %#v to []bool", i)
+	}
+
+	switch v := i.(type) {
+	case []bool:
+		return v, nil
+	}
+
+	kind := reflect.TypeOf(i).Kind()
+	switch kind {
+	case reflect.Slice, reflect.Array:
+		s := reflect.ValueOf(i)
+		a := make([]bool, s.Len())
+		for j := 0; j < s.Len(); j++ {
+			val, err := ToBoolE(s.Index(j).Interface())
+			if err != nil {
+				return []bool{}, fmt.Errorf("Unable to Cast %#v to []bool", i)
+			}
+			a[j] = val
+		}
+		return a, nil
+	default:
+		return []bool{}, fmt.Errorf("Unable to Cast %#v to []bool", i)
+	}
+}
+
+
 // ToStringSliceE casts an empty interface to a []string.
 func ToStringSliceE(i interface{}) ([]string, error) {
 	jww.TRACE.Println("ToStringSliceE called on type:", reflect.TypeOf(i))
