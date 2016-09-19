@@ -310,7 +310,12 @@ func ToStringMapStringSliceE(i interface{}) (map[string][]string, error) {
 		}
 	case map[string]interface{}:
 		for k, val := range v {
-			m[ToString(k)] = []string{ToString(val)}
+			switch val.(type) {
+			case []string:
+				m[ToString(k)] = ToStringSlice(val)
+			default:
+				m[ToString(k)] = []string{ToString(val)}
+			}
 		}
 		return m, nil
 	case map[interface{}][]string:
