@@ -143,8 +143,8 @@ func TestSlices(t *testing.T) {
 	assert.Equal(t, []int{2, 3}, ToIntSlice([2]string{"2", "3"}))
 	assert.Equal(t, []bool{true, false, true}, ToBoolSlice([]bool{true, false, true}))
 	assert.Equal(t, []bool{true, false, true}, ToBoolSlice([]interface{}{true, false, true}))
-	assert.Equal(t, []bool{true, false, true}, ToBoolSlice([]int{1,0,1}))
-	assert.Equal(t, []bool{true, false, true}, ToBoolSlice([]string{"true","false","true"}))
+	assert.Equal(t, []bool{true, false, true}, ToBoolSlice([]int{1, 0, 1}))
+	assert.Equal(t, []bool{true, false, true}, ToBoolSlice([]string{"true", "false", "true"}))
 }
 
 func TestToBool(t *testing.T) {
@@ -166,6 +166,14 @@ func TestToBool(t *testing.T) {
 	assert.Equal(t, ToBool(1), true)
 	assert.Equal(t, ToBool(true), true)
 	assert.Equal(t, ToBool(-1), true)
+}
+
+func BenchmarkTooBool(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		if !ToBool(true) {
+			b.Fatal("ToBool returned false")
+		}
+	}
 }
 
 func TestIndirectPointers(t *testing.T) {
