@@ -212,3 +212,9 @@ func TestToDuration(t *testing.T) {
 		assert.Equal(t, v.expected, ToDuration(v.input))
 	}
 }
+
+func TestStringToDate(t *testing.T) {
+	dateString := "2016-12-01 15:05:04"
+	tv, _ := time.Parse("2006-01-02 15:04:05", dateString)
+	assert.Equal(t, ToTime(dateString), tv)
+}
