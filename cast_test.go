@@ -185,6 +185,25 @@ func TestIndirectPointers(t *testing.T) {
 	assert.Equal(t, ToInt(z), 13)
 }
 
+func TestToTimeE(t *testing.T) {
+	cases := []struct {
+		input interface{}
+		want  time.Time
+	}{
+		{"1979-05-27T07:32:00Z", time.Date(1979, 5, 27, 7, 32, 0, 0, time.UTC)},
+		{"2016-03-06 15:28:01", time.Date(2016, 3, 6, 15, 28, 1, 0, time.UTC)},
+		{1472574600, time.Date(2016, 8, 30, 16, 30, 0, 0, time.UTC)},
+		{int(1482597504), time.Date(2016, 12, 24, 16, 38, 24, 0, time.UTC)},
+		{int32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC)},
+	}
+
+	for _, c := range cases {
+		v, err := ToTimeE(c.input)
+		assert.NoError(t, err)
+		assert.Equal(t, v.UTC(), c.want)
+	}
+}
+
 func TestToDuration(t *testing.T) {
 	var td time.Duration = 5
 	tests := []struct {
@@ -211,11 +230,4 @@ func TestToDuration(t *testing.T) {
 	for _, v := range tests {
 		assert.Equal(t, v.expected, ToDuration(v.input))
 	}
-}
-
-func TestStringToDate(t *testing.T) {
-	d := "2016-03-06 15:28:01"
-	format := "2006-01-02 15:04:05"
-	v, _ := time.Parse(format, d)
-	assert.Equal(t, ToTime(d), v)
 }
