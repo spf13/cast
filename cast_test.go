@@ -190,8 +190,27 @@ func TestToTimeE(t *testing.T) {
 		input interface{}
 		want  time.Time
 	}{
-		{"1979-05-27T07:32:00Z", time.Date(1979, 5, 27, 7, 32, 0, 0, time.UTC)},
+		{"2009-11-10 23:00:00 +0000 UTC", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)},   // Time.String()
+		{"Tue Nov 10 23:00:00 2009", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)},        // ANSIC
+		{"Tue Nov 10 23:00:00 UTC 2009", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)},    // UnixDate
+		{"Tue Nov 10 23:00:00 +0000 2009", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)},  // RubyDate
+		{"10 Nov 09 23:00 UTC", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)},             // RFC822
+		{"10 Nov 09 23:00 +0000", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)},           // RFC822Z
+		{"Tuesday, 10-Nov-09 23:00:00 UTC", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)}, // RFC850
+		{"Tue, 10 Nov 2009 23:00:00 UTC", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)},   // RFC1123
+		{"Tue, 10 Nov 2009 23:00:00 +0000", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)}, // RFC1123Z
+		{"2009-11-10T23:00:00Z", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)},            // RFC3339
+		{"2009-11-10T23:00:00Z", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC)},            // RFC3339Nano
+		{"11:00PM", time.Date(0, 1, 1, 23, 0, 0, 0, time.UTC)},                              // Kitchen
+		{"Nov 10 23:00:00", time.Date(0, 11, 10, 23, 0, 0, 0, time.UTC)},                    // Stamp
+		{"Nov 10 23:00:00.000", time.Date(0, 11, 10, 23, 0, 0, 0, time.UTC)},                // StampMilli
+		{"Nov 10 23:00:00.000000", time.Date(0, 11, 10, 23, 0, 0, 0, time.UTC)},             // StampMicro
+		{"Nov 10 23:00:00.000000000", time.Date(0, 11, 10, 23, 0, 0, 0, time.UTC)},          // StampNano
 		{"2016-03-06 15:28:01", time.Date(2016, 3, 6, 15, 28, 1, 0, time.UTC)},
+		{"2016-03-06 15:28:01 -0000", time.Date(2016, 3, 6, 15, 28, 1, 0, time.UTC)},
+		{"2016-03-06 15:28:01 -00:00", time.Date(2016, 3, 6, 15, 28, 1, 0, time.UTC)},
+		{"2006-01-02", time.Date(2006, 1, 2, 0, 0, 0, 0, time.UTC)},
+		{"02 Jan 2006", time.Date(2006, 1, 2, 0, 0, 0, 0, time.UTC)},
 		{1472574600, time.Date(2016, 8, 30, 16, 30, 0, 0, time.UTC)},
 		{int(1482597504), time.Date(2016, 12, 24, 16, 38, 24, 0, time.UTC)},
 		{int32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC)},
