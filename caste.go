@@ -151,6 +151,111 @@ func ToInt64E(i interface{}) (int64, error) {
 	}
 }
 
+// ToInt32E casts an empty interface to an int32.
+func ToInt32E(i interface{}) (int32, error) {
+	i = indirect(i)
+
+	switch s := i.(type) {
+	case int64:
+		return int32(s), nil
+	case int:
+		return int32(s), nil
+	case int32:
+		return s, nil
+	case int16:
+		return int32(s), nil
+	case int8:
+		return int32(s), nil
+	case string:
+		v, err := strconv.ParseInt(s, 0, 0)
+		if err == nil {
+			return int32(v), nil
+		}
+		return 0, fmt.Errorf("Unable to Cast %#v to int32", i)
+	case float64:
+		return int32(s), nil
+	case bool:
+		if bool(s) {
+			return int32(1), nil
+		}
+		return int32(0), nil
+	case nil:
+		return int32(0), nil
+	default:
+		return int32(0), fmt.Errorf("Unable to Cast %#v to int32", i)
+	}
+}
+
+// ToInt16E casts an empty interface to an int16.
+func ToInt16E(i interface{}) (int16, error) {
+	i = indirect(i)
+
+	switch s := i.(type) {
+	case int64:
+		return int16(s), nil
+	case int:
+		return int16(s), nil
+	case int32:
+		return int16(s), nil
+	case int16:
+		return s, nil
+	case int8:
+		return int16(s), nil
+	case string:
+		v, err := strconv.ParseInt(s, 0, 0)
+		if err == nil {
+			return int16(v), nil
+		}
+		return 0, fmt.Errorf("Unable to Cast %#v to int16", i)
+	case float64:
+		return int16(s), nil
+	case bool:
+		if bool(s) {
+			return int16(1), nil
+		}
+		return int16(0), nil
+	case nil:
+		return int16(0), nil
+	default:
+		return int16(0), fmt.Errorf("Unable to Cast %#v to int16", i)
+	}
+}
+
+// ToInt8E casts an empty interface to an int8.
+func ToInt8E(i interface{}) (int8, error) {
+	i = indirect(i)
+
+	switch s := i.(type) {
+	case int64:
+		return int8(s), nil
+	case int:
+		return int8(s), nil
+	case int32:
+		return int8(s), nil
+	case int16:
+		return int8(s), nil
+	case int8:
+		return s, nil
+	case string:
+		v, err := strconv.ParseInt(s, 0, 0)
+		if err == nil {
+			return int8(v), nil
+		}
+		return 0, fmt.Errorf("Unable to Cast %#v to int8", i)
+	case float64:
+		return int8(s), nil
+	case bool:
+		if bool(s) {
+			return int8(1), nil
+		}
+		return int8(0), nil
+	case nil:
+		return int8(0), nil
+	default:
+		return int8(0), fmt.Errorf("Unable to Cast %#v to int8", i)
+	}
+}
+
 // ToIntE casts an empty interface to an int.
 func ToIntE(i interface{}) (int, error) {
 	i = indirect(i)
