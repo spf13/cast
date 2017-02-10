@@ -32,6 +32,21 @@ func ToInt64(i interface{}) int64 {
 	return v
 }
 
+func ToInt32(i interface{}) int32 {
+	v, _ := ToInt32E(i)
+	return v
+}
+
+func ToInt16(i interface{}) int16 {
+	v, _ := ToInt16E(i)
+	return v
+}
+
+func ToInt8(i interface{}) int8 {
+	v, _ := ToInt8E(i)
+	return v
+}
+
 func ToInt(i interface{}) int {
 	v, _ := ToIntE(i)
 	return v

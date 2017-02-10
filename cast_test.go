@@ -34,6 +34,39 @@ func TestToInt64(t *testing.T) {
 	assert.Equal(t, ToInt64(eight), int64(8))
 }
 
+func TestToInt32(t *testing.T) {
+	var eight interface{} = 8
+	assert.Equal(t, ToInt32(int32(8)), int32(8))
+	assert.Equal(t, ToInt32(8), int32(8))
+	assert.Equal(t, ToInt32(8.31), int32(8))
+	assert.Equal(t, ToInt32("8"), int32(8))
+	assert.Equal(t, ToInt32(true), int32(1))
+	assert.Equal(t, ToInt32(false), int32(0))
+	assert.Equal(t, ToInt32(eight), int32(8))
+}
+
+func TestToInt16(t *testing.T) {
+	var eight interface{} = 8
+	assert.Equal(t, ToInt16(int16(8)), int16(8))
+	assert.Equal(t, ToInt16(8), int16(8))
+	assert.Equal(t, ToInt16(8.31), int16(8))
+	assert.Equal(t, ToInt16("8"), int16(8))
+	assert.Equal(t, ToInt16(true), int16(1))
+	assert.Equal(t, ToInt16(false), int16(0))
+	assert.Equal(t, ToInt16(eight), int16(8))
+}
+
+func TestToInt8(t *testing.T) {
+	var eight interface{} = 8
+	assert.Equal(t, ToInt8(int8(8)), int8(8))
+	assert.Equal(t, ToInt8(8), int8(8))
+	assert.Equal(t, ToInt8(8.31), int8(8))
+	assert.Equal(t, ToInt8("8"), int8(8))
+	assert.Equal(t, ToInt8(true), int8(1))
+	assert.Equal(t, ToInt8(false), int8(0))
+	assert.Equal(t, ToInt8(eight), int8(8))
+}
+
 func TestToFloat64(t *testing.T) {
 	var eight interface{} = 8
 	assert.Equal(t, ToFloat64(8), 8.00)
