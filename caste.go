@@ -519,6 +519,7 @@ func StringToDate(s string) (time.Time, error) {
 		"02 Jan 2006",
 		"2006-01-02 15:04:05 -07:00",
 		"2006-01-02 15:04:05 -0700",
+		"2006-01-02 15:04:05Z07:00", // RFC3339 without T
 		"2006-01-02 15:04:05",
 		time.Kitchen,
 		time.Stamp,
