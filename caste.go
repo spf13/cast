@@ -340,11 +340,11 @@ func ToStringE(i interface{}) (string, error) {
 	case bool:
 		return strconv.FormatBool(s), nil
 	case float64:
-		return strconv.FormatFloat(i.(float64), 'f', -1, 64), nil
+		return strconv.FormatFloat(s, 'f', -1, 64), nil
 	case int64:
-		return strconv.FormatInt(i.(int64), 10), nil
+		return strconv.FormatInt(s, 10), nil
 	case int:
-		return strconv.FormatInt(int64(i.(int)), 10), nil
+		return strconv.Itoa(s), nil
 	case []byte:
 		return string(s), nil
 	case template.HTML:
@@ -506,10 +506,7 @@ func ToSliceE(i interface{}) ([]interface{}, error) {
 
 	switch v := i.(type) {
 	case []interface{}:
-		for _, u := range v {
-			s = append(s, u)
-		}
-		return s, nil
+		return append(s, v...), nil
 	case []map[string]interface{}:
 		for _, u := range v {
 			s = append(s, u)
