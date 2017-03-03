@@ -1,5 +1,7 @@
 cast
 ====
+[![GoDoc](https://godoc.org/github.com/spf13/cast?status.svg)](https://godoc.org/github.com/spf13/cast)
+[![Go Report Card](https://goreportcard.com/badge/github.com/spf13/cast)](https://goreportcard.com/report/github.com/spf13/cast)
 
 Easy and safe casting from one type to another in Go
 
