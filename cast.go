@@ -32,6 +32,12 @@ func ToFloat64(i interface{}) float64 {
 	return v
 }
 
+// ToFloat32 casts an interface to a float32 type.
+func ToFloat32(i interface{}) float32 {
+	v, _ := ToFloat32E(i)
+	return v
+}
+
 // ToInt64 casts an interface to an int64 type.
 func ToInt64(i interface{}) int64 {
 	v, _ := ToInt64E(i)
@@ -59,6 +65,36 @@ func ToInt8(i interface{}) int8 {
 // ToInt casts an interface to an int type.
 func ToInt(i interface{}) int {
 	v, _ := ToIntE(i)
+	return v
+}
+
+// ToUint casts an interface to a uint type.
+func ToUint(i interface{}) uint {
+	v, _ := ToUintE(i)
+	return v
+}
+
+// ToUint64 casts an interface to a uint64 type.
+func ToUint64(i interface{}) uint64 {
+	v, _ := ToUint64E(i)
+	return v
+}
+
+// ToUint32 casts an interface to a uint32 type.
+func ToUint32(i interface{}) uint32 {
+	v, _ := ToUint32E(i)
+	return v
+}
+
+// ToUint16 casts an interface to a uint16 type.
+func ToUint16(i interface{}) uint16 {
+	v, _ := ToUint16E(i)
+	return v
+}
+
+// ToUint8 casts an interface to a uint8 type.
+func ToUint8(i interface{}) uint8 {
+	v, _ := ToUint8E(i)
 	return v
 }
 
