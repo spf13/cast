@@ -122,16 +122,16 @@ func ToFloat64E(i interface{}) (float64, error) {
 	case string:
 		v, err := strconv.ParseFloat(s, 64)
 		if err == nil {
-			return float64(v), nil
+			return v, nil
 		}
-		return 0.0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
+		return 0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
 	case bool:
 		if s {
 			return 1, nil
 		}
 		return 0, nil
 	default:
-		return 0.0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
+		return 0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
 	}
 }
 
@@ -216,14 +216,14 @@ func ToInt64E(i interface{}) (int64, error) {
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
 	case bool:
-		if bool(s) {
-			return int64(1), nil
+		if s {
+			return 1, nil
 		}
-		return int64(0), nil
+		return 0, nil
 	case nil:
-		return int64(0), nil
+		return 0, nil
 	default:
-		return int64(0), fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
 	}
 }
 
@@ -263,14 +263,14 @@ func ToInt32E(i interface{}) (int32, error) {
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
 	case bool:
-		if bool(s) {
-			return int32(1), nil
+		if s {
+			return 1, nil
 		}
-		return int32(0), nil
+		return 0, nil
 	case nil:
-		return int32(0), nil
+		return 0, nil
 	default:
-		return int32(0), fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
 	}
 }
 
@@ -310,14 +310,14 @@ func ToInt16E(i interface{}) (int16, error) {
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
 	case bool:
-		if bool(s) {
-			return int16(1), nil
+		if s {
+			return 1, nil
 		}
-		return int16(0), nil
+		return 0, nil
 	case nil:
-		return int16(0), nil
+		return 0, nil
 	default:
-		return int16(0), fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
 	}
 }
 
@@ -357,14 +357,14 @@ func ToInt8E(i interface{}) (int8, error) {
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
 	case bool:
-		if bool(s) {
-			return int8(1), nil
+		if s {
+			return 1, nil
 		}
-		return int8(0), nil
+		return 0, nil
 	case nil:
-		return int8(0), nil
+		return 0, nil
 	default:
-		return int8(0), fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
 	}
 }
 
@@ -404,7 +404,7 @@ func ToIntE(i interface{}) (int, error) {
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
 	case bool:
-		if bool(s) {
+		if s {
 			return 1, nil
 		}
 		return 0, nil
