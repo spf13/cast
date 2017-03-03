@@ -14,6 +14,231 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestToUintE(t *testing.T) {
+	tests := []struct {
+		input  interface{}
+		expect uint
+		iserr  bool
+	}{
+		{int(8), 8, false},
+		{int8(8), 8, false},
+		{int16(8), 8, false},
+		{int32(8), 8, false},
+		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
+		{float64(8.31), 8, false},
+		{true, 1, false},
+		{false, 0, false},
+		{"8", 8, false},
+		{nil, 0, false},
+		// errors
+		{"test", 0, true},
+		{testing.T{}, 0, true},
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToUintE(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test:
+		v = ToUint(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
+func TestToUint64E(t *testing.T) {
+	tests := []struct {
+		input  interface{}
+		expect uint64
+		iserr  bool
+	}{
+		{int(8), 8, false},
+		{int8(8), 8, false},
+		{int16(8), 8, false},
+		{int32(8), 8, false},
+		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
+		{float64(8.31), 8, false},
+		{true, 1, false},
+		{false, 0, false},
+		{"8", 8, false},
+		{nil, 0, false},
+		// errors
+		{"test", 0, true},
+		{testing.T{}, 0, true},
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToUint64E(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test:
+		v = ToUint64(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
+func TestToUint32E(t *testing.T) {
+	tests := []struct {
+		input  interface{}
+		expect uint32
+		iserr  bool
+	}{
+		{int(8), 8, false},
+		{int8(8), 8, false},
+		{int16(8), 8, false},
+		{int32(8), 8, false},
+		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
+		{float64(8.31), 8, false},
+		{true, 1, false},
+		{false, 0, false},
+		{"8", 8, false},
+		{nil, 0, false},
+		// errors
+		{"test", 0, true},
+		{testing.T{}, 0, true},
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToUint32E(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test:
+		v = ToUint32(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
+func TestToUint16E(t *testing.T) {
+	tests := []struct {
+		input  interface{}
+		expect uint16
+		iserr  bool
+	}{
+		{int(8), 8, false},
+		{int8(8), 8, false},
+		{int16(8), 8, false},
+		{int32(8), 8, false},
+		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
+		{float64(8.31), 8, false},
+		{true, 1, false},
+		{false, 0, false},
+		{"8", 8, false},
+		{nil, 0, false},
+		// errors
+		{"test", 0, true},
+		{testing.T{}, 0, true},
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToUint16E(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test
+		v = ToUint16(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
+func TestToUint8E(t *testing.T) {
+	tests := []struct {
+		input  interface{}
+		expect uint8
+		iserr  bool
+	}{
+		{int(8), 8, false},
+		{int8(8), 8, false},
+		{int16(8), 8, false},
+		{int32(8), 8, false},
+		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
+		{float64(8.31), 8, false},
+		{true, 1, false},
+		{false, 0, false},
+		{"8", 8, false},
+		{nil, 0, false},
+		// errors
+		{"test", 0, true},
+		{testing.T{}, 0, true},
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToUint8E(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test
+		v = ToUint8(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
 func TestToIntE(t *testing.T) {
 	tests := []struct {
 		input  interface{}
@@ -25,6 +250,12 @@ func TestToIntE(t *testing.T) {
 		{int16(8), 8, false},
 		{int32(8), 8, false},
 		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
 		{float64(8.31), 8, false},
 		{true, 1, false},
 		{false, 0, false},
@@ -64,6 +295,12 @@ func TestToInt64E(t *testing.T) {
 		{int16(8), 8, false},
 		{int32(8), 8, false},
 		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
 		{float64(8.31), 8, false},
 		{true, 1, false},
 		{false, 0, false},
@@ -103,6 +340,12 @@ func TestToInt32E(t *testing.T) {
 		{int16(8), 8, false},
 		{int32(8), 8, false},
 		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
 		{float64(8.31), 8, false},
 		{true, 1, false},
 		{false, 0, false},
@@ -142,6 +385,12 @@ func TestToInt16E(t *testing.T) {
 		{int16(8), 8, false},
 		{int32(8), 8, false},
 		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
 		{float64(8.31), 8, false},
 		{true, 1, false},
 		{false, 0, false},
@@ -181,6 +430,12 @@ func TestToInt8E(t *testing.T) {
 		{int16(8), 8, false},
 		{int32(8), 8, false},
 		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
 		{float64(8.31), 8, false},
 		{true, 1, false},
 		{false, 0, false},
@@ -220,9 +475,16 @@ func TestToFloat64E(t *testing.T) {
 		{int16(8), 8, false},
 		{int32(8), 8, false},
 		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
 		{float32(8), 8, false},
 		{float64(8.31), 8.31, false},
 		{"8", 8, false},
+		{true, 1, false},
+		{false, 0, false},
 		// errors
 		{"test", 0, true},
 		{testing.T{}, 0, true},
@@ -246,6 +508,50 @@ func TestToFloat64E(t *testing.T) {
 	}
 }
 
+func TestToFloat32E(t *testing.T) {
+	tests := []struct {
+		input  interface{}
+		expect float32
+		iserr  bool
+	}{
+		{int(8), 8, false},
+		{int8(8), 8, false},
+		{int16(8), 8, false},
+		{int32(8), 8, false},
+		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8.31, false},
+		{float64(8.31), 8.31, false},
+		{"8", 8, false},
+		{true, 1, false},
+		{false, 0, false},
+		// errors
+		{"test", 0, true},
+		{testing.T{}, 0, true},
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToFloat32E(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test
+		v = ToFloat32(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
 func TestToStringE(t *testing.T) {
 	type Key struct {
 		k string
@@ -258,7 +564,16 @@ func TestToStringE(t *testing.T) {
 		iserr  bool
 	}{
 		{int(8), "8", false},
+		{int8(8), "8", false},
+		{int16(8), "8", false},
+		{int32(8), "8", false},
 		{int64(8), "8", false},
+		{uint(8), "8", false},
+		{uint8(8), "8", false},
+		{uint16(8), "8", false},
+		{uint32(8), "8", false},
+		{uint64(8), "8", false},
+		{float32(8.31), "8.31", false},
 		{float64(8.31), "8.31", false},
 		{true, "true", false},
 		{false, "false", false},
@@ -716,6 +1031,9 @@ func TestToTimeEE(t *testing.T) {
 		{int(1482597504), time.Date(2016, 12, 24, 16, 38, 24, 0, time.UTC), false},
 		{int64(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{int32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
+		{uint(1482597504), time.Date(2016, 12, 24, 16, 38, 24, 0, time.UTC), false},
+		{uint64(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
+		{uint32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		// errors
 		{"2006", time.Time{}, true},
@@ -754,7 +1072,13 @@ func TestToDurationE(t *testing.T) {
 		{int32(5), td, false},
 		{int16(5), td, false},
 		{int8(5), td, false},
+		{uint(5), td, false},
+		{uint64(5), td, false},
+		{uint32(5), td, false},
+		{uint16(5), td, false},
+		{uint8(5), td, false},
 		{float64(5), td, false},
+		{float32(5), td, false},
 		{string("5"), td, false},
 		{string("5ns"), td, false},
 		{string("5us"), time.Microsecond * td, false},
