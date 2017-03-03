@@ -6,6 +6,7 @@
 package cast
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"reflect"
@@ -13,6 +14,8 @@ import (
 	"strings"
 	"time"
 )
+
+var errNegativeNotAllowed = errors.New("unable to cast negative value")
 
 // ToTimeE casts an interface to a time.Time type.
 func ToTimeE(i interface{}) (tim time.Time, err error) {
@@ -425,27 +428,27 @@ func ToUintE(i interface{}) (uint, error) {
 		return 0, fmt.Errorf("unable to cast %#v to uint: %s", i, err)
 	case int:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint")
+			return 0, errNegativeNotAllowed
 		}
 		return uint(s), nil
 	case int64:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint")
+			return 0, errNegativeNotAllowed
 		}
 		return uint(s), nil
 	case int32:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint")
+			return 0, errNegativeNotAllowed
 		}
 		return uint(s), nil
 	case int16:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint")
+			return 0, errNegativeNotAllowed
 		}
 		return uint(s), nil
 	case int8:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint")
+			return 0, errNegativeNotAllowed
 		}
 		return uint(s), nil
 	case uint:
@@ -460,12 +463,12 @@ func ToUintE(i interface{}) (uint, error) {
 		return uint(s), nil
 	case float64:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint")
+			return 0, errNegativeNotAllowed
 		}
 		return uint(s), nil
 	case float32:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint")
+			return 0, errNegativeNotAllowed
 		}
 		return uint(s), nil
 	case bool:
@@ -493,27 +496,27 @@ func ToUint64E(i interface{}) (uint64, error) {
 		return 0, fmt.Errorf("unable to cast %#v to uint64: %s", i, err)
 	case int:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint64")
+			return 0, errNegativeNotAllowed
 		}
 		return uint64(s), nil
 	case int64:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint64")
+			return 0, errNegativeNotAllowed
 		}
 		return uint64(s), nil
 	case int32:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint64")
+			return 0, errNegativeNotAllowed
 		}
 		return uint64(s), nil
 	case int16:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint64")
+			return 0, errNegativeNotAllowed
 		}
 		return uint64(s), nil
 	case int8:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint64")
+			return 0, errNegativeNotAllowed
 		}
 		return uint64(s), nil
 	case uint:
@@ -528,12 +531,12 @@ func ToUint64E(i interface{}) (uint64, error) {
 		return uint64(s), nil
 	case float32:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint64")
+			return 0, errNegativeNotAllowed
 		}
 		return uint64(s), nil
 	case float64:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint64")
+			return 0, errNegativeNotAllowed
 		}
 		return uint64(s), nil
 	case bool:
@@ -561,27 +564,27 @@ func ToUint32E(i interface{}) (uint32, error) {
 		return 0, fmt.Errorf("unable to cast %#v to uint32: %s", i, err)
 	case int:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint32")
+			return 0, errNegativeNotAllowed
 		}
 		return uint32(s), nil
 	case int64:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint32")
+			return 0, errNegativeNotAllowed
 		}
 		return uint32(s), nil
 	case int32:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint32")
+			return 0, errNegativeNotAllowed
 		}
 		return uint32(s), nil
 	case int16:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint32")
+			return 0, errNegativeNotAllowed
 		}
 		return uint32(s), nil
 	case int8:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint32")
+			return 0, errNegativeNotAllowed
 		}
 		return uint32(s), nil
 	case uint:
@@ -596,12 +599,12 @@ func ToUint32E(i interface{}) (uint32, error) {
 		return uint32(s), nil
 	case float64:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint32")
+			return 0, errNegativeNotAllowed
 		}
 		return uint32(s), nil
 	case float32:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint32")
+			return 0, errNegativeNotAllowed
 		}
 		return uint32(s), nil
 	case bool:
@@ -629,27 +632,27 @@ func ToUint16E(i interface{}) (uint16, error) {
 		return 0, fmt.Errorf("unable to cast %#v to uint16: %s", i, err)
 	case int:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint16")
+			return 0, errNegativeNotAllowed
 		}
 		return uint16(s), nil
 	case int64:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint16")
+			return 0, errNegativeNotAllowed
 		}
 		return uint16(s), nil
 	case int32:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint16")
+			return 0, errNegativeNotAllowed
 		}
 		return uint16(s), nil
 	case int16:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint16")
+			return 0, errNegativeNotAllowed
 		}
 		return uint16(s), nil
 	case int8:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint16")
+			return 0, errNegativeNotAllowed
 		}
 		return uint16(s), nil
 	case uint:
@@ -664,12 +667,12 @@ func ToUint16E(i interface{}) (uint16, error) {
 		return uint16(s), nil
 	case float64:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint16")
+			return 0, errNegativeNotAllowed
 		}
 		return uint16(s), nil
 	case float32:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint16")
+			return 0, errNegativeNotAllowed
 		}
 		return uint16(s), nil
 	case bool:
@@ -697,27 +700,27 @@ func ToUint8E(i interface{}) (uint8, error) {
 		return 0, fmt.Errorf("unable to cast %#v to uint8: %s", i, err)
 	case int:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint8")
+			return 0, errNegativeNotAllowed
 		}
 		return uint8(s), nil
 	case int64:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint8")
+			return 0, errNegativeNotAllowed
 		}
 		return uint8(s), nil
 	case int32:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint8")
+			return 0, errNegativeNotAllowed
 		}
 		return uint8(s), nil
 	case int16:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint8")
+			return 0, errNegativeNotAllowed
 		}
 		return uint8(s), nil
 	case int8:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint8")
+			return 0, errNegativeNotAllowed
 		}
 		return uint8(s), nil
 	case uint:
@@ -732,12 +735,12 @@ func ToUint8E(i interface{}) (uint8, error) {
 		return s, nil
 	case float64:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint8")
+			return 0, errNegativeNotAllowed
 		}
 		return uint8(s), nil
 	case float32:
 		if s < 0 {
-			return 0, fmt.Errorf("unable to cast negative value to uint8")
+			return 0, errNegativeNotAllowed
 		}
 		return uint8(s), nil
 	case bool:
