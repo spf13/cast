@@ -1077,6 +1077,35 @@ func ToIntSliceE(i interface{}) ([]int, error) {
 	}
 }
 
+// ToSliceStringMapString casts an interface to a []map[string]string type.
+func ToSliceStringMapStringE(i interface{}) ([]map[string]string, error) {
+	if i == nil {
+		return []map[string]string{}, fmt.Errorf("unable to cast %#v of type %T to []map[string]string", i, i)
+	}
+
+	switch v := i.(type) {
+	case []map[string]string:
+		return v, nil
+	}
+
+	kind := reflect.TypeOf(i).Kind()
+	switch kind {
+	case reflect.Slice, reflect.Array:
+		s := reflect.ValueOf(i)
+		a := make([]map[string]string, s.Len())
+		for j := 0; j < s.Len(); j++ {
+			val, err := ToStringMapStringE(s.Index(j).Interface())
+			if err != nil {
+				return []map[string]string{}, fmt.Errorf("unable to cast %#v of type %T to []map[string]string", i, i)
+			}
+			a[j] = val
+		}
+		return a, nil
+	default:
+		return []map[string]string{}, fmt.Errorf("unable to cast %#v of type %T to []map[string]string", i, i)
+	}
+}
+
 // StringToDate attempts to parse a string into a time.Time type using a
 // predefined list of formats.  If no suitable format is found, an error is
 // returned.

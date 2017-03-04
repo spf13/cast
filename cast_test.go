@@ -14,6 +14,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type Key struct {
+	k string
+}
+
 func TestToUintE(t *testing.T) {
 	tests := []struct {
 		input  interface{}
@@ -593,9 +597,6 @@ func TestToFloat32E(t *testing.T) {
 }
 
 func TestToStringE(t *testing.T) {
-	type Key struct {
-		k string
-	}
 	key := &Key{"foo"}
 
 	tests := []struct {
@@ -971,6 +972,57 @@ func TestToStringSliceE(t *testing.T) {
 
 		// Non-E test
 		v = ToStringSlice(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
+func TestToSliceStringMapString(t *testing.T) {
+	var sliceStringMapString = []map[string]string{
+		{"key 1": "value 1", "key 2": "value 2"},
+		{"key 3": "value 3", "key 4": "value 4"},
+	}
+	var sliceInterfaceMapString = []map[interface{}]string{
+		{"key 1": "value 1", "key 2": "value 2"},
+		{"key 3": "value 3", "key 4": "value 4"},
+	}
+	var sliceInterfaceMapInterface = []map[interface{}]string{
+		{"key 1": "value 1", "key 2": "value 2"},
+		{"key 3": "value 3", "key 4": "value 4"},
+	}
+	var sliceStringMapInterface = []map[interface{}]string{
+		{"key 1": "value 1", "key 2": "value 2"},
+		{"key 3": "value 3", "key 4": "value 4"},
+	}
+
+	tests := []struct {
+		input  interface{}
+		expect []map[string]string
+		iserr  bool
+	}{
+		{sliceStringMapString, sliceStringMapString, false},
+		{sliceStringMapInterface, sliceStringMapString, false},
+		{sliceInterfaceMapString, sliceStringMapString, false},
+		{sliceInterfaceMapInterface, sliceStringMapString, false},
+		// errors
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]Key{{"foo"}, {"bar"}}, nil, true},
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToSliceStringMapStringE(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test
+		v = ToSliceStringMapString(test.input)
 		assert.Equal(t, test.expect, v, errmsg)
 	}
 }
