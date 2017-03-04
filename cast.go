@@ -151,3 +151,9 @@ func ToIntSlice(i interface{}) []int {
 	v, _ := ToIntSliceE(i)
 	return v
 }
+
+// ToSliceStringMapString casts an interface to a []map[string]string type.
+func ToSliceStringMapString(i interface{}) []map[string]string {
+	v, _ := ToSliceStringMapStringE(i)
+	return v
+}
