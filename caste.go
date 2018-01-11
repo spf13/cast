@@ -977,6 +977,36 @@ func ToStringMapE(i interface{}) (map[string]interface{}, error) {
 	}
 }
 
+// ToStringMapStructE casts an interface to a map[string]struct{} type.
+func ToStringMapStructE(i interface{}) (map[string]struct{}, error) {
+	var m = map[string]struct{}{}
+
+	fmt.Println("type: ", reflect.TypeOf(i))
+	switch v := i.(type) {
+	case map[string]interface{}:
+		for k := range v {
+			m[k] = struct{}{}
+		}
+		return m, nil
+	case []string:
+		fmt.Println("[]string")
+		for _, s := range v {
+			m[s] = struct{}{}
+		}
+		return m, nil
+	case []interface{}:
+		for _, k := range v {
+			m[ToString(k)] = struct{}{}
+		}
+		return m, nil
+	case map[string]struct{}:
+		return v, nil
+	default:
+		fmt.Println("cast err")
+		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]interface{}", i, i)
+	}
+}
+
 // ToSliceE casts an interface to a []interface{} type.
 func ToSliceE(i interface{}) ([]interface{}, error) {
 	var s []interface{}

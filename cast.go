@@ -128,6 +128,12 @@ func ToStringMap(i interface{}) map[string]interface{} {
 	return v
 }
 
+// ToStringMapStruct casts an interface to a map[string]struct{} type.
+func ToStringMapStruct(i interface{}) map[string]struct{} {
+	v, _ := ToStringMapStructE(i)
+	return v
+}
+
 // ToSlice casts an interface to a []interface{} type.
 func ToSlice(i interface{}) []interface{} {
 	v, _ := ToSliceE(i)

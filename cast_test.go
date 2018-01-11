@@ -774,6 +774,38 @@ func TestToStringMapE(t *testing.T) {
 	}
 }
 
+func TestToStringMapStructE(t *testing.T) {
+	tests := []struct {
+		input  interface{}
+		expect map[string]struct{}
+		iserr  bool
+	}{
+		{map[string]interface{}{"v1": true, "v2": false}, map[string]struct{}{"v1": struct{}{}, "v2": struct{}{}}, false},
+		{[]string{"v1", "v2"}, map[string]struct{}{"v1": struct{}{}, "v2": struct{}{}}, false},
+		{[]interface{}{"v1", "v2"}, map[string]struct{}{"v1": struct{}{}, "v2": struct{}{}}, false},
+		{map[string]struct{}{"v1": struct{}{}, "v2": struct{}{}}, map[string]struct{}{"v1": struct{}{}, "v2": struct{}{}}, false},
+		// errors
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+	}
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToStringMapStructE(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test
+		v = ToStringMapStruct(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
 func TestToStringMapBoolE(t *testing.T) {
 	tests := []struct {
 		input  interface{}
