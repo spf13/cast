@@ -1006,9 +1006,12 @@ func TestToDurationSliceE(t *testing.T) {
 		{[]string{"1s", "1m"}, []time.Duration{time.Second, time.Minute}, false},
 		{[]int{1, 2}, []time.Duration{1, 2}, false},
 		{[]interface{}{1, 3}, []time.Duration{1, 3}, false},
+		{[]time.Duration{1, 3}, []time.Duration{1, 3}, false},
+
 		// errors
 		{nil, nil, true},
 		{testing.T{}, nil, true},
+		{[]string{"invalid"}, nil, true},
 	}
 
 	for i, test := range tests {
