@@ -1049,7 +1049,14 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 	case []string:
 		return v, nil
 	case string:
-		return strings.Fields(v), nil
+		slice := strings.Fields(v)
+		// if the string can be splited by white space
+		// return slice immediately
+		if len(slice) > 1 {
+			return slice, nil
+		}
+		// otherwise, try to split string by comma
+		return strings.Split(v, ","), nil
 	case interface{}:
 		str, err := ToStringE(v)
 		if err != nil {
