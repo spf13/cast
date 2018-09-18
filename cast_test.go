@@ -827,7 +827,7 @@ func TestToStringMapStringE(t *testing.T) {
 	var interfaceMapString = map[interface{}]string{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
 	var interfaceMapInterface = map[interface{}]interface{}{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
 	var jsonString = `{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}`
-	var invalidJsonString = `{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"`
+	var invalidJSONString = `{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"`
 	var emptyString = ""
 
 	tests := []struct {
@@ -844,7 +844,7 @@ func TestToStringMapStringE(t *testing.T) {
 		// errors
 		{nil, nil, true},
 		{testing.T{}, nil, true},
-		{invalidJsonString, nil, true},
+		{invalidJSONString, nil, true},
 		{emptyString, nil, true},
 	}
 
@@ -1080,11 +1080,41 @@ func TestToBoolE(t *testing.T) {
 }
 
 func BenchmarkTooBool(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		if !ToBool(true) {
-			b.Fatal("ToBool returned false")
+	b.Run("valid bool(true)", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			if !ToBool(true) {
+				b.Fatal("ToBool returned false")
+			}
 		}
-	}
+	})
+
+	b.Run("valid bool(1)", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			if !ToBool(1) {
+				b.Fatal("ToBool returned false")
+			}
+		}
+	})
+
+	b.Run(`invalid bool("xxx")`, func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			if ToBool("xxx") {
+				b.Fatal("ToBool returned true")
+			}
+		}
+	})
+
+	b.Run(`invalid bool(1.0)`, func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			if ToBool(1.0) {
+				b.Fatal("ToBool returned true")
+			}
+		}
+	})
 }
 
 func TestIndirectPointers(t *testing.T) {
