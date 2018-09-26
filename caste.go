@@ -16,6 +16,8 @@ import (
 	"time"
 )
 
+var TimeLocation = time.UTC
+
 var errNegativeNotAllowed = errors.New("unable to cast negative value")
 
 // ToTimeE casts an interface to a time.Time type.
@@ -1153,7 +1155,7 @@ func StringToDate(s string) (time.Time, error) {
 
 func parseDateWith(s string, dates []string) (d time.Time, e error) {
 	for _, dateType := range dates {
-		if d, e = time.Parse(dateType, s); e == nil {
+		if d, e = time.ParseInLocation(dateType, s, TimeLocation); e == nil {
 			return
 		}
 	}
