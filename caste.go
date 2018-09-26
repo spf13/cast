@@ -18,6 +18,31 @@ import (
 
 var TimeLocation = time.UTC
 
+var ParseDateFormats = []string{
+	time.RFC3339,
+	"2006-01-02T15:04:05", // iso8601 without timezone
+	time.RFC1123Z,
+	time.RFC1123,
+	time.RFC822Z,
+	time.RFC822,
+	time.RFC850,
+	time.ANSIC,
+	time.UnixDate,
+	time.RubyDate,
+	"2006-01-02 15:04:05.999999999 -0700 MST", // Time.String()
+	"2006-01-02",
+	"02 Jan 2006",
+	"2006-01-02 15:04:05 -07:00",
+	"2006-01-02 15:04:05 -0700",
+	"2006-01-02 15:04:05Z07:00", // RFC3339 without T
+	"2006-01-02 15:04:05",
+	time.Kitchen,
+	time.Stamp,
+	time.StampMilli,
+	time.StampMicro,
+	time.StampNano,
+}
+
 var errNegativeNotAllowed = errors.New("unable to cast negative value")
 
 // ToTimeE casts an interface to a time.Time type.
@@ -1127,30 +1152,7 @@ func ToDurationSliceE(i interface{}) ([]time.Duration, error) {
 // predefined list of formats.  If no suitable format is found, an error is
 // returned.
 func StringToDate(s string) (time.Time, error) {
-	return parseDateWith(s, []string{
-		time.RFC3339,
-		"2006-01-02T15:04:05", // iso8601 without timezone
-		time.RFC1123Z,
-		time.RFC1123,
-		time.RFC822Z,
-		time.RFC822,
-		time.RFC850,
-		time.ANSIC,
-		time.UnixDate,
-		time.RubyDate,
-		"2006-01-02 15:04:05.999999999 -0700 MST", // Time.String()
-		"2006-01-02",
-		"02 Jan 2006",
-		"2006-01-02 15:04:05 -07:00",
-		"2006-01-02 15:04:05 -0700",
-		"2006-01-02 15:04:05Z07:00", // RFC3339 without T
-		"2006-01-02 15:04:05",
-		time.Kitchen,
-		time.Stamp,
-		time.StampMilli,
-		time.StampMicro,
-		time.StampNano,
-	})
+	return parseDateWith(s, ParseDateFormats)
 }
 
 func parseDateWith(s string, dates []string) (d time.Time, e error) {
