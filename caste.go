@@ -990,6 +990,188 @@ func ToStringMapE(i interface{}) (map[string]interface{}, error) {
 	}
 }
 
+// ToStringMapIntE casts an interface to a map[string]int{} type.
+func ToStringMapIntE(i interface{}) (map[string]int, error)  {
+	var m = map[string]int{}
+	if i == nil {
+		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
+	}
+
+	switch v := i.(type) {
+	case map[interface{}]interface{}:
+		for k, val := range v {
+			m[ToString(k)] = ToInt(val)
+		}
+		return m, nil
+	case map[string]interface{}:
+		for k, val := range v {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case map[string]int:
+		return v, nil
+	case string:
+		err := jsonStringToObject(v, &m)
+		return m, err
+	}
+
+	if reflect.TypeOf(i).Kind() != reflect.Map {
+		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
+	}
+
+	kind := reflect.TypeOf(i).Elem().Kind()
+	switch kind {
+	case reflect.Int8:
+		for k, val := range i.(map[string]int8) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case reflect.Int16:
+		for k, val := range i.(map[string]int16) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case reflect.Int32:
+		for k, val := range i.(map[string]int32) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case reflect.Int64:
+		for k, val := range i.(map[string]int64) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case reflect.Uint:
+		for k, val := range i.(map[string]uint) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case reflect.Uint8:
+		for k, val := range i.(map[string]uint8) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case reflect.Uint16:
+		for k, val := range i.(map[string]uint16) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case reflect.Uint32:
+		for k, val := range i.(map[string]uint32) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case reflect.Float32:
+		for k, val := range i.(map[string]float32) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case reflect.Float64:
+		for k, val := range i.(map[string]float64) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	case reflect.Bool:
+		for k, val := range i.(map[string]bool) {
+			m[k] = ToInt(val)
+		}
+		return m, nil
+	default:
+		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
+	}
+}
+
+// ToStringMapInt64E casts an interface to a map[string]int64{} type.
+func ToStringMapInt64E(i interface{}) (map[string]int64, error)  {
+	var m = map[string]int64{}
+	if i == nil {
+		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int64", i, i)
+	}
+
+	switch v := i.(type) {
+	case map[interface{}]interface{}:
+		for k, val := range v {
+			m[ToString(k)] = ToInt64(val)
+		}
+		return m, nil
+	case map[string]interface{}:
+		for k, val := range v {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case map[string]int64:
+		return v, nil
+	case string:
+		err := jsonStringToObject(v, &m)
+		return m, err
+	}
+
+	if reflect.TypeOf(i).Kind() != reflect.Map {
+		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
+	}
+
+	kind := reflect.TypeOf(i).Elem().Kind()
+	switch kind {
+	case reflect.Int8:
+		for k, val := range i.(map[string]int8) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case reflect.Int16:
+		for k, val := range i.(map[string]int16) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case reflect.Int32:
+		for k, val := range i.(map[string]int32) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case reflect.Int:
+		for k, val := range i.(map[string]int) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case reflect.Uint:
+		for k, val := range i.(map[string]uint) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case reflect.Uint8:
+		for k, val := range i.(map[string]uint8) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case reflect.Uint16:
+		for k, val := range i.(map[string]uint16) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case reflect.Uint32:
+		for k, val := range i.(map[string]uint32) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case reflect.Float32:
+		for k, val := range i.(map[string]float32) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case reflect.Float64:
+		for k, val := range i.(map[string]float64) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	case reflect.Bool:
+		for k, val := range i.(map[string]bool) {
+			m[k] = ToInt64(val)
+		}
+		return m, nil
+	default:
+		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int64", i, i)
+	}
+}
+
 // ToSliceE casts an interface to a []interface{} type.
 func ToSliceE(i interface{}) ([]interface{}, error) {
 	var s []interface{}
