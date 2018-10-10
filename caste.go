@@ -1107,7 +1107,7 @@ func ToStringMapInt64E(i interface{}) (map[string]int64, error)  {
 	}
 
 	if reflect.TypeOf(i).Kind() != reflect.Map {
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
+		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int64", i, i)
 	}
 
 	kind := reflect.TypeOf(i).Elem().Kind()
