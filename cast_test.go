@@ -872,7 +872,7 @@ func TestToStringMapInt64E(t *testing.T) {
 		{map[string]int32{"v1": int32(33), "v2": int32(88)}, map[string]int64{"v1": 33, "v2": 88}, false},
 		{map[string]uint16{"v1": uint16(33), "v2": uint16(88)}, map[string]int64{"v1": 33, "v2": 88}, false},
 		{map[string]float64{"v1": float64(8.22), "v2": float64(43.32)}, map[string]int64{"v1": 8, "v2": 43}, false},
-			{`{"v1": 67, "v2": 56}`, map[string]int64{"v1": 67, "v2": 56}, false},
+		{`{"v1": 67, "v2": 56}`, map[string]int64{"v1": 67, "v2": 56}, false},
 
 		// errors
 		{nil, nil, true},
