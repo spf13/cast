@@ -1019,66 +1019,16 @@ func ToStringMapIntE(i interface{}) (map[string]int, error)  {
 		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
 	}
 
-	kind := reflect.TypeOf(i).Elem().Kind()
-	switch kind {
-	case reflect.Int8:
-		for k, val := range i.(map[string]int8) {
-			m[k] = ToInt(val)
+	mVal := reflect.ValueOf(m)
+	v := reflect.ValueOf(i)
+	for _, keyVal := range v.MapKeys() {
+		val, err := ToIntE(v.MapIndex(keyVal).Interface())
+		if err != nil {
+			return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
 		}
-		return m, nil
-	case reflect.Int16:
-		for k, val := range i.(map[string]int16) {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	case reflect.Int32:
-		for k, val := range i.(map[string]int32) {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	case reflect.Int64:
-		for k, val := range i.(map[string]int64) {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	case reflect.Uint:
-		for k, val := range i.(map[string]uint) {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	case reflect.Uint8:
-		for k, val := range i.(map[string]uint8) {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	case reflect.Uint16:
-		for k, val := range i.(map[string]uint16) {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	case reflect.Uint32:
-		for k, val := range i.(map[string]uint32) {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	case reflect.Float32:
-		for k, val := range i.(map[string]float32) {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	case reflect.Float64:
-		for k, val := range i.(map[string]float64) {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	case reflect.Bool:
-		for k, val := range i.(map[string]bool) {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	default:
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
+		mVal.SetMapIndex(keyVal, reflect.ValueOf(val))
 	}
+	return m, nil
 }
 
 // ToStringMapInt64E casts an interface to a map[string]int64{} type.
@@ -1109,67 +1059,16 @@ func ToStringMapInt64E(i interface{}) (map[string]int64, error)  {
 	if reflect.TypeOf(i).Kind() != reflect.Map {
 		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int64", i, i)
 	}
-
-	kind := reflect.TypeOf(i).Elem().Kind()
-	switch kind {
-	case reflect.Int8:
-		for k, val := range i.(map[string]int8) {
-			m[k] = ToInt64(val)
+	mVal := reflect.ValueOf(m)
+	v := reflect.ValueOf(i)
+	for _, keyVal := range v.MapKeys() {
+		val, err := ToInt64E(v.MapIndex(keyVal).Interface())
+		if err != nil {
+			return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int64", i, i)
 		}
-		return m, nil
-	case reflect.Int16:
-		for k, val := range i.(map[string]int16) {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	case reflect.Int32:
-		for k, val := range i.(map[string]int32) {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	case reflect.Int:
-		for k, val := range i.(map[string]int) {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	case reflect.Uint:
-		for k, val := range i.(map[string]uint) {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	case reflect.Uint8:
-		for k, val := range i.(map[string]uint8) {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	case reflect.Uint16:
-		for k, val := range i.(map[string]uint16) {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	case reflect.Uint32:
-		for k, val := range i.(map[string]uint32) {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	case reflect.Float32:
-		for k, val := range i.(map[string]float32) {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	case reflect.Float64:
-		for k, val := range i.(map[string]float64) {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	case reflect.Bool:
-		for k, val := range i.(map[string]bool) {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	default:
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int64", i, i)
+		mVal.SetMapIndex(keyVal, reflect.ValueOf(val))
 	}
+	return m, nil
 }
 
 // ToSliceE casts an interface to a []interface{} type.
