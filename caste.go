@@ -991,7 +991,7 @@ func ToStringMapE(i interface{}) (map[string]interface{}, error) {
 }
 
 // ToStringMapIntE casts an interface to a map[string]int{} type.
-func ToStringMapIntE(i interface{}) (map[string]int, error)  {
+func ToStringMapIntE(i interface{}) (map[string]int, error) {
 	var m = map[string]int{}
 	if i == nil {
 		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
@@ -1032,7 +1032,7 @@ func ToStringMapIntE(i interface{}) (map[string]int, error)  {
 }
 
 // ToStringMapInt64E casts an interface to a map[string]int64{} type.
-func ToStringMapInt64E(i interface{}) (map[string]int64, error)  {
+func ToStringMapInt64E(i interface{}) (map[string]int64, error) {
 	var m = map[string]int64{}
 	if i == nil {
 		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int64", i, i)
@@ -1222,7 +1222,7 @@ func StringToDate(s string) (time.Time, error) {
 		"2006-01-02 15:04:05 -07:00",
 		"2006-01-02 15:04:05 -0700",
 		"2006-01-02 15:04:05Z07:00", // RFC3339 without T
-		"2006-01-02 15:04:05Z0700", // RFC3339 without T or timezone hh:mm colon
+		"2006-01-02 15:04:05Z0700",  // RFC3339 without T or timezone hh:mm colon
 		"2006-01-02 15:04:05",
 		time.Kitchen,
 		time.Stamp,
