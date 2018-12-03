@@ -1247,3 +1247,73 @@ func jsonStringToObject(s string, v interface{}) error {
 	data := []byte(s)
 	return json.Unmarshal(data, v)
 }
+
+// StringToSpecificedInterfaceWithError casts string value to given data type
+func StringToSpecificedInterfaceWithError(dataType string, value string) (interface{}, error) {
+	return ToSpecificedInterfaceWithError(dataType, value)
+}
+
+// StringSliceToSpecificedInterfaceWithError casts string slice to given data type
+func StringSliceToSpecificedInterfaceWithError(dataType string, value []string) (interface{}, error) {
+	return ToSpecificedInterfaceWithError(dataType, value)
+}
+
+// ToSpecificedInterfaceWithError casts the interface to given data type
+func ToSpecificedInterfaceWithError(dataType string, i interface{}) (interface{}, error) {
+	switch strings.ToLower(dataType) {
+	case "bool":
+		return ToBoolE(i)
+	case "boolslice", "bool_slice", "[]bool":
+		return ToBoolSliceE(i)
+	case "duration":
+		return ToDurationE(i)
+	case "durationslice", "duration_slice", "[]duration":
+		return ToDurationSliceE(i)
+	case "float32":
+		return ToFloat32E(i)
+	case "float64":
+		return ToFloat64E(i)
+	case "int":
+		return ToIntE(i)
+	case "int8":
+		return ToInt8E(i)
+	case "int16":
+		return ToInt16E(i)
+	case "int32":
+		return ToInt32E(i)
+	case "int64":
+		return ToInt64E(i)
+	case "intslice", "int_slice", "[]int":
+		return ToIntSliceE(i)
+	case "slice":
+		return ToSliceE(i)
+	case "string":
+		return ToStringE(i)
+	case "stringmap", "string_map", "map[string]interface{}":
+		return ToStringMapE(i)
+	case "stringmapbool", "string_map_bool", "map[string]bool":
+		return ToStringMapBoolE(i)
+	case "stringmapint", "string_map_int", "map[string]int":
+		return ToStringMapIntE(i)
+	case "stringmapint64", "string_map_int64", "map[string]int64":
+		return ToStringMapInt64E(i)
+	case "stringmapstring", "string_map_string", "map[string]string":
+		return ToStringMapStringE(i)
+	case "stringmapstringslice", "string_map_string_slice", "map[string][]string":
+		return ToStringMapStringSliceE(i)
+	case "stringslice", "string_slice", "[]string":
+		return ToStringSliceE(i)
+	case "time":
+		return ToTimeE(i)
+	case "uint":
+		return ToUintE(i)
+	case "uint8":
+		return ToUint8E(i)
+	case "uint16":
+		return ToUint16E(i)
+	case "uint32":
+		return ToUint32E(i)
+	default:
+		return nil, fmt.Errorf("unable to cast %#v to %v", i, dataType)
+	}
+}
