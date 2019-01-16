@@ -8,6 +8,7 @@ package cast
 import (
 	"fmt"
 	"html/template"
+	"math"
 	"testing"
 	"time"
 
@@ -44,6 +45,7 @@ func TestToUintE(t *testing.T) {
 		{int64(-8), 0, true},
 		{float32(-8.31), 0, true},
 		{float64(-8.31), 0, true},
+		{math.NaN(), 0, true},
 		{"-8", 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
@@ -97,6 +99,7 @@ func TestToUint64E(t *testing.T) {
 		{int64(-8), 0, true},
 		{float32(-8.31), 0, true},
 		{float64(-8.31), 0, true},
+		{math.NaN(), 0, true},
 		{"-8", 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
@@ -151,6 +154,7 @@ func TestToUint32E(t *testing.T) {
 		{float64(-8.31), 0, true},
 		{"-8", 0, true},
 		// errors
+		{math.NaN(), 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -203,6 +207,7 @@ func TestToUint16E(t *testing.T) {
 		{int64(-8), 0, true},
 		{float32(-8.31), 0, true},
 		{float64(-8.31), 0, true},
+		{math.NaN(), 0, true},
 		{"-8", 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
@@ -256,6 +261,7 @@ func TestToUint8E(t *testing.T) {
 		{int64(-8), 0, true},
 		{float32(-8.31), 0, true},
 		{float64(-8.31), 0, true},
+		{math.NaN(), 0, true},
 		{"-8", 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
@@ -302,6 +308,7 @@ func TestToIntE(t *testing.T) {
 		{"8", 8, false},
 		{nil, 0, false},
 		// errors
+		{math.NaN(), 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -347,6 +354,7 @@ func TestToInt64E(t *testing.T) {
 		{"8", 8, false},
 		{nil, 0, false},
 		// errors
+		{math.NaN(), 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -392,6 +400,7 @@ func TestToInt32E(t *testing.T) {
 		{"8", 8, false},
 		{nil, 0, false},
 		// errors
+		{math.NaN(), 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -437,6 +446,7 @@ func TestToInt16E(t *testing.T) {
 		{"8", 8, false},
 		{nil, 0, false},
 		// errors
+		{math.NaN(), 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -482,6 +492,7 @@ func TestToInt8E(t *testing.T) {
 		{"8", 8, false},
 		{nil, 0, false},
 		// errors
+		{math.NaN(), 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -526,6 +537,7 @@ func TestToFloat64E(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		// errors
+		{math.NaN(), 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -570,6 +582,7 @@ func TestToFloat32E(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		// errors
+		{math.NaN(), 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -626,6 +639,7 @@ func TestToStringE(t *testing.T) {
 		{template.CSS("a"), "a", false},
 		{template.HTMLAttr("a"), "a", false},
 		// errors
+		{math.NaN(), "", true},
 		{testing.T{}, "", true},
 		{key, "", true},
 	}
@@ -725,6 +739,7 @@ func TestStringMapStringSliceE(t *testing.T) {
 		{jsonStringMapStringArray, jsonStringMapStringArrayResult, false},
 
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{map[interface{}]interface{}{"foo": testing.T{}}, nil, true},
@@ -763,6 +778,7 @@ func TestToStringMapE(t *testing.T) {
 		{`{"tag": "tags", "group": true}`, map[string]interface{}{"tag": "tags", "group": true}, false},
 
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{"", nil, true},
@@ -798,6 +814,7 @@ func TestToStringMapBoolE(t *testing.T) {
 		{`{"v1": true, "v2": false}`, map[string]bool{"v1": true, "v2": false}, false},
 
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{"", nil, true},
@@ -836,6 +853,7 @@ func TestToStringMapIntE(t *testing.T) {
 		{`{"v1": 67, "v2": 56}`, map[string]int{"v1": 67, "v2": 56}, false},
 
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{"", nil, true},
@@ -875,6 +893,7 @@ func TestToStringMapInt64E(t *testing.T) {
 		{`{"v1": 67, "v2": 56}`, map[string]int64{"v1": 67, "v2": 56}, false},
 
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{"", nil, true},
@@ -919,6 +938,7 @@ func TestToStringMapStringE(t *testing.T) {
 		{jsonString, stringMapString, false},
 
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{invalidJsonString, nil, true},
@@ -954,6 +974,7 @@ func TestToBoolSliceE(t *testing.T) {
 		{[]int{1, 0, 1}, []bool{true, false, true}, false},
 		{[]string{"true", "false", "true"}, []bool{true, false, true}, false},
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{[]string{"foo", "bar"}, nil, true},
@@ -988,6 +1009,7 @@ func TestToIntSliceE(t *testing.T) {
 		{[]string{"2", "3"}, []int{2, 3}, false},
 		{[2]string{"2", "3"}, []int{2, 3}, false},
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{[]string{"foo", "bar"}, nil, true},
@@ -1020,6 +1042,7 @@ func TestToSliceE(t *testing.T) {
 		{[]interface{}{1, 3}, []interface{}{1, 3}, false},
 		{[]map[string]interface{}{{"k1": 1}, {"k2": 2}}, []interface{}{map[string]interface{}{"k1": 1}, map[string]interface{}{"k2": 2}}, false},
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 	}
@@ -1052,6 +1075,7 @@ func TestToStringSliceE(t *testing.T) {
 		{[]interface{}{1, 3}, []string{"1", "3"}, false},
 		{interface{}(1), []string{"1"}, false},
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 	}
@@ -1086,6 +1110,7 @@ func TestToDurationSliceE(t *testing.T) {
 		{[]time.Duration{1, 3}, []time.Duration{1, 3}, false},
 
 		// errors
+		{math.NaN(), nil, true},
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{[]string{"invalid"}, nil, true},
@@ -1134,6 +1159,7 @@ func TestToBoolE(t *testing.T) {
 		{-1, true, false},
 
 		// errors
+		{math.NaN(), false, true},
 		{"test", false, true},
 		{testing.T{}, false, true},
 	}
@@ -1212,6 +1238,7 @@ func TestToTimeEE(t *testing.T) {
 		{uint32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		// errors
+		{math.NaN(), time.Time{}, true},
 		{"2006", time.Time{}, true},
 		{testing.T{}, time.Time{}, true},
 	}
@@ -1264,6 +1291,7 @@ func TestToDurationE(t *testing.T) {
 		{string("5m"), time.Minute * td, false},
 		{string("5h"), time.Hour * td, false},
 		// errors
+		{math.NaN(), 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}

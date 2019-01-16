@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -54,7 +55,14 @@ func ToDurationE(i interface{}) (d time.Duration, err error) {
 	case int, int64, int32, int16, int8, uint, uint64, uint32, uint16, uint8:
 		d = time.Duration(ToInt64(s))
 		return
-	case float32, float64:
+	case float32:
+		d = time.Duration(ToFloat64(s))
+		return
+	case float64:
+		if math.IsNaN(s) {
+			err = fmt.Errorf("unable to cast %#v of type %T to Duration", i, i)
+			return
+		}
 		d = time.Duration(ToFloat64(s))
 		return
 	case string:
@@ -97,6 +105,9 @@ func ToFloat64E(i interface{}) (float64, error) {
 
 	switch s := i.(type) {
 	case float64:
+		if math.IsNaN(s) {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
+		}
 		return s, nil
 	case float32:
 		return float64(s), nil
@@ -142,6 +153,9 @@ func ToFloat32E(i interface{}) (float32, error) {
 
 	switch s := i.(type) {
 	case float64:
+		if math.IsNaN(s) {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to float32", i, i)
+		}
 		return float32(s), nil
 	case float32:
 		return s, nil
@@ -207,6 +221,9 @@ func ToInt64E(i interface{}) (int64, error) {
 	case uint8:
 		return int64(s), nil
 	case float64:
+		if math.IsNaN(s) {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
+		}
 		return int64(s), nil
 	case float32:
 		return int64(s), nil
@@ -254,6 +271,9 @@ func ToInt32E(i interface{}) (int32, error) {
 	case uint8:
 		return int32(s), nil
 	case float64:
+		if math.IsNaN(s) {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
+		}
 		return int32(s), nil
 	case float32:
 		return int32(s), nil
@@ -301,6 +321,9 @@ func ToInt16E(i interface{}) (int16, error) {
 	case uint8:
 		return int16(s), nil
 	case float64:
+		if math.IsNaN(s) {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
+		}
 		return int16(s), nil
 	case float32:
 		return int16(s), nil
@@ -348,6 +371,9 @@ func ToInt8E(i interface{}) (int8, error) {
 	case uint8:
 		return int8(s), nil
 	case float64:
+		if math.IsNaN(s) {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
+		}
 		return int8(s), nil
 	case float32:
 		return int8(s), nil
@@ -395,6 +421,9 @@ func ToIntE(i interface{}) (int, error) {
 	case uint8:
 		return int(s), nil
 	case float64:
+		if math.IsNaN(s) {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
+		}
 		return int(s), nil
 	case float32:
 		return int(s), nil
@@ -463,6 +492,9 @@ func ToUintE(i interface{}) (uint, error) {
 	case uint8:
 		return uint(s), nil
 	case float64:
+		if math.IsNaN(s) {
+			return 0, errNegativeNotAllowed
+		}
 		if s < 0 {
 			return 0, errNegativeNotAllowed
 		}
@@ -536,6 +568,9 @@ func ToUint64E(i interface{}) (uint64, error) {
 		}
 		return uint64(s), nil
 	case float64:
+		if math.IsNaN(s) {
+			return 0, errNegativeNotAllowed
+		}
 		if s < 0 {
 			return 0, errNegativeNotAllowed
 		}
@@ -599,6 +634,9 @@ func ToUint32E(i interface{}) (uint32, error) {
 	case uint8:
 		return uint32(s), nil
 	case float64:
+		if math.IsNaN(s) {
+			return 0, errNegativeNotAllowed
+		}
 		if s < 0 {
 			return 0, errNegativeNotAllowed
 		}
@@ -667,6 +705,9 @@ func ToUint16E(i interface{}) (uint16, error) {
 	case uint8:
 		return uint16(s), nil
 	case float64:
+		if math.IsNaN(s) {
+			return 0, errNegativeNotAllowed
+		}
 		if s < 0 {
 			return 0, errNegativeNotAllowed
 		}
@@ -735,6 +776,9 @@ func ToUint8E(i interface{}) (uint8, error) {
 	case uint8:
 		return s, nil
 	case float64:
+		if math.IsNaN(s) {
+			return 0, errNegativeNotAllowed
+		}
 		if s < 0 {
 			return 0, errNegativeNotAllowed
 		}
@@ -805,6 +849,9 @@ func ToStringE(i interface{}) (string, error) {
 	case bool:
 		return strconv.FormatBool(s), nil
 	case float64:
+		if math.IsNaN(s) {
+			return "", fmt.Errorf("unable to cast %#v of type %T to string", i, i)
+		}
 		return strconv.FormatFloat(s, 'f', -1, 64), nil
 	case float32:
 		return strconv.FormatFloat(float64(s), 'f', -1, 32), nil
