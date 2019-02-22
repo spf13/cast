@@ -1130,6 +1130,9 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 	case []string:
 		return v, nil
 	case string:
+		if err := json.Unmarshal([]byte(v), &a); err == nil {
+			return a, nil
+		}
 		return strings.Fields(v), nil
 	case interface{}:
 		str, err := ToStringE(v)

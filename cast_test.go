@@ -1048,6 +1048,8 @@ func TestToStringSliceE(t *testing.T) {
 		expect []string
 		iserr  bool
 	}{
+		{`["a", "b"]`, []string{"a", "b"}, false},
+		{"a b", []string{"a", "b"}, false},
 		{[]string{"a", "b"}, []string{"a", "b"}, false},
 		{[]interface{}{1, 3}, []string{"1", "3"}, false},
 		{interface{}(1), []string{"1"}, false},
