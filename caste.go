@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -131,6 +132,12 @@ func ToFloat64E(i interface{}) (float64, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case Float64er:
+		v, err := s.Float64()
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
+		}
+		return v, nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
 	}
@@ -176,6 +183,15 @@ func ToFloat32E(i interface{}) (float32, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case Float64er:
+		v, err := s.Float64()
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to float32", i, i)
+		}
+		if v > math.MaxFloat32 {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to float32", i, i)
+		}
+		return float32(v), nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to float32", i, i)
 	}
@@ -223,6 +239,12 @@ func ToInt64E(i interface{}) (int64, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
+	case Int64er:
+		v, err := s.Int64()
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
+		}
+		return v, nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
 	}
@@ -270,6 +292,15 @@ func ToInt32E(i interface{}) (int32, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
+	case Int64er:
+		v, err := s.Int64()
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
+		}
+		if v > math.MaxInt32 {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
+		}
+		return int32(v), nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
 	}
@@ -317,6 +348,15 @@ func ToInt16E(i interface{}) (int16, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
+	case Int64er:
+		v, err := s.Int64()
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
+		}
+		if v > math.MaxInt16 {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
+		}
+		return int16(v), nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
 	}
@@ -364,6 +404,15 @@ func ToInt8E(i interface{}) (int8, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
+	case Int64er:
+		v, err := s.Int64()
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
+		}
+		if v > math.MaxInt8 {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
+		}
+		return int8(v), nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
 	}
@@ -411,6 +460,12 @@ func ToIntE(i interface{}) (int, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
+	case Int64er:
+		v, err := s.Int64()
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
+		}
+		return int(v), nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
 	}
@@ -479,6 +534,12 @@ func ToUintE(i interface{}) (uint, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
+	case fmt.Stringer:
+		v, err := strconv.ParseUint(s.String(), 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to uint", i, i)
+		}
+		return uint(v), nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint", i, i)
 	}
@@ -547,6 +608,12 @@ func ToUint64E(i interface{}) (uint64, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
+	case fmt.Stringer:
+		v, err := strconv.ParseUint(s.String(), 10, 64)
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to uint64", i, i)
+		}
+		return v, nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint64", i, i)
 	}
@@ -615,6 +682,12 @@ func ToUint32E(i interface{}) (uint32, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
+	case fmt.Stringer:
+		v, err := strconv.ParseUint(s.String(), 10, 32)
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to uint32", i, i)
+		}
+		return uint32(v), nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint32", i, i)
 	}
@@ -683,6 +756,12 @@ func ToUint16E(i interface{}) (uint16, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
+	case fmt.Stringer:
+		v, err := strconv.ParseUint(s.String(), 10, 16)
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to uint16", i, i)
+		}
+		return uint16(v), nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint16", i, i)
 	}
@@ -751,6 +830,12 @@ func ToUint8E(i interface{}) (uint8, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
+	case fmt.Stringer:
+		v, err := strconv.ParseUint(s.String(), 10, 8)
+		if err != nil {
+			return 0, fmt.Errorf("unable to cast %#v of type %T to uint8", i, i)
+		}
+		return uint8(v), nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint8", i, i)
 	}
