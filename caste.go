@@ -534,7 +534,7 @@ func ToUintE(i interface{}) (uint, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
-	case fmt.Stringer:
+	case json.Number:
 		v, err := strconv.ParseUint(s.String(), 10, 64)
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to uint", i, i)
@@ -608,7 +608,7 @@ func ToUint64E(i interface{}) (uint64, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
-	case fmt.Stringer:
+	case json.Number:
 		v, err := strconv.ParseUint(s.String(), 10, 64)
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to uint64", i, i)
@@ -682,7 +682,7 @@ func ToUint32E(i interface{}) (uint32, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
-	case fmt.Stringer:
+	case json.Number:
 		v, err := strconv.ParseUint(s.String(), 10, 32)
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to uint32", i, i)
@@ -756,7 +756,7 @@ func ToUint16E(i interface{}) (uint16, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
-	case fmt.Stringer:
+	case json.Number:
 		v, err := strconv.ParseUint(s.String(), 10, 16)
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to uint16", i, i)
@@ -830,7 +830,7 @@ func ToUint8E(i interface{}) (uint8, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
-	case fmt.Stringer:
+	case json.Number:
 		v, err := strconv.ParseUint(s.String(), 10, 8)
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to uint8", i, i)
