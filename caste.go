@@ -132,7 +132,7 @@ func ToFloat64E(i interface{}) (float64, error) {
 			return 1, nil
 		}
 		return 0, nil
-	case Float64er:
+	case float64er:
 		v, err := s.Float64()
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
@@ -183,7 +183,7 @@ func ToFloat32E(i interface{}) (float32, error) {
 			return 1, nil
 		}
 		return 0, nil
-	case Float64er:
+	case float64er:
 		v, err := s.Float64()
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to float32", i, i)
@@ -239,7 +239,7 @@ func ToInt64E(i interface{}) (int64, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
-	case Int64er:
+	case int64er:
 		v, err := s.Int64()
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
@@ -292,7 +292,7 @@ func ToInt32E(i interface{}) (int32, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
-	case Int64er:
+	case int64er:
 		v, err := s.Int64()
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
@@ -348,7 +348,7 @@ func ToInt16E(i interface{}) (int16, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
-	case Int64er:
+	case int64er:
 		v, err := s.Int64()
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
@@ -404,7 +404,7 @@ func ToInt8E(i interface{}) (int8, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
-	case Int64er:
+	case int64er:
 		v, err := s.Int64()
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
@@ -460,7 +460,7 @@ func ToIntE(i interface{}) (int, error) {
 		return 0, nil
 	case nil:
 		return 0, nil
-	case Int64er:
+	case int64er:
 		v, err := s.Int64()
 		if err != nil {
 			return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
