@@ -1129,6 +1129,36 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 		return a, nil
 	case []string:
 		return v, nil
+	case []int8:
+		for _, u := range v {
+			a = append(a, ToString(u))
+		}
+		return a, nil
+	case []int:
+		for _, u := range v {
+			a = append(a, ToString(u))
+		}
+		return a, nil
+	case []int32:
+		for _, u := range v {
+			a = append(a, ToString(u))
+		}
+		return a, nil
+	case []int64:
+		for _, u := range v {
+			a = append(a, ToString(u))
+		}
+		return a, nil
+	case []float32:
+		for _, u := range v {
+			a = append(a, ToString(u))
+		}
+		return a, nil
+	case []float64:
+		for _, u := range v {
+			a = append(a, ToString(u))
+		}
+		return a, nil
 	case string:
 		return strings.Fields(v), nil
 	case interface{}:

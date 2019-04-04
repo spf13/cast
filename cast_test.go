@@ -1048,6 +1048,12 @@ func TestToStringSliceE(t *testing.T) {
 		expect []string
 		iserr  bool
 	}{
+		{[]int{1, 2}, []string{"1", "2"}, false},
+		{[]int8{int8(1), int8(2)}, []string{"1", "2"}, false},
+		{[]int32{int32(1), int32(2)}, []string{"1", "2"}, false},
+		{[]int64{int64(1), int64(2)}, []string{"1", "2"}, false},
+		{[]float32{float32(1.01), float32(2.01)}, []string{"1.01", "2.01"}, false},
+		{[]float64{float64(1.01), float64(2.01)}, []string{"1.01", "2.01"}, false},
 		{[]string{"a", "b"}, []string{"a", "b"}, false},
 		{[]interface{}{1, 3}, []string{"1", "3"}, false},
 		{interface{}(1), []string{"1"}, false},
