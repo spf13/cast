@@ -1246,66 +1246,81 @@ func ToDurationSliceE(i interface{}) ([]time.Duration, error) {
 // predefined list of formats.  If no suitable format is found, an error is
 // returned.
 func StringToDate(s string) (time.Time, error) {
-	return StringToDateInDefaultLocation(s, time.UTC)
+	return parseDateWith(s, time.UTC, timeFormats)
 }
 
 // StringToDateInDefaultLocation casts an empty interface to a time.Time,
 // interpreting inputs without a timezone to be in the given location,
 // or the local timezone if nil.
 func StringToDateInDefaultLocation(s string, location *time.Location) (time.Time, error) {
-	if location == nil {
-		location = time.Local
-	}
 	return parseDateWith(s, location, timeFormats)
 }
 
+type timeFormatType int
+
+const (
+	timeFormatNoTimezone timeFormatType = iota
+	timeFormatNamedTimezone
+	timeFormatNumericTimezone
+	timeFormatNumericAndNamedTimezone
+	timeFormatTimeOnly
+)
+
 type timeFormat struct {
-	format      string
-	hasTimezone bool
+	format string
+	typ    timeFormatType
+}
+
+func (f timeFormat) hasTimezone() bool {
+	// We don't include the formats with only named timezones, see
+	// https://github.com/golang/go/issues/19694#issuecomment-289103522
+	return f.typ >= timeFormatNumericTimezone && f.typ <= timeFormatNumericAndNamedTimezone
 }
 
 var (
 	timeFormats = []timeFormat{
-		timeFormat{time.RFC3339, true},
-		timeFormat{"2006-01-02T15:04:05", false}, // iso8601 without timezone
-		timeFormat{time.RFC1123Z, true},
-		timeFormat{time.RFC1123, false},
-		timeFormat{time.RFC822Z, true},
-		timeFormat{time.RFC822, false},
-
-		timeFormat{time.RFC850, true},
-		timeFormat{"2006-01-02 15:04:05.999999999 -0700 MST", true}, // Time.String()
-		timeFormat{"2006-01-02T15:04:05-0700", true},                // RFC3339 without timezone hh:mm colon
-		timeFormat{"2006-01-02 15:04:05Z0700", true},                // RFC3339 without T or timezone hh:mm colon
-		timeFormat{"2006-01-02 15:04:05", false},
-
-		timeFormat{time.ANSIC, false},
-		timeFormat{time.UnixDate, false},
-		timeFormat{time.RubyDate, true},
-		timeFormat{"2006-01-02 15:04:05Z07:00", true},
-		timeFormat{"2006-01-02", false},
-		timeFormat{"02 Jan 2006", false},
-		timeFormat{"2006-01-02 15:04:05 -07:00", true},
-		timeFormat{"2006-01-02 15:04:05 -0700", true},
-		timeFormat{time.Kitchen, false},
-		timeFormat{time.Stamp, false},
-		timeFormat{time.StampMilli, false},
-		timeFormat{time.StampMicro, false},
-		timeFormat{time.StampNano, false},
+		timeFormat{time.RFC3339, timeFormatNumericTimezone},
+		timeFormat{"2006-01-02T15:04:05", timeFormatNoTimezone}, // iso8601 without timezone
+		timeFormat{time.RFC1123Z, timeFormatNumericTimezone},
+		timeFormat{time.RFC1123, timeFormatNamedTimezone},
+		timeFormat{time.RFC822Z, timeFormatNumericTimezone},
+		timeFormat{time.RFC822, timeFormatNamedTimezone},
+		timeFormat{time.RFC850, timeFormatNamedTimezone},
+		timeFormat{"2006-01-02 15:04:05.999999999 -0700 MST", timeFormatNumericAndNamedTimezone}, // Time.String()
+		timeFormat{"2006-01-02T15:04:05-0700", timeFormatNumericTimezone},                        // RFC3339 without timezone hh:mm colon
+		timeFormat{"2006-01-02 15:04:05Z0700", timeFormatNumericTimezone},                        // RFC3339 without T or timezone hh:mm colon
+		timeFormat{"2006-01-02 15:04:05", timeFormatNoTimezone},
+		timeFormat{time.ANSIC, timeFormatNoTimezone},
+		timeFormat{time.UnixDate, timeFormatNamedTimezone},
+		timeFormat{time.RubyDate, timeFormatNumericTimezone},
+		timeFormat{"2006-01-02 15:04:05Z07:00", timeFormatNumericTimezone},
+		timeFormat{"2006-01-02", timeFormatNoTimezone},
+		timeFormat{"02 Jan 2006", timeFormatNoTimezone},
+		timeFormat{"2006-01-02 15:04:05 -07:00", 1},
+		timeFormat{"2006-01-02 15:04:05 -0700", 1},
+		timeFormat{time.Kitchen, timeFormatTimeOnly},
+		timeFormat{time.Stamp, timeFormatTimeOnly},
+		timeFormat{time.StampMilli, timeFormatTimeOnly},
+		timeFormat{time.StampMicro, timeFormatTimeOnly},
+		timeFormat{time.StampNano, timeFormatTimeOnly},
 	}
 )
 
-func parseDateWith(s string, defaultLocation *time.Location, formats []timeFormat) (d time.Time, e error) {
+func parseDateWith(s string, location *time.Location, formats []timeFormat) (d time.Time, e error) {
+
 	for _, format := range formats {
 		if d, e = time.Parse(format.format, s); e == nil {
 
 			// Some time formats have a zone name, but no offset, so it gets
 			// put in that zone name (not the default one passed in to us), but
 			// without that zone's offset. So set the location manually.
-			if !format.hasTimezone && defaultLocation != nil {
+			if format.typ <= timeFormatNamedTimezone {
+				if location == nil {
+					location = time.Local
+				}
 				year, month, day := d.Date()
 				hour, min, sec := d.Clock()
-				d = time.Date(year, month, day, hour, min, sec, d.Nanosecond(), defaultLocation)
+				d = time.Date(year, month, day, hour, min, sec, d.Nanosecond(), location)
 			}
 
 			return
