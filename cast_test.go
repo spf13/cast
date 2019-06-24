@@ -8,6 +8,7 @@ package cast
 import (
 	"fmt"
 	"html/template"
+	"net/url"
 	"testing"
 	"time"
 
