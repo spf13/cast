@@ -79,8 +79,13 @@ func ToBoolE(i interface{}) (bool, error) {
 		return b, nil
 	case nil:
 		return false, nil
-	case int:
-		if i.(int) != 0 {
+	case int, int32, int64, uint, uint32, uint64:
+		if b != 0 {
+			return true, nil
+		}
+		return false, nil
+	case float32, float64:
+		if b != 0.0 {
 			return true, nil
 		}
 		return false, nil
