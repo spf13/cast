@@ -1131,6 +1131,11 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 		return v, nil
 	case string:
 		return strings.Fields(v), nil
+	case []error:
+		for _, err := range i.([]error) {
+			a = append(a, err.Error())
+		}
+		return a, nil
 	case interface{}:
 		str, err := ToStringE(v)
 		if err != nil {
