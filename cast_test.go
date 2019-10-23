@@ -6,6 +6,7 @@
 package cast
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"testing"
@@ -1051,6 +1052,7 @@ func TestToStringSliceE(t *testing.T) {
 		{[]string{"a", "b"}, []string{"a", "b"}, false},
 		{[]interface{}{1, 3}, []string{"1", "3"}, false},
 		{interface{}(1), []string{"1"}, false},
+		{[]error{errors.New("a"), errors.New("b")}, []string{"a", "b"}, false},
 		// errors
 		{nil, nil, true},
 		{testing.T{}, nil, true},
