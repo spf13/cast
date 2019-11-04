@@ -776,7 +776,6 @@ func TestToStringMapE(t *testing.T) {
 		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
 
 		v, err := ToStringMapE(test.input)
-		fmt.Printf("%+v", v)
 		if test.iserr {
 			assert.Error(t, err, errmsg)
 			continue
