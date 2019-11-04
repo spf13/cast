@@ -761,10 +761,14 @@ func TestToStringMapE(t *testing.T) {
 		{map[string]interface{}{"tag": "tags", "group": "groups"}, map[string]interface{}{"tag": "tags", "group": "groups"}, false},
 		{`{"tag": "tags", "group": "groups"}`, map[string]interface{}{"tag": "tags", "group": "groups"}, false},
 		{`{"tag": "tags", "group": true}`, map[string]interface{}{"tag": "tags", "group": true}, false},
-
+		{struct {
+			Hello string
+		}{
+			Hello: "World",
+		}, map[string]interface{}{"Hello": "World"}, false},
+		{testing.T{}, map[string]interface{}{}, false},
 		// errors
 		{nil, nil, true},
-		{testing.T{}, nil, true},
 		{"", nil, true},
 	}
 
@@ -772,6 +776,7 @@ func TestToStringMapE(t *testing.T) {
 		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
 
 		v, err := ToStringMapE(test.input)
+		fmt.Printf("%+v", v)
 		if test.iserr {
 			assert.Error(t, err, errmsg)
 			continue
