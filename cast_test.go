@@ -279,6 +279,52 @@ func TestToUint8E(t *testing.T) {
 	}
 }
 
+func TestToIntEBase10(t *testing.T) {
+	tests := []struct {
+		input  interface{}
+		expect int
+		iserr  bool
+	}{
+		{"091", 91, false},
+		{int(8), 8, false},
+		{int8(8), 8, false},
+		{int16(8), 8, false},
+		{int32(8), 8, false},
+		{int64(8), 8, false},
+		{uint(8), 8, false},
+		{uint8(8), 8, false},
+		{uint16(8), 8, false},
+		{uint32(8), 8, false},
+		{uint64(8), 8, false},
+		{float32(8.31), 8, false},
+		{float64(8.31), 8, false},
+		{true, 1, false},
+		{false, 0, false},
+		{"8", 8, false},
+		{nil, 0, false},
+		// errors
+		{"test", 0, true},
+		{testing.T{}, 0, true},
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToIntEBase10(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test
+		v = ToIntBase10(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
 func TestToIntE(t *testing.T) {
 	tests := []struct {
 		input  interface{}
@@ -302,6 +348,7 @@ func TestToIntE(t *testing.T) {
 		{"8", 8, false},
 		{nil, 0, false},
 		// errors
+		{"091", 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}

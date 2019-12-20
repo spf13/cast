@@ -68,6 +68,12 @@ func ToInt(i interface{}) int {
 	return v
 }
 
+// ToIntBase10 casts an interface to an int type.
+func ToIntBase10(i interface{}) int {
+	v, _ := ToIntEBase10(i)
+	return v
+}
+
 // ToUint casts an interface to a uint type.
 func ToUint(i interface{}) uint {
 	v, _ := ToUintE(i)

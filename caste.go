@@ -370,6 +370,53 @@ func ToInt8E(i interface{}) (int8, error) {
 }
 
 // ToIntE casts an interface to an int type.
+func ToIntEBase10(i interface{}) (int, error) {
+	i = indirect(i)
+
+	switch s := i.(type) {
+	case int:
+		return s, nil
+	case int64:
+		return int(s), nil
+	case int32:
+		return int(s), nil
+	case int16:
+		return int(s), nil
+	case int8:
+		return int(s), nil
+	case uint:
+		return int(s), nil
+	case uint64:
+		return int(s), nil
+	case uint32:
+		return int(s), nil
+	case uint16:
+		return int(s), nil
+	case uint8:
+		return int(s), nil
+	case float64:
+		return int(s), nil
+	case float32:
+		return int(s), nil
+	case string:
+		v, err := strconv.ParseInt(s, 10, 0)
+		if err == nil {
+			return int(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
+	case bool:
+		if s {
+			return 1, nil
+		}
+		return 0, nil
+	case nil:
+		return 0, nil
+	default:
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
+	}
+}
+
+// ToIntE casts an interface to an int type.
 func ToIntE(i interface{}) (int, error) {
 	i = indirect(i)
 
