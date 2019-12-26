@@ -131,6 +131,8 @@ func ToFloat64E(i interface{}) (float64, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		return s.Float64()
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
 	}
@@ -176,6 +178,12 @@ func ToFloat32E(i interface{}) (float32, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		v, err := s.Float64()
+		if err == nil {
+			return float32(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to float32", i, i)
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to float32", i, i)
 	}
@@ -221,6 +229,8 @@ func ToInt64E(i interface{}) (int64, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		return s.Int64()
 	case nil:
 		return 0, nil
 	default:
@@ -268,6 +278,12 @@ func ToInt32E(i interface{}) (int32, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			return int32(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
 	case nil:
 		return 0, nil
 	default:
@@ -315,6 +331,12 @@ func ToInt16E(i interface{}) (int16, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			return int16(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
 	case nil:
 		return 0, nil
 	default:
@@ -362,6 +384,12 @@ func ToInt8E(i interface{}) (int8, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			return int8(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
 	case nil:
 		return 0, nil
 	default:
@@ -409,6 +437,12 @@ func ToIntE(i interface{}) (int, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			return int(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
 	case nil:
 		return 0, nil
 	default:
@@ -477,6 +511,12 @@ func ToUintE(i interface{}) (uint, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		v, err := strconv.ParseUint(s.String(), 10, 64)
+		if err == nil {
+			return uint(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to uint", i, i)
 	case nil:
 		return 0, nil
 	default:
@@ -545,6 +585,12 @@ func ToUint64E(i interface{}) (uint64, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		v, err := strconv.ParseUint(s.String(), 10, 64)
+		if err == nil {
+			return v, nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to uint64", i, i)
 	case nil:
 		return 0, nil
 	default:
@@ -613,6 +659,12 @@ func ToUint32E(i interface{}) (uint32, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		v, err := strconv.ParseUint(s.String(), 10, 64)
+		if err == nil {
+			return uint32(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to uint32", i, i)
 	case nil:
 		return 0, nil
 	default:
@@ -681,6 +733,12 @@ func ToUint16E(i interface{}) (uint16, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		v, err := strconv.ParseUint(s.String(), 10, 64)
+		if err == nil {
+			return uint16(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to uint16", i, i)
 	case nil:
 		return 0, nil
 	default:
@@ -749,6 +807,12 @@ func ToUint8E(i interface{}) (uint8, error) {
 			return 1, nil
 		}
 		return 0, nil
+	case json.Number:
+		v, err := strconv.ParseUint(s.String(), 10, 64)
+		if err == nil {
+			return uint8(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to uint8", i, i)
 	case nil:
 		return 0, nil
 	default:
