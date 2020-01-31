@@ -6,7 +6,11 @@
 // Package cast provides easy and safe casting in Go.
 package cast
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 // ToBool casts an interface to a bool type.
 func ToBool(i interface{}) bool {
@@ -167,5 +171,11 @@ func ToIntSlice(i interface{}) []int {
 // ToDurationSlice casts an interface to a []time.Duration type.
 func ToDurationSlice(i interface{}) []time.Duration {
 	v, _ := ToDurationSliceE(i)
+	return v
+}
+
+// ToUUID casts an interface to a uint type.
+func ToUUID(i interface{}) uuid.UUID {
+	v, _ := ToUUIDE(i)
 	return v
 }
