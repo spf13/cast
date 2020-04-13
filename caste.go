@@ -39,6 +39,8 @@ func ToTimeE(i interface{}) (tim time.Time, err error) {
 		return time.Unix(int64(v), 0), nil
 	case uint32:
 		return time.Unix(int64(v), 0), nil
+	case float64:
+		return time.Unix(int64(v), 0), nil
 	default:
 		return time.Time{}, fmt.Errorf("unable to cast %#v of type %T to Time", i, i)
 	}
