@@ -9,10 +9,12 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"path"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestToUintE(t *testing.T) {
@@ -1181,7 +1183,7 @@ func TestIndirectPointers(t *testing.T) {
 	assert.Equal(t, ToInt(z), 13)
 }
 
-func TestToTimeEE(t *testing.T) {
+func TestToTime(t *testing.T) {
 	tests := []struct {
 		input  interface{}
 		expect time.Time
@@ -1292,4 +1294,149 @@ func TestToDurationE(t *testing.T) {
 		v = ToDuration(test.input)
 		assert.Equal(t, test.expect, v, errmsg)
 	}
+}
+
+func TestToTimeWithTimezones(t *testing.T) {
+
+	est, err := time.LoadLocation("EST")
+	require.NoError(t, err)
+
+	irn, err := time.LoadLocation("Iran")
+	require.NoError(t, err)
+
+	require.NoError(t, err)
+
+	// Test same local time in different timezones
+	utc2016 := time.Date(2016, time.January, 1, 3, 1, 0, 0, time.UTC)
+	est2016 := time.Date(2016, time.January, 1, 3, 1, 0, 0, est)
+	irn2016 := time.Date(2016, time.January, 1, 3, 1, 0, 0, irn)
+	loc2016 := time.Date(2016, time.January, 1, 3, 1, 0, 0, time.Local)
+
+	for i, format := range timeFormats {
+		format := format
+		if format.typ == timeFormatShort {
+			continue
+		}
+
+		nameBase := fmt.Sprintf("%d;timeFormatType=%d;%s", i, format.typ, format.format)
+
+		t.Run(path.Join(nameBase), func(t *testing.T) {
+			est2016str := est2016.Format(format.format)
+			loc2016str := loc2016.Format(format.format)
+
+			t.Run("without default location", func(t *testing.T) {
+				assert := require.New(t)
+				converted, err := ToTimeE(est2016str)
+				assert.NoError(err)
+				if format.hasNumericTimezone() {
+					assertTimeEqual(t, est2016, converted)
+					assertLocationEqual(t, est, converted.Location())
+				} else {
+					assertTimeEqual(t, utc2016, converted)
+					assertLocationEqual(t, time.UTC, converted.Location())
+				}
+			})
+
+			t.Run("local timezone without a default location", func(t *testing.T) {
+				assert := require.New(t)
+				converted, err := ToTimeE(loc2016str)
+				assert.NoError(err)
+				if format.hasAnyTimezone() {
+					// Local timezone strings can be either named or numeric and
+					// time.Parse connects the dots.
+					assertTimeEqual(t, loc2016, converted)
+					assertLocationEqual(t, time.Local, converted.Location())
+				} else {
+					assertTimeEqual(t, utc2016, converted)
+					assertLocationEqual(t, time.UTC, converted.Location())
+				}
+			})
+
+			t.Run("nil default location", func(t *testing.T) {
+				assert := require.New(t)
+
+				converted, err := ToTimeInDefaultLocationE(est2016str, nil)
+				assert.NoError(err)
+				if format.hasNumericTimezone() {
+					assertTimeEqual(t, est2016, converted)
+					assertLocationEqual(t, est, converted.Location())
+				} else {
+					assertTimeEqual(t, utc2016, converted)
+					assertLocationEqual(t, time.UTC, converted.Location())
+				}
+
+			})
+
+			t.Run("default location not UTC", func(t *testing.T) {
+				assert := require.New(t)
+
+				converted, err := ToTimeInDefaultLocationE(est2016str, irn)
+				assert.NoError(err)
+				if format.hasNumericTimezone() {
+					assertTimeEqual(t, est2016, converted)
+					assertLocationEqual(t, est, converted.Location())
+				} else {
+					assertTimeEqual(t, irn2016, converted)
+					assertLocationEqual(t, irn, converted.Location())
+				}
+			})
+
+			t.Run("time in the local timezone default location not UTC", func(t *testing.T) {
+				assert := require.New(t)
+
+				converted, err := ToTimeInDefaultLocationE(loc2016str, irn)
+				assert.NoError(err)
+
+				if format.hasNumericTimezone() {
+					assertTimeEqual(t, loc2016, converted)
+					assertLocationEqual(t, time.Local, converted.Location())
+				} else {
+					assertTimeEqual(t, irn2016, converted)
+					assertLocationEqual(t, irn, converted.Location())
+				}
+			})
+		})
+	}
+}
+
+func assertTimeEqual(t *testing.T, expected, actual time.Time) {
+	t.Helper()
+	require.True(t, expected.Equal(actual), fmt.Sprintf("expected\n%s\ngot\n%s", expected, actual))
+	format := "2006-01-02 15:04:05.999999999 -0700"
+	require.Equal(t, expected.Format(format), actual.Format(format))
+}
+
+func assertLocationEqual(t *testing.T, expected, actual *time.Location) {
+	t.Helper()
+	require.True(t, locationEqual(expected, actual), fmt.Sprintf("Expected location '%s', got '%s'", expected, actual))
+}
+
+func locationEqual(a, b *time.Location) bool {
+	// A note about comparing time.Locations:
+	//   - can't only compare pointers
+	//   - can't compare loc.String() because locations with the same
+	//     name can have different offsets
+	//   - can't use reflect.DeepEqual because time.Location has internal
+	//     caches
+
+	if a == b {
+		return true
+	} else if a == nil || b == nil {
+		return false
+	}
+
+	// Check if they're equal by parsing times with a format that doesn't
+	// include a timezone, which will interpret it as being a local time in
+	// the given zone, and comparing the resulting local times.
+	tA, err := time.ParseInLocation("2006-01-02", "2016-01-01", a)
+	if err != nil {
+		return false
+	}
+
+	tB, err := time.ParseInLocation("2006-01-02", "2016-01-01", b)
+	if err != nil {
+		return false
+	}
+
+	return tA.Equal(tB)
 }
