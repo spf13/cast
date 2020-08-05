@@ -14,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 var errNegativeNotAllowed = errors.New("unable to cast negative value")
@@ -753,6 +755,24 @@ func ToUint8E(i interface{}) (uint8, error) {
 		return 0, nil
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint8", i, i)
+	}
+}
+
+// ToUUIDE casts an interface to a uint type.
+func ToUUIDE(i interface{}) (uuid.UUID, error) {
+	i = indirect(i)
+	var b uuid.UUID
+
+	switch s := i.(type) {
+	case string:
+		return uuid.Parse(s)
+	case interface{}:
+		if str, err := ToStringE(s); err == nil {
+			return uuid.Parse(str)
+		}
+		return b, fmt.Errorf("unable to cast %#v of type %T to UUID", i, i)
+	default:
+		return b, fmt.Errorf("unable to cast %#v of type %T to UUID", i, i)
 	}
 }
 
