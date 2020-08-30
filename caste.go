@@ -78,17 +78,60 @@ func ToBoolE(i interface{}) (bool, error) {
 	case bool:
 		return b, nil
 	case nil:
-		return false, nil
+	case float64:
+		if i.(float64) != 0 {
+			return true, nil
+		}
+	case float32:
+		if i.(float32) != 0 {
+			return true, nil
+		}
 	case int:
 		if i.(int) != 0 {
 			return true, nil
 		}
-		return false, nil
+	case int64:
+		if i.(int64) != 0 {
+			return true, nil
+		}
+	case int32:
+		if i.(int32) != 0 {
+			return true, nil
+		}
+	case int16:
+		if i.(int16) != 0 {
+			return true, nil
+		}
+	case int8:
+		if i.(int8) != 0 {
+			return true, nil
+		}
+	case uint:
+		if i.(uint) != 0 {
+			return true, nil
+		}
+	case uint64:
+		if i.(uint64) != 0 {
+			return true, nil
+		}
+	case uint32:
+		if i.(uint32) != 0 {
+			return true, nil
+		}
+	case uint16:
+		if i.(uint16) != 0 {
+			return true, nil
+		}
+	case uint8:
+		if i.(uint8) != 0 {
+			return true, nil
+		}
 	case string:
 		return strconv.ParseBool(i.(string))
 	default:
 		return false, fmt.Errorf("unable to cast %#v of type %T to bool", i, i)
 	}
+	return false, nil
 }
 
 // ToFloat64E casts an interface to a float64 type.
