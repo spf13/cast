@@ -9,6 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"net/url"
+	"reflect"
 	"testing"
 	"time"
 
@@ -1291,5 +1293,33 @@ func TestToDurationE(t *testing.T) {
 		// Non-E test
 		v = ToDuration(test.input)
 		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
+func TestToURLE(t *testing.T) {
+	type args struct {
+		i interface{}
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantU   *url.URL
+		wantErr bool
+	}{
+		{"url", args{&url.URL{Scheme: "https", Host: "example.net", Path: "/"}}, &url.URL{Scheme: "https", Host: "example.net", Path: "/"}, false},
+		{"string", args{string("https://example.net/")}, &url.URL{Scheme: "https", Host: "example.net", Path: "/"}, false},
+		{"invalid", args{int(100)}, nil, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotU, err := ToURLE(tt.args.i)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ToURLE() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(gotU, tt.wantU) {
+				t.Errorf("ToURLE() = %v, want %v", gotU, tt.wantU)
+			}
+		})
 	}
 }

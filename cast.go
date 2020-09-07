@@ -6,7 +6,10 @@
 // Package cast provides easy and safe casting in Go.
 package cast
 
-import "time"
+import (
+	"net/url"
+	"time"
+)
 
 // ToBool casts an interface to a bool type.
 func ToBool(i interface{}) bool {
@@ -17,6 +20,12 @@ func ToBool(i interface{}) bool {
 // ToTime casts an interface to a time.Time type.
 func ToTime(i interface{}) time.Time {
 	v, _ := ToTimeE(i)
+	return v
+}
+
+// ToURL casts an interface to a *url.URL type.
+func ToURL(i interface{}) *url.URL {
+	v, _ := ToURLE(i)
 	return v
 }
 

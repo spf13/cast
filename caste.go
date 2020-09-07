@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
@@ -67,6 +68,20 @@ func ToDurationE(i interface{}) (d time.Duration, err error) {
 	default:
 		err = fmt.Errorf("unable to cast %#v of type %T to Duration", i, i)
 		return
+	}
+}
+
+// ToURLE casts an interface to a *url.URL type.
+func ToURLE(i interface{}) (u *url.URL, err error) {
+	i = indirect(i)
+
+	switch v := i.(type) {
+	case url.URL:
+		return &v, nil
+	case string:
+		return url.Parse(v)
+	default:
+		return nil, fmt.Errorf("unable to cast %#v of type %T to URL", i, i)
 	}
 }
 
