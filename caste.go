@@ -986,7 +986,16 @@ func ToStringMapE(i interface{}) (map[string]interface{}, error) {
 		err := jsonStringToObject(v, &m)
 		return m, err
 	default:
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]interface{}", i, i)
+		vo := reflect.ValueOf(i)
+		if vo.Kind() == reflect.Invalid {
+			return m, fmt.Errorf("unable to cast %#v of type %T to map[string]interface{}", i, i)
+		}
+		for i := 0; i < vo.NumField(); i++ {
+			if vo.Field(i).CanInterface() {
+				m[vo.Type().Field(i).Name] = vo.Field(i).Interface()
+			}
+		}
+		return m, nil
 	}
 }
 
