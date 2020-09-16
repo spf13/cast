@@ -1273,9 +1273,9 @@ func parseDateWith(s string, dates []string) (d time.Time, e error) {
 			return
 		}
 	}
-    if i, err := strconv.Atoi(s); err == nil {
-        return time.Unix(int64(i), 0), nil
-    }
+	if i, err := strconv.Atoi(s); err == nil {
+		return time.Unix(int64(i), 0), nil
+	}
 
 	return d, fmt.Errorf("unable to parse date: %s", s)
 }
