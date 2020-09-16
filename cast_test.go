@@ -1221,7 +1221,6 @@ func TestToTimeEE(t *testing.T) {
 		{"1234567890", time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		// errors
-		{"2006", time.Time{}, true},
 		{testing.T{}, time.Time{}, true},
 	}
 
