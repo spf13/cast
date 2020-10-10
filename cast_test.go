@@ -907,6 +907,8 @@ func TestToStringMapStringE(t *testing.T) {
 	var jsonString = `{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}`
 	var invalidJsonString = `{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"`
 	var emptyString = ""
+	var jsonStringWithNonString = `{"key 1": "100", "key 2": -200, "key 3": 3.1415926}`
+	var mapStringWithNonString = map[string]string{"key 1": "100", "key 2": "-200", "key 3": "3.1415926"}
 
 	tests := []struct {
 		input  interface{}
@@ -918,6 +920,7 @@ func TestToStringMapStringE(t *testing.T) {
 		{interfaceMapString, stringMapString, false},
 		{interfaceMapInterface, stringMapString, false},
 		{jsonString, stringMapString, false},
+		{jsonStringWithNonString, mapStringWithNonString, false},
 
 		// errors
 		{nil, nil, true},
