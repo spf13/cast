@@ -1,4 +1,7 @@
 language: go
+arch:
+ - amd64
+ - ppc64le
 env:
   -  GO111MODULE=on
 sudo: required
