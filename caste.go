@@ -1264,6 +1264,7 @@ func StringToDate(s string) (time.Time, error) {
 		time.StampMilli,
 		time.StampMicro,
 		time.StampNano,
+		"Mon Jan 2 15:04:05 2006 -0700", // git's human log format
 	})
 }
 
