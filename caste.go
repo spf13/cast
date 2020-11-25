@@ -211,7 +211,7 @@ func ToInt64E(i interface{}) (int64, error) {
 	case float32:
 		return int64(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 0, 64)
 		if err == nil {
 			return v, nil
 		}
