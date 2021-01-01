@@ -15,6 +15,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type (
+	intAlias     int
+	int8Alias    int8
+	int16Alias   int16
+	int32Alias   int32
+	int64Alias   int64
+	uintAlias    uint
+	uint8Alias   uint8
+	uint16Alias  uint16
+	uint32Alias  uint32
+	uint64Alias  uint64
+	float32Alias float32
+	float64Alias float64
+	boolAlias    bool
+	stringAlias  string
+)
+
 func TestToUintE(t *testing.T) {
 	tests := []struct {
 		input  interface{}
@@ -605,22 +622,37 @@ func TestToStringE(t *testing.T) {
 		iserr  bool
 	}{
 		{int(8), "8", false},
+		{intAlias(8), "8", false},
 		{int8(8), "8", false},
+		{int8Alias(8), "8", false},
 		{int16(8), "8", false},
+		{int16Alias(8), "8", false},
 		{int32(8), "8", false},
+		{int32Alias(8), "8", false},
 		{int64(8), "8", false},
+		{int64Alias(8), "8", false},
 		{uint(8), "8", false},
+		{uintAlias(8), "8", false},
 		{uint8(8), "8", false},
+		{uint8Alias(8), "8", false},
 		{uint16(8), "8", false},
+		{uint16Alias(8), "8", false},
 		{uint32(8), "8", false},
+		{uint32Alias(8), "8", false},
 		{uint64(8), "8", false},
+		{uint64Alias(8), "8", false},
 		{float32(8.31), "8.31", false},
+		{float32Alias(8.31), "8.31", false},
 		{float64(8.31), "8.31", false},
+		{float64Alias(8.31), "8.31", false},
 		{true, "true", false},
+		{boolAlias(true), "true", false},
 		{false, "false", false},
+		{boolAlias(false), "false", false},
 		{nil, "", false},
 		{[]byte("one time"), "one time", false},
 		{"one more time", "one more time", false},
+		{stringAlias("one more time"), "one more time", false},
 		{template.HTML("one time"), "one time", false},
 		{template.URL("http://somehost.foo"), "http://somehost.foo", false},
 		{template.JS("(1+2)"), "(1+2)", false},
