@@ -7,6 +7,7 @@ package cast
 
 import (
 	"errors"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"testing"
@@ -599,6 +600,19 @@ func TestToStringE(t *testing.T) {
 	}
 	key := &Key{"foo"}
 
+	type Stru struct {
+		K string
+	}
+	stru := &Stru{K:"foo"}
+
+	struStr, _ := json.Marshal(stru)
+
+	dic := map[string]interface{}{
+		"obj": map[string]int{"key": 123},
+	}
+
+	dicStr, _ := json.Marshal(dic)
+
 	tests := []struct {
 		input  interface{}
 		expect string
@@ -620,15 +634,19 @@ func TestToStringE(t *testing.T) {
 		{false, "false", false},
 		{nil, "", false},
 		{[]byte("one time"), "one time", false},
+		{[]byte("你好！"), "你好！", false},
+		{[]rune("你好！"), "你好！", false},
 		{"one more time", "one more time", false},
 		{template.HTML("one time"), "one time", false},
 		{template.URL("http://somehost.foo"), "http://somehost.foo", false},
 		{template.JS("(1+2)"), "(1+2)", false},
 		{template.CSS("a"), "a", false},
 		{template.HTMLAttr("a"), "a", false},
+		{dic, string(dicStr), false},
+		{stru, string(struStr), false},
 		// errors
-		{testing.T{}, "", true},
-		{key, "", true},
+		{testing.T{}, "{}", false},
+		{key, "{}", false},
 	}
 
 	for i, test := range tests {
@@ -1212,6 +1230,7 @@ func TestToTimeEE(t *testing.T) {
 		{"2006-01-02", time.Date(2006, 1, 2, 0, 0, 0, 0, time.UTC), false},
 		{"02 Jan 2006", time.Date(2006, 1, 2, 0, 0, 0, 0, time.UTC), false},
 		{1472574600, time.Date(2016, 8, 30, 16, 30, 0, 0, time.UTC), false},
+		{"1600285405", time.Date(2020, 9, 16, 19, 43, 25, 0, time.UTC), false},
 		{int(1482597504), time.Date(2016, 12, 24, 16, 38, 24, 0, time.UTC), false},
 		{int64(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{int32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
