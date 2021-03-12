@@ -830,6 +830,8 @@ func ToStringE(i interface{}) (string, error) {
 		return strconv.FormatUint(uint64(s), 10), nil
 	case []byte:
 		return string(s), nil
+	case []rune:
+		return string(s), nil
 	case template.HTML:
 		return string(s), nil
 	case template.URL:
@@ -847,6 +849,11 @@ func ToStringE(i interface{}) (string, error) {
 	case error:
 		return s.Error(), nil
 	default:
+		jsonContent, err := json.Marshal(s)
+		if err == nil {
+			return string(jsonContent), nil
+		}
+
 		return "", fmt.Errorf("unable to cast %#v of type %T to string", i, i)
 	}
 }
