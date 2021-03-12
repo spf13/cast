@@ -1230,6 +1230,7 @@ func TestToTimeEE(t *testing.T) {
 		{"2006-01-02", time.Date(2006, 1, 2, 0, 0, 0, 0, time.UTC), false},
 		{"02 Jan 2006", time.Date(2006, 1, 2, 0, 0, 0, 0, time.UTC), false},
 		{1472574600, time.Date(2016, 8, 30, 16, 30, 0, 0, time.UTC), false},
+		{"1600285405", time.Date(2020, 9, 16, 19, 43, 25, 0, time.UTC), false},
 		{int(1482597504), time.Date(2016, 12, 24, 16, 38, 24, 0, time.UTC), false},
 		{int64(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{int32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},

@@ -1275,6 +1275,28 @@ func StringToDate(s string) (time.Time, error) {
 }
 
 func parseDateWith(s string, dates []string) (d time.Time, e error) {
+	if len(s) == len("1499979655583057426") { // 19
+		// nano-seconds
+		if nanoSecs, err := strconv.ParseInt(s, 10, 64); err == nil {
+			return time.Unix(0, nanoSecs), nil
+
+		}
+	} else if len(s) == len("1499979795437000") { // 16
+		// micro-seconds
+		if microSecs, err := strconv.ParseInt(s, 10, 64); err == nil {
+			return time.Unix(0, microSecs*1000), nil
+
+		}
+	} else if len(s) == len("1332151919000") { // 13
+		if miliSecs, err := strconv.ParseInt(s, 10, 64); err == nil {
+			return time.Unix(0, miliSecs*1000*1000), nil
+		}
+	} else if len(s) == len("1332151919") { //10
+		if secs, err := strconv.ParseInt(s, 10, 64); err == nil {
+			return time.Unix(secs, 0), nil
+		}
+	}
+
 	for _, dateType := range dates {
 		if d, e = time.Parse(dateType, s); e == nil {
 			return
