@@ -211,7 +211,7 @@ func ToInt64E(i interface{}) (int64, error) {
 	case float32:
 		return int64(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 10, 0)
 		if err == nil {
 			return v, nil
 		}
@@ -258,7 +258,7 @@ func ToInt32E(i interface{}) (int32, error) {
 	case float32:
 		return int32(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 10, 0)
 		if err == nil {
 			return int32(v), nil
 		}
@@ -305,7 +305,7 @@ func ToInt16E(i interface{}) (int16, error) {
 	case float32:
 		return int16(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 10, 0)
 		if err == nil {
 			return int16(v), nil
 		}
@@ -352,7 +352,7 @@ func ToInt8E(i interface{}) (int8, error) {
 	case float32:
 		return int8(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 10, 0)
 		if err == nil {
 			return int8(v), nil
 		}
@@ -399,7 +399,7 @@ func ToIntE(i interface{}) (int, error) {
 	case float32:
 		return int(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 10, 0)
 		if err == nil {
 			return int(v), nil
 		}
