@@ -1125,7 +1125,6 @@ func TestToBoolE(t *testing.T) {
 		expect bool
 		iserr  bool
 	}{
-		{0, false, false},
 		{nil, false, false},
 		{"false", false, false},
 		{"FALSE", false, false},
@@ -1139,9 +1138,34 @@ func TestToBoolE(t *testing.T) {
 		{"True", true, false},
 		{"t", true, false},
 		{"T", true, false},
-		{1, true, false},
 		{true, true, false},
 		{-1, true, false},
+
+		{float64(1), true, false},
+		{float32(1), true, false},
+		{int(1), true, false},
+		{int64(1), true, false},
+		{int32(1), true, false},
+		{int16(1), true, false},
+		{int8(1), true, false},
+		{uint(1), true, false},
+		{uint64(1), true, false},
+		{uint32(1), true, false},
+		{uint16(1), true, false},
+		{uint8(1), true, false},
+
+		{float64(0), false, false},
+		{float32(0), false, false},
+		{int(0), false, false},
+		{int64(0), false, false},
+		{int32(0), false, false},
+		{int16(0), false, false},
+		{int8(0), false, false},
+		{uint(0), false, false},
+		{uint64(0), false, false},
+		{uint32(0), false, false},
+		{uint16(0), false, false},
+		{uint8(0), false, false},
 
 		// errors
 		{"test", false, true},
