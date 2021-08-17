@@ -218,7 +218,7 @@ func ToInt64E(i interface{}) (int64, error) {
 	case float32:
 		return int64(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 10, 0)
 		if err == nil {
 			return v, nil
 		}
@@ -265,7 +265,7 @@ func ToInt32E(i interface{}) (int32, error) {
 	case float32:
 		return int32(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 10, 0)
 		if err == nil {
 			return int32(v), nil
 		}
@@ -312,7 +312,7 @@ func ToInt16E(i interface{}) (int16, error) {
 	case float32:
 		return int16(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 10, 0)
 		if err == nil {
 			return int16(v), nil
 		}
@@ -359,7 +359,7 @@ func ToInt8E(i interface{}) (int8, error) {
 	case float32:
 		return int8(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 10, 0)
 		if err == nil {
 			return int8(v), nil
 		}
@@ -406,7 +406,7 @@ func ToIntE(i interface{}) (int, error) {
 	case float32:
 		return int(s), nil
 	case string:
-		v, err := strconv.ParseInt(s, 0, 0)
+		v, err := strconv.ParseInt(s, 10, 0)
 		if err == nil {
 			return int(v), nil
 		}
@@ -429,7 +429,7 @@ func ToUintE(i interface{}) (uint, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseUint(s, 0, 0)
+		v, err := strconv.ParseUint(s, 10, 0)
 		if err == nil {
 			return uint(v), nil
 		}
@@ -497,7 +497,7 @@ func ToUint64E(i interface{}) (uint64, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseUint(s, 0, 64)
+		v, err := strconv.ParseUint(s, 10, 64)
 		if err == nil {
 			return v, nil
 		}
@@ -565,7 +565,7 @@ func ToUint32E(i interface{}) (uint32, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseUint(s, 0, 32)
+		v, err := strconv.ParseUint(s, 10, 32)
 		if err == nil {
 			return uint32(v), nil
 		}
@@ -633,7 +633,7 @@ func ToUint16E(i interface{}) (uint16, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseUint(s, 0, 16)
+		v, err := strconv.ParseUint(s, 10, 16)
 		if err == nil {
 			return uint16(v), nil
 		}
@@ -701,7 +701,7 @@ func ToUint8E(i interface{}) (uint8, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseUint(s, 0, 8)
+		v, err := strconv.ParseUint(s, 10, 8)
 		if err == nil {
 			return uint8(v), nil
 		}
