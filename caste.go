@@ -853,9 +853,25 @@ func ToStringE(i interface{}) (string, error) {
 		return s.String(), nil
 	case error:
 		return s.Error(), nil
-	default:
-		return "", fmt.Errorf("unable to cast %#v of type %T to string", i, i)
 	}
+
+	// support type redefinition
+	v := reflect.ValueOf(i)
+	switch v.Kind() {
+	case reflect.String:
+		return v.String(), nil
+	case reflect.Bool:
+		return strconv.FormatBool(v.Bool()), nil
+	case reflect.Float32:
+		return strconv.FormatFloat(v.Float(), 'f', -1, 32), nil
+	case reflect.Float64:
+		return strconv.FormatFloat(v.Float(), 'f', -1, 64), nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return strconv.FormatInt(v.Int(), 10), nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return strconv.FormatUint(v.Uint(), 10), nil
+	}
+	return "", fmt.Errorf("unable to cast %#v of type %T to string", i, i)
 }
 
 // ToStringMapStringE casts an interface to a map[string]string type.
