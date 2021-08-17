@@ -881,8 +881,11 @@ func ToStringMapStringE(i interface{}) (map[string]string, error) {
 		}
 		return m, nil
 	case string:
-		err := jsonStringToObject(v, &m)
-		return m, err
+		var temp = map[string]interface{}{}
+		if err := jsonStringToObject(v, &temp); err != nil {
+			return nil, err
+		}
+		return ToStringMapStringE(temp)
 	default:
 		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]string", i, i)
 	}
