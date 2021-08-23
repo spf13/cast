@@ -1078,6 +1078,36 @@ func ToStringMapInt64E(i interface{}) (map[string]int64, error) {
 	return m, nil
 }
 
+// ToStringMapTimeDurationE casts an interface to a map[string]time.Duration type.
+func ToStringMapTimeDurationE(i interface{}) (map[string]time.Duration, error) {
+	var m = map[string]time.Duration{}
+
+	switch v := i.(type) {
+	case map[string]string:
+		for k, val := range v {
+			m[ToString(k)] = ToDuration(val)
+		}
+		return m, nil
+	case map[string]interface{}:
+		for k, val := range v {
+			m[ToString(k)] = ToDuration(val)
+		}
+		return m, nil
+	case map[interface{}]string:
+		for k, val := range v {
+			m[ToString(k)] = ToDuration(val)
+		}
+		return m, nil
+	case map[interface{}]interface{}:
+		for k, val := range v {
+			m[ToString(k)] = ToDuration(val)
+		}
+		return m, nil
+	default:
+		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]time.Duration", i, i)
+	}
+}
+
 // ToSliceE casts an interface to a []interface{} type.
 func ToSliceE(i interface{}) ([]interface{}, error) {
 	var s []interface{}
