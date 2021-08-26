@@ -952,6 +952,8 @@ func TestToStringMapTimeDuration(t *testing.T) {
 	var stringMapInterface = map[string]interface{}{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"}
 	var interfaceMapString = map[interface{}]string{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"}
 	var interfaceMapInterface = map[interface{}]interface{}{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"}
+	var jsonString = `{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"}`
+	var invalidJsonString = `{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"`
 	var emptyString = ""
 
 	tests := []struct {
@@ -963,11 +965,13 @@ func TestToStringMapTimeDuration(t *testing.T) {
 		{stringMapInterface, expectResult, false},
 		{interfaceMapString, expectResult, false},
 		{interfaceMapInterface, expectResult, false},
+		{jsonString, expectResult, false},
 
 		// errors
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{emptyString, nil, true},
+		{invalidJsonString, nil, true},
 	}
 
 	for i, test := range tests {
@@ -975,7 +979,7 @@ func TestToStringMapTimeDuration(t *testing.T) {
 
 		v, err := ToStringMapTimeDurationE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			assert.Error(t, err, errmsg, test)
 			continue
 		}
 

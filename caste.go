@@ -1103,6 +1103,12 @@ func ToStringMapTimeDurationE(i interface{}) (map[string]time.Duration, error) {
 			m[ToString(k)] = ToDuration(val)
 		}
 		return m, nil
+	case string:
+		m2, err := ToStringMapStringE(i)
+		if err != nil || m2 == nil {
+			return m, err
+		}
+		return ToStringMapTimeDurationE(m2)
 	default:
 		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]time.Duration", i, i)
 	}
