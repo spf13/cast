@@ -163,6 +163,12 @@ func ToStringSlice(i interface{}) []string {
 	return v
 }
 
+// ToUint32Slice casts an interface to a []uint32 type.
+func ToUint32Slice(i interface{}) []uint32 {
+	v, _ := ToUint32SliceE(i)
+	return v
+}
+
 // ToIntSlice casts an interface to a []int type.
 func ToIntSlice(i interface{}) []int {
 	v, _ := ToIntSliceE(i)
