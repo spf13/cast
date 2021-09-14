@@ -993,6 +993,8 @@ func TestToUintSliceE(t *testing.T) {
 		// errors
 		{nil, nil, true},
 		{testing.T{}, nil, true},
+		{[]interface{}{-1, 2}, nil, true},
+		{[]string{"-2", "-3"}, nil, true},
 		{[]string{"foo", "bar"}, nil, true},
 	}
 
