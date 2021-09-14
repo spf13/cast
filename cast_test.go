@@ -980,6 +980,40 @@ func TestToBoolSliceE(t *testing.T) {
 	}
 }
 
+func TestToUintSliceE(t *testing.T) {
+	tests := []struct {
+		input  interface{}
+		expect []uint
+		iserr  bool
+	}{
+		{[]uint{1, 3}, []uint{1, 3}, false},
+		{[]interface{}{1.2, 3.2}, []uint{1, 3}, false},
+		{[]string{"2", "3"}, []uint{2, 3}, false},
+		{[2]string{"2", "3"}, []uint{2, 3}, false},
+		// errors
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToUintSliceE(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test
+		v = ToUintSlice(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
 func TestToIntSliceE(t *testing.T) {
 	tests := []struct {
 		input  interface{}

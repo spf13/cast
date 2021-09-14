@@ -1184,6 +1184,36 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 	}
 }
 
+// ToUintSliceE casts an interface to a []uint type.
+func ToUintSliceE(i interface{}) ([]uint, error) {
+	if i == nil {
+		return []uint{}, fmt.Errorf("unable to cast %#v of type %T to []uint", i, i)
+	}
+
+	switch v := i.(type) {
+	case []uint:
+		return v, nil
+	}
+
+	kind := reflect.TypeOf(i).Kind()
+	switch kind {
+	case reflect.Slice, reflect.Array:
+		s := reflect.ValueOf(i)
+		a := make([]uint, s.Len())
+		for j := 0; j < s.Len(); j++ {
+			val, err := ToUintE(s.Index(j).Interface())
+			if err != nil {
+				return []uint{}, fmt.Errorf("unable to cast %#v of type %T to []uint", i, i)
+			}
+			a[j] = val
+		}
+		return a, nil
+	default:
+		return []uint{}, fmt.Errorf("unable to cast %#v of type %T to []uint", i, i)
+	}
+}
+
+
 // ToIntSliceE casts an interface to a []int type.
 func ToIntSliceE(i interface{}) ([]int, error) {
 	if i == nil {
