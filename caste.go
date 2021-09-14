@@ -1213,7 +1213,6 @@ func ToUintSliceE(i interface{}) ([]uint, error) {
 	}
 }
 
-
 // ToIntSliceE casts an interface to a []int type.
 func ToIntSliceE(i interface{}) ([]int, error) {
 	if i == nil {
