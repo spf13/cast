@@ -980,7 +980,7 @@ func TestToBoolSliceE(t *testing.T) {
 	}
 }
 
-func TestToUintSliceE(t *testing.T) {
+func TestToUint32SliceE(t *testing.T) {
 	tests := []struct {
 		input  interface{}
 		expect []uint32
