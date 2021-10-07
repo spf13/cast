@@ -25,6 +25,12 @@ func ToTimeInDefaultLocation(i interface{}, location *time.Location) time.Time {
 	return v
 }
 
+// ToSizeInBytes casts an interface to the uint size in bytes.
+func ToSizeInBytes(i interface{}) uint {
+	v, _ := ToSizeInBytesE(i)
+	return v
+}
+
 // ToDuration casts an interface to a time.Duration type.
 func ToDuration(i interface{}) time.Duration {
 	v, _ := ToDurationE(i)

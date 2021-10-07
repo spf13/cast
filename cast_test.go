@@ -9,7 +9,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math"
 	"path"
+	"strconv"
 	"testing"
 	"time"
 
@@ -1295,6 +1297,50 @@ func TestToDurationE(t *testing.T) {
 		// Non-E test
 		v = ToDuration(test.input)
 		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
+func TestToSizeInBytes(t *testing.T) {
+	const (
+		kb = 1024
+		mb = 1024 * kb
+		gb = 1024 * mb
+	)
+
+	tests := []struct {
+		input  interface{}
+		expect uint
+		iserr  bool
+	}{
+		{123, 123, false},
+		{ "  42  ", 42, false},
+		{"1", 1, false},
+		{"2b", 2, false},
+		{"3B", 3, false},
+		{"4 b", 4, false},
+		{"5k", 5 * kb, false},
+		{"6 KB", 6 * kb, false},
+		{"7m", 7 * mb, false},
+		{"8MB", 8 * mb, false},
+		{"9 g", 9 * gb, false},
+		{"10 GB", 10 * gb, false},
+		// errors
+		{"test", 0, true},
+		{strconv.FormatUint(uint64(math.MaxUint64 / kb), 10) + "9999k", 0, true}, // overflow with suffix
+		{strconv.FormatUint(uint64(math.MaxUint), 10) + "0", 0, true}, // overflow without suffix
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToSizeInBytesE(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v)
 	}
 }
 
