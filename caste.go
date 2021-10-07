@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 var errNegativeNotAllowed = errors.New("unable to cast negative value")
@@ -50,6 +51,55 @@ func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.
 		return time.Time{}, fmt.Errorf("unable to cast %#v of type %T to Time", i, i)
 	}
 }
+
+func safeMul(a, b uint) (uint, error) {
+	c := a * b
+	if a > 1 && b > 1 && c/b != a {
+		return 0, errors.New("overflow")
+	}
+	return c, nil
+}
+
+
+// ToSizeInBytesE casts an empty interface to a size in bytes
+// interpreting the usual (k, m, g, kb, mB etc.) suffixes.
+func ToSizeInBytesE(i interface{}) (uint, error) {
+	sizeStr := strings.TrimSpace(ToString(i))
+	lastChar := len(sizeStr) - 1
+	multiplier := uint(1)
+
+	if lastChar > 0 {
+		if sizeStr[lastChar] == 'b' || sizeStr[lastChar] == 'B' {
+			sizeStr = sizeStr[:lastChar]
+			lastChar--
+		}
+		if lastChar > 0 {
+			switch unicode.ToLower(rune(sizeStr[lastChar])) {
+			case 'k':
+				multiplier = 1 << 10
+				sizeStr = strings.TrimSpace(sizeStr[:lastChar])
+			case 'm':
+				multiplier = 1 << 20
+				sizeStr = strings.TrimSpace(sizeStr[:lastChar])
+			case 'g':
+				multiplier = 1 << 30
+				sizeStr = strings.TrimSpace(sizeStr[:lastChar])
+			default:
+				multiplier = 1
+				sizeStr = strings.TrimSpace(sizeStr[:lastChar+1])
+			}
+		}
+	}
+
+	size, err := ToUintE(sizeStr)
+	if err != nil {
+		return 0, err
+	}
+
+	return safeMul(size, multiplier)
+}
+
+
 
 // ToDurationE casts an interface to a time.Duration type.
 func ToDurationE(i interface{}) (d time.Duration, err error) {
