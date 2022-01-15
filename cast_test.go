@@ -6,6 +6,7 @@
 package cast
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
@@ -18,6 +19,10 @@ import (
 )
 
 func TestToUintE(t *testing.T) {
+	var jn, nj, jne json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte("-8"), &nj)
+	_ = json.Unmarshal([]byte("8.0"), &jne)
 	tests := []struct {
 		input  interface{}
 		expect uint
@@ -38,6 +43,7 @@ func TestToUintE(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{nil, 0, false},
 		// errors
 		{int(-8), 0, true},
@@ -48,6 +54,8 @@ func TestToUintE(t *testing.T) {
 		{float32(-8.31), 0, true},
 		{float64(-8.31), 0, true},
 		{"-8", 0, true},
+		{nj, 0, true},
+		{jne, 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -71,6 +79,10 @@ func TestToUintE(t *testing.T) {
 }
 
 func TestToUint64E(t *testing.T) {
+	var jn, nj, jne json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte("-8"), &nj)
+	_ = json.Unmarshal([]byte("8.0"), &jne)
 	tests := []struct {
 		input  interface{}
 		expect uint64
@@ -91,6 +103,7 @@ func TestToUint64E(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{nil, 0, false},
 		// errors
 		{int(-8), 0, true},
@@ -101,6 +114,8 @@ func TestToUint64E(t *testing.T) {
 		{float32(-8.31), 0, true},
 		{float64(-8.31), 0, true},
 		{"-8", 0, true},
+		{nj, 0, true},
+		{jne, 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -124,6 +139,10 @@ func TestToUint64E(t *testing.T) {
 }
 
 func TestToUint32E(t *testing.T) {
+	var jn, nj, jne json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte("-8"), &nj)
+	_ = json.Unmarshal([]byte("8.0"), &jne)
 	tests := []struct {
 		input  interface{}
 		expect uint32
@@ -144,6 +163,7 @@ func TestToUint32E(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{nil, 0, false},
 		{int(-8), 0, true},
 		{int8(-8), 0, true},
@@ -153,7 +173,9 @@ func TestToUint32E(t *testing.T) {
 		{float32(-8.31), 0, true},
 		{float64(-8.31), 0, true},
 		{"-8", 0, true},
+		{nj, 0, true},
 		// errors
+		{jne, 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -177,6 +199,10 @@ func TestToUint32E(t *testing.T) {
 }
 
 func TestToUint16E(t *testing.T) {
+	var jn, nj, jne json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte("-8"), &nj)
+	_ = json.Unmarshal([]byte("8.0"), &jne)
 	tests := []struct {
 		input  interface{}
 		expect uint16
@@ -197,6 +223,7 @@ func TestToUint16E(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{nil, 0, false},
 		// errors
 		{int(-8), 0, true},
@@ -207,6 +234,8 @@ func TestToUint16E(t *testing.T) {
 		{float32(-8.31), 0, true},
 		{float64(-8.31), 0, true},
 		{"-8", 0, true},
+		{nj, 0, true},
+		{jne, 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -230,6 +259,10 @@ func TestToUint16E(t *testing.T) {
 }
 
 func TestToUint8E(t *testing.T) {
+	var jn, nj, jne json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte("-8"), &nj)
+	_ = json.Unmarshal([]byte("8.0"), &jne)
 	tests := []struct {
 		input  interface{}
 		expect uint8
@@ -250,6 +283,7 @@ func TestToUint8E(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{nil, 0, false},
 		// errors
 		{int(-8), 0, true},
@@ -260,6 +294,8 @@ func TestToUint8E(t *testing.T) {
 		{float32(-8.31), 0, true},
 		{float64(-8.31), 0, true},
 		{"-8", 0, true},
+		{nj, 0, true},
+		{jne, 0, true},
 		{"test", 0, true},
 		{testing.T{}, 0, true},
 	}
@@ -283,6 +319,9 @@ func TestToUint8E(t *testing.T) {
 }
 
 func TestToIntE(t *testing.T) {
+	var jn, nj json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte("8.0"), &nj)
 	tests := []struct {
 		input  interface{}
 		expect int
@@ -303,9 +342,11 @@ func TestToIntE(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{nil, 0, false},
 		// errors
 		{"test", 0, true},
+		{nj, 0, true},
 		{testing.T{}, 0, true},
 	}
 
@@ -328,6 +369,9 @@ func TestToIntE(t *testing.T) {
 }
 
 func TestToInt64E(t *testing.T) {
+	var jn, nj json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte(".8"), &nj)
 	tests := []struct {
 		input  interface{}
 		expect int64
@@ -348,9 +392,11 @@ func TestToInt64E(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{nil, 0, false},
 		// errors
 		{"test", 0, true},
+		{nj, 0, true},
 		{testing.T{}, 0, true},
 	}
 
@@ -373,6 +419,9 @@ func TestToInt64E(t *testing.T) {
 }
 
 func TestToInt32E(t *testing.T) {
+	var jn, nj json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte("8.0"), &nj)
 	tests := []struct {
 		input  interface{}
 		expect int32
@@ -393,9 +442,11 @@ func TestToInt32E(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{nil, 0, false},
 		// errors
 		{"test", 0, true},
+		{nj, 0, true},
 		{testing.T{}, 0, true},
 	}
 
@@ -418,6 +469,9 @@ func TestToInt32E(t *testing.T) {
 }
 
 func TestToInt16E(t *testing.T) {
+	var jn, nj json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte("8.0"), &nj)
 	tests := []struct {
 		input  interface{}
 		expect int16
@@ -438,9 +492,11 @@ func TestToInt16E(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{nil, 0, false},
 		// errors
 		{"test", 0, true},
+		{nj, 0, true},
 		{testing.T{}, 0, true},
 	}
 
@@ -463,6 +519,9 @@ func TestToInt16E(t *testing.T) {
 }
 
 func TestToInt8E(t *testing.T) {
+	var jn, nj json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte("8.0"), &nj)
 	tests := []struct {
 		input  interface{}
 		expect int8
@@ -483,9 +542,11 @@ func TestToInt8E(t *testing.T) {
 		{true, 1, false},
 		{false, 0, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{nil, 0, false},
 		// errors
 		{"test", 0, true},
+		{nj, 0, true},
 		{testing.T{}, 0, true},
 	}
 
@@ -508,6 +569,9 @@ func TestToInt8E(t *testing.T) {
 }
 
 func TestToFloat64E(t *testing.T) {
+	var jn, nj json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte(".8"), &nj)
 	tests := []struct {
 		input  interface{}
 		expect float64
@@ -526,10 +590,12 @@ func TestToFloat64E(t *testing.T) {
 		{float32(8), 8, false},
 		{float64(8.31), 8.31, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{true, 1, false},
 		{false, 0, false},
 		// errors
 		{"test", 0, true},
+		{nj, 0, true},
 		{testing.T{}, 0, true},
 	}
 
@@ -552,6 +618,9 @@ func TestToFloat64E(t *testing.T) {
 }
 
 func TestToFloat32E(t *testing.T) {
+	var jn, nj json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
+	_ = json.Unmarshal([]byte(".8"), &nj)
 	tests := []struct {
 		input  interface{}
 		expect float32
@@ -570,10 +639,12 @@ func TestToFloat32E(t *testing.T) {
 		{float32(8.31), 8.31, false},
 		{float64(8.31), 8.31, false},
 		{"8", 8, false},
+		{jn, 8, false},
 		{true, 1, false},
 		{false, 0, false},
 		// errors
 		{"test", 0, true},
+		{nj, 0, true},
 		{testing.T{}, 0, true},
 	}
 
@@ -596,6 +667,8 @@ func TestToFloat32E(t *testing.T) {
 }
 
 func TestToStringE(t *testing.T) {
+	var jn json.Number
+	_ = json.Unmarshal([]byte("8"), &jn)
 	type Key struct {
 		k string
 	}
@@ -618,6 +691,7 @@ func TestToStringE(t *testing.T) {
 		{uint64(8), "8", false},
 		{float32(8.31), "8.31", false},
 		{float64(8.31), "8.31", false},
+		{jn, "8", false},
 		{true, "true", false},
 		{false, "false", false},
 		{nil, "", false},
@@ -1120,12 +1194,17 @@ func TestToDurationSliceE(t *testing.T) {
 }
 
 func TestToBoolE(t *testing.T) {
+	var jf, jt, je json.Number
+	_ = json.Unmarshal([]byte("0"), &jf)
+	_ = json.Unmarshal([]byte("1"), &jt)
+	_ = json.Unmarshal([]byte("1.0"), &je)
 	tests := []struct {
 		input  interface{}
 		expect bool
 		iserr  bool
 	}{
 		{0, false, false},
+		{jf, false, false},
 		{nil, false, false},
 		{"false", false, false},
 		{"FALSE", false, false},
@@ -1140,11 +1219,13 @@ func TestToBoolE(t *testing.T) {
 		{"t", true, false},
 		{"T", true, false},
 		{1, true, false},
+		{jt, true, false},
 		{true, true, false},
 		{-1, true, false},
 
 		// errors
 		{"test", false, true},
+		{je, false, true},
 		{testing.T{}, false, true},
 	}
 
@@ -1197,6 +1278,9 @@ func TestIndirectPointers(t *testing.T) {
 }
 
 func TestToTime(t *testing.T) {
+	var jntime, jnetime json.Number
+	_ = json.Unmarshal([]byte("1234567890"), &jntime)
+	_ = json.Unmarshal([]byte("123.4567890"), &jnetime)
 	tests := []struct {
 		input  interface{}
 		expect time.Time
@@ -1235,9 +1319,11 @@ func TestToTime(t *testing.T) {
 		{uint(1482597504), time.Date(2016, 12, 24, 16, 38, 24, 0, time.UTC), false},
 		{uint64(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{uint32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
+		{jntime, time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		// errors
 		{"2006", time.Time{}, true},
+		{jnetime, time.Time{}, true},
 		{testing.T{}, time.Time{}, true},
 	}
 
@@ -1261,6 +1347,8 @@ func TestToTime(t *testing.T) {
 
 func TestToDurationE(t *testing.T) {
 	var td time.Duration = 5
+	var jn json.Number
+	_ = json.Unmarshal([]byte("5"), &jn)
 
 	tests := []struct {
 		input  interface{}
@@ -1280,6 +1368,7 @@ func TestToDurationE(t *testing.T) {
 		{uint8(5), td, false},
 		{float64(5), td, false},
 		{float32(5), td, false},
+		{jn, td, false},
 		{string("5"), td, false},
 		{string("5ns"), td, false},
 		{string("5us"), time.Microsecond * td, false},

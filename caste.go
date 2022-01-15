@@ -34,6 +34,12 @@ func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.
 		return v, nil
 	case string:
 		return StringToDateInDefaultLocation(v, location)
+	case json.Number:
+		s, err1 := v.Int64()
+		if err1 != nil {
+			return time.Time{}, fmt.Errorf("unable to cast %#v of type %T to Time", i, i)
+		}
+		return time.Unix(s, 0), nil
 	case int:
 		return time.Unix(int64(v), 0), nil
 	case int64:
@@ -71,6 +77,11 @@ func ToDurationE(i interface{}) (d time.Duration, err error) {
 			d, err = time.ParseDuration(s + "ns")
 		}
 		return
+	case json.Number:
+		var v float64
+		v, err = s.Float64()
+		d = time.Duration(v)
+		return
 	default:
 		err = fmt.Errorf("unable to cast %#v of type %T to Duration", i, i)
 		return
@@ -93,6 +104,12 @@ func ToBoolE(i interface{}) (bool, error) {
 		return false, nil
 	case string:
 		return strconv.ParseBool(i.(string))
+	case json.Number:
+		v, err := b.Int64()
+		if err == nil {
+			return v != 0, nil
+		}
+		return false, fmt.Errorf("unable to cast %#v of type %T to bool", i, i)
 	default:
 		return false, fmt.Errorf("unable to cast %#v of type %T to bool", i, i)
 	}
@@ -129,6 +146,12 @@ func ToFloat64E(i interface{}) (float64, error) {
 		return float64(s), nil
 	case string:
 		v, err := strconv.ParseFloat(s, 64)
+		if err == nil {
+			return v, nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
+	case json.Number:
+		v, err := s.Float64()
 		if err == nil {
 			return v, nil
 		}
@@ -178,6 +201,12 @@ func ToFloat32E(i interface{}) (float32, error) {
 			return float32(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to float32", i, i)
+	case json.Number:
+		v, err := s.Float64()
+		if err == nil {
+			return float32(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to float32", i, i)
 	case bool:
 		if s {
 			return 1, nil
@@ -219,6 +248,12 @@ func ToInt64E(i interface{}) (int64, error) {
 		return int64(s), nil
 	case string:
 		v, err := strconv.ParseInt(s, 0, 0)
+		if err == nil {
+			return v, nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
+	case json.Number:
+		v, err := s.Int64()
 		if err == nil {
 			return v, nil
 		}
@@ -270,6 +305,12 @@ func ToInt32E(i interface{}) (int32, error) {
 			return int32(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			return int32(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
 	case bool:
 		if s {
 			return 1, nil
@@ -313,6 +354,12 @@ func ToInt16E(i interface{}) (int16, error) {
 		return int16(s), nil
 	case string:
 		v, err := strconv.ParseInt(s, 0, 0)
+		if err == nil {
+			return int16(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
+	case json.Number:
+		v, err := s.Int64()
 		if err == nil {
 			return int16(v), nil
 		}
@@ -364,6 +411,12 @@ func ToInt8E(i interface{}) (int8, error) {
 			return int8(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			return int8(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
 	case bool:
 		if s {
 			return 1, nil
@@ -411,6 +464,12 @@ func ToIntE(i interface{}) (int, error) {
 			return int(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			return int(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
 	case bool:
 		if s {
 			return 1, nil
@@ -431,6 +490,15 @@ func ToUintE(i interface{}) (uint, error) {
 	case string:
 		v, err := strconv.ParseUint(s, 0, 0)
 		if err == nil {
+			return uint(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v to uint: %s", i, err)
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			if v < 0 {
+				return 0, errNegativeNotAllowed
+			}
 			return uint(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v to uint: %s", i, err)
@@ -502,6 +570,15 @@ func ToUint64E(i interface{}) (uint64, error) {
 			return v, nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v to uint64: %s", i, err)
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			if v < 0 {
+				return 0, errNegativeNotAllowed
+			}
+			return uint64(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v to uint64: %s", i, err)
 	case int:
 		if s < 0 {
 			return 0, errNegativeNotAllowed
@@ -567,6 +644,15 @@ func ToUint32E(i interface{}) (uint32, error) {
 	case string:
 		v, err := strconv.ParseUint(s, 0, 32)
 		if err == nil {
+			return uint32(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v to uint32: %s", i, err)
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			if v < 0 {
+				return 0, errNegativeNotAllowed
+			}
 			return uint32(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v to uint32: %s", i, err)
@@ -638,6 +724,15 @@ func ToUint16E(i interface{}) (uint16, error) {
 			return uint16(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v to uint16: %s", i, err)
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			if v < 0 {
+				return 0, errNegativeNotAllowed
+			}
+			return uint16(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v to uint16: %s", i, err)
 	case int:
 		if s < 0 {
 			return 0, errNegativeNotAllowed
@@ -703,6 +798,15 @@ func ToUint8E(i interface{}) (uint8, error) {
 	case string:
 		v, err := strconv.ParseUint(s, 0, 8)
 		if err == nil {
+			return uint8(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v to uint8: %s", i, err)
+	case json.Number:
+		v, err := s.Int64()
+		if err == nil {
+			if v < 0 {
+				return 0, errNegativeNotAllowed
+			}
 			return uint8(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v to uint8: %s", i, err)
@@ -835,6 +939,8 @@ func ToStringE(i interface{}) (string, error) {
 		return strconv.FormatUint(uint64(s), 10), nil
 	case uint8:
 		return strconv.FormatUint(uint64(s), 10), nil
+	case json.Number:
+		return s.String(), nil
 	case []byte:
 		return string(s), nil
 	case template.HTML:
