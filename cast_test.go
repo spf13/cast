@@ -11,662 +11,226 @@ import (
 	"fmt"
 	"html/template"
 	"path"
+	"reflect"
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	qt "github.com/frankban/quicktest"
 )
 
-func TestToUintE(t *testing.T) {
-	var jn, nj, jne json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte("-8"), &nj)
-	_ = json.Unmarshal([]byte("8.0"), &jne)
-	tests := []struct {
-		input  interface{}
-		expect uint
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8, false},
-		{float64(8.31), 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{nil, 0, false},
-		// errors
-		{int(-8), 0, true},
-		{int8(-8), 0, true},
-		{int16(-8), 0, true},
-		{int32(-8), 0, true},
-		{int64(-8), 0, true},
-		{float32(-8.31), 0, true},
-		{float64(-8.31), 0, true},
-		{"-8", 0, true},
-		{nj, 0, true},
-		{jne, 0, true},
-		{"test", 0, true},
-		{testing.T{}, 0, true},
+type testStep struct {
+	input  interface{}
+	expect interface{}
+	iserr  bool
+}
+
+func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightpoint31negative interface{}) []testStep {
+	var jeight, jminuseight, jfloateight json.Number
+	_ = json.Unmarshal([]byte("8"), &jeight)
+	_ = json.Unmarshal([]byte("-8"), &jminuseight)
+	_ = json.Unmarshal([]byte("8.0"), &jfloateight)
+
+	kind := reflect.TypeOf(zero).Kind()
+	isUint := kind == reflect.Uint || kind == reflect.Uint8 || kind == reflect.Uint16 || kind == reflect.Uint32 || kind == reflect.Uint64
+
+	// Some precision is lost when converting from float64 to float32.
+	eightpoint31_32 := eightpoint31
+	eightpoint31negative_32 := eightpoint31negative
+	if kind == reflect.Float64 {
+		eightpoint31_32 = float64(float32(eightpoint31.(float64)))
+		eightpoint31negative_32 = float64(float32(eightpoint31negative.(float64)))
 	}
+
+	return []testStep{
+		{int(8), eight, false},
+		{int8(8), eight, false},
+		{int16(8), eight, false},
+		{int32(8), eight, false},
+		{int64(8), eight, false},
+		{time.Weekday(8), eight, false},
+		{time.Month(8), eight, false},
+		{uint(8), eight, false},
+		{uint8(8), eight, false},
+		{uint16(8), eight, false},
+		{uint32(8), eight, false},
+		{uint64(8), eight, false},
+		{float32(8.31), eightpoint31_32, false},
+		{float64(8.31), eightpoint31, false},
+		{true, one, false},
+		{false, zero, false},
+		{"8", eight, false},
+		{nil, zero, false},
+		{int(-8), eightnegative, isUint},
+		{int8(-8), eightnegative, isUint},
+		{int16(-8), eightnegative, isUint},
+		{int32(-8), eightnegative, isUint},
+		{int64(-8), eightnegative, isUint},
+		{float32(-8.31), eightpoint31negative_32, isUint},
+		{float64(-8.31), eightpoint31negative, isUint},
+		{"-8", eightnegative, isUint},
+		{jeight, eight, false},
+		{jminuseight, eightnegative, isUint},
+		{jfloateight, eight, false},
+		{"test", zero, true},
+		{testing.T{}, zero, true},
+	}
+}
+
+// Maybe Go 1.18 generics will make this less ugly?
+func runNumberTest(c *qt.C, tests []testStep, tove func(interface{}) (interface{}, error), tov func(interface{}) interface{}) {
+	c.Helper()
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i)
 
-		v, err := ToUintE(test.input)
+		v, err := tove(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil, errmsg)
 			continue
 		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil, errmsg)
+		c.Assert(v, qt.Equals, test.expect, errmsg)
 
 		// Non-E test:
-		v = ToUint(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		v = tov(test.input)
+		c.Assert(v, qt.Equals, test.expect, errmsg)
 	}
+}
+
+func TestToUintE(t *testing.T) {
+	tests := createNumberTestSteps(uint(0), uint(1), uint(8), uint(0), uint(8), uint(8))
+
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToUintE(v) },
+		func(v interface{}) interface{} { return ToUint(v) },
+	)
 }
 
 func TestToUint64E(t *testing.T) {
-	var jn, nj, jne json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte("-8"), &nj)
-	_ = json.Unmarshal([]byte("8.0"), &jne)
-	tests := []struct {
-		input  interface{}
-		expect uint64
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8, false},
-		{float64(8.31), 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{nil, 0, false},
-		// errors
-		{int(-8), 0, true},
-		{int8(-8), 0, true},
-		{int16(-8), 0, true},
-		{int32(-8), 0, true},
-		{int64(-8), 0, true},
-		{float32(-8.31), 0, true},
-		{float64(-8.31), 0, true},
-		{"-8", 0, true},
-		{nj, 0, true},
-		{jne, 0, true},
-		{"test", 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(uint64(0), uint64(1), uint64(8), uint64(0), uint64(8), uint64(8))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToUint64E(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test:
-		v = ToUint64(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToUint64E(v) },
+		func(v interface{}) interface{} { return ToUint64(v) },
+	)
 }
 
 func TestToUint32E(t *testing.T) {
-	var jn, nj, jne json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte("-8"), &nj)
-	_ = json.Unmarshal([]byte("8.0"), &jne)
-	tests := []struct {
-		input  interface{}
-		expect uint32
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8, false},
-		{float64(8.31), 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{nil, 0, false},
-		{int(-8), 0, true},
-		{int8(-8), 0, true},
-		{int16(-8), 0, true},
-		{int32(-8), 0, true},
-		{int64(-8), 0, true},
-		{float32(-8.31), 0, true},
-		{float64(-8.31), 0, true},
-		{"-8", 0, true},
-		{nj, 0, true},
-		// errors
-		{jne, 0, true},
-		{"test", 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(uint32(0), uint32(1), uint32(8), uint32(0), uint32(8), uint32(8))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToUint32E(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test:
-		v = ToUint32(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToUint32E(v) },
+		func(v interface{}) interface{} { return ToUint32(v) },
+	)
 }
 
 func TestToUint16E(t *testing.T) {
-	var jn, nj, jne json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte("-8"), &nj)
-	_ = json.Unmarshal([]byte("8.0"), &jne)
-	tests := []struct {
-		input  interface{}
-		expect uint16
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8, false},
-		{float64(8.31), 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{nil, 0, false},
-		// errors
-		{int(-8), 0, true},
-		{int8(-8), 0, true},
-		{int16(-8), 0, true},
-		{int32(-8), 0, true},
-		{int64(-8), 0, true},
-		{float32(-8.31), 0, true},
-		{float64(-8.31), 0, true},
-		{"-8", 0, true},
-		{nj, 0, true},
-		{jne, 0, true},
-		{"test", 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(uint16(0), uint16(1), uint16(8), uint16(0), uint16(8), uint16(8))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToUint16E(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test
-		v = ToUint16(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToUint16E(v) },
+		func(v interface{}) interface{} { return ToUint16(v) },
+	)
 }
 
 func TestToUint8E(t *testing.T) {
-	var jn, nj, jne json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte("-8"), &nj)
-	_ = json.Unmarshal([]byte("8.0"), &jne)
-	tests := []struct {
-		input  interface{}
-		expect uint8
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8, false},
-		{float64(8.31), 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{nil, 0, false},
-		// errors
-		{int(-8), 0, true},
-		{int8(-8), 0, true},
-		{int16(-8), 0, true},
-		{int32(-8), 0, true},
-		{int64(-8), 0, true},
-		{float32(-8.31), 0, true},
-		{float64(-8.31), 0, true},
-		{"-8", 0, true},
-		{nj, 0, true},
-		{jne, 0, true},
-		{"test", 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(uint8(0), uint8(1), uint8(8), uint8(0), uint8(8), uint8(8))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToUint8E(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test
-		v = ToUint8(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToUint8E(v) },
+		func(v interface{}) interface{} { return ToUint8(v) },
+	)
 }
-
 func TestToIntE(t *testing.T) {
-	var jn, nj json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte("8.0"), &nj)
-	tests := []struct {
-		input  interface{}
-		expect int
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8, false},
-		{float64(8.31), 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{nil, 0, false},
-		// errors
-		{"test", 0, true},
-		{nj, 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(int(0), int(1), int(8), int(-8), int(8), int(-8))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToIntE(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test
-		v = ToInt(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToIntE(v) },
+		func(v interface{}) interface{} { return ToInt(v) },
+	)
 }
 
 func TestToInt64E(t *testing.T) {
-	var jn, nj json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte(".8"), &nj)
-	tests := []struct {
-		input  interface{}
-		expect int64
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8, false},
-		{float64(8.31), 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{nil, 0, false},
-		// errors
-		{"test", 0, true},
-		{nj, 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(int64(0), int64(1), int64(8), int64(-8), int64(8), int64(-8))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToInt64E(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test
-		v = ToInt64(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToInt64E(v) },
+		func(v interface{}) interface{} { return ToInt64(v) },
+	)
 }
 
 func TestToInt32E(t *testing.T) {
-	var jn, nj json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte("8.0"), &nj)
-	tests := []struct {
-		input  interface{}
-		expect int32
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8, false},
-		{float64(8.31), 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{nil, 0, false},
-		// errors
-		{"test", 0, true},
-		{nj, 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(int32(0), int32(1), int32(8), int32(-8), int32(8), int32(-8))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToInt32E(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test
-		v = ToInt32(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToInt32E(v) },
+		func(v interface{}) interface{} { return ToInt32(v) },
+	)
 }
 
 func TestToInt16E(t *testing.T) {
-	var jn, nj json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte("8.0"), &nj)
-	tests := []struct {
-		input  interface{}
-		expect int16
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8, false},
-		{float64(8.31), 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{nil, 0, false},
-		// errors
-		{"test", 0, true},
-		{nj, 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(int16(0), int16(1), int16(8), int16(-8), int16(8), int16(-8))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToInt16E(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test
-		v = ToInt16(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToInt16E(v) },
+		func(v interface{}) interface{} { return ToInt16(v) },
+	)
 }
 
 func TestToInt8E(t *testing.T) {
-	var jn, nj json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte("8.0"), &nj)
-	tests := []struct {
-		input  interface{}
-		expect int8
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8, false},
-		{float64(8.31), 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{nil, 0, false},
-		// errors
-		{"test", 0, true},
-		{nj, 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(int8(0), int8(1), int8(8), int8(-8), int8(8), int8(-8))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToInt8E(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test
-		v = ToInt8(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToInt8E(v) },
+		func(v interface{}) interface{} { return ToInt8(v) },
+	)
 }
 
 func TestToFloat64E(t *testing.T) {
-	var jn, nj json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte(".8"), &nj)
-	tests := []struct {
-		input  interface{}
-		expect float64
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8), 8, false},
-		{float64(8.31), 8.31, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		// errors
-		{"test", 0, true},
-		{nj, 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(float64(0), float64(1), float64(8), float64(-8), float64(8.31), float64(-8.31))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToFloat64E(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test
-		v = ToFloat64(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToFloat64E(v) },
+		func(v interface{}) interface{} { return ToFloat64(v) },
+	)
 }
 
 func TestToFloat32E(t *testing.T) {
-	var jn, nj json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
-	_ = json.Unmarshal([]byte(".8"), &nj)
-	tests := []struct {
-		input  interface{}
-		expect float32
-		iserr  bool
-	}{
-		{int(8), 8, false},
-		{int8(8), 8, false},
-		{int16(8), 8, false},
-		{int32(8), 8, false},
-		{int64(8), 8, false},
-		{uint(8), 8, false},
-		{uint8(8), 8, false},
-		{uint16(8), 8, false},
-		{uint32(8), 8, false},
-		{uint64(8), 8, false},
-		{float32(8.31), 8.31, false},
-		{float64(8.31), 8.31, false},
-		{"8", 8, false},
-		{jn, 8, false},
-		{true, 1, false},
-		{false, 0, false},
-		// errors
-		{"test", 0, true},
-		{nj, 0, true},
-		{testing.T{}, 0, true},
-	}
+	tests := createNumberTestSteps(float32(0), float32(1), float32(8), float32(-8), float32(8.31), float32(-8.31))
 
-	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
-
-		v, err := ToFloat32E(test.input)
-		if test.iserr {
-			assert.Error(t, err, errmsg)
-			continue
-		}
-
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
-
-		// Non-E test
-		v = ToFloat32(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
-	}
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return ToFloat32E(v) },
+		func(v interface{}) interface{} { return ToFloat32(v) },
+	)
 }
 
 func TestToStringE(t *testing.T) {
+	c := qt.New(t)
+
 	var jn json.Number
 	_ = json.Unmarshal([]byte("8"), &jn)
 	type Key struct {
@@ -708,20 +272,20 @@ func TestToStringE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToStringE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil, errmsg)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil, errmsg)
+		c.Assert(v, qt.Equals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToString(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.Equals, test.expect, errmsg)
 	}
 }
 
@@ -734,9 +298,11 @@ func (x foo) String() string {
 }
 
 func TestStringerToString(t *testing.T) {
+	c := qt.New(t)
+
 	var x foo
 	x.val = "bar"
-	assert.Equal(t, "bar", ToString(x))
+	c.Assert(ToString(x), qt.Equals, "bar")
 }
 
 type fu struct {
@@ -748,12 +314,16 @@ func (x fu) Error() string {
 }
 
 func TestErrorToString(t *testing.T) {
+	c := qt.New(t)
+
 	var x fu
 	x.val = "bar"
-	assert.Equal(t, "bar", ToString(x))
+	c.Assert(ToString(x), qt.Equals, "bar")
 }
 
 func TestStringMapStringSliceE(t *testing.T) {
+	c := qt.New(t)
+
 	// ToStringMapString inputs/outputs
 	var stringMapString = map[string]string{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
 	var stringMapInterface = map[string]interface{}{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
@@ -811,24 +381,26 @@ func TestStringMapStringSliceE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToStringMapStringSliceE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil, errmsg)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToStringMapStringSlice(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToStringMapE(t *testing.T) {
+	c := qt.New(t)
+
 	tests := []struct {
 		input  interface{}
 		expect map[string]interface{}
@@ -846,24 +418,26 @@ func TestToStringMapE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToStringMapE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil, errmsg)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToStringMap(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToStringMapBoolE(t *testing.T) {
+	c := qt.New(t)
+
 	tests := []struct {
 		input  interface{}
 		expect map[string]bool
@@ -881,24 +455,26 @@ func TestToStringMapBoolE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToStringMapBoolE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil, errmsg)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToStringMapBool(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToStringMapIntE(t *testing.T) {
+	c := qt.New(t)
+
 	tests := []struct {
 		input  interface{}
 		expect map[string]int
@@ -919,24 +495,26 @@ func TestToStringMapIntE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToStringMapIntE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil, errmsg)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToStringMapInt(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToStringMapInt64E(t *testing.T) {
+	c := qt.New(t)
+
 	tests := []struct {
 		input  interface{}
 		expect map[string]int64
@@ -958,24 +536,26 @@ func TestToStringMapInt64E(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToStringMapInt64E(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToStringMapInt64(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToStringMapStringE(t *testing.T) {
+	c := qt.New(t)
+
 	var stringMapString = map[string]string{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
 	var stringMapInterface = map[string]interface{}{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
 	var interfaceMapString = map[interface{}]string{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
@@ -1003,24 +583,26 @@ func TestToStringMapStringE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToStringMapStringE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToStringMapString(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToBoolSliceE(t *testing.T) {
+	c := qt.New(t)
+
 	tests := []struct {
 		input  interface{}
 		expect []bool
@@ -1037,24 +619,26 @@ func TestToBoolSliceE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToBoolSliceE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToBoolSlice(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToIntSliceE(t *testing.T) {
+	c := qt.New(t)
+
 	tests := []struct {
 		input  interface{}
 		expect []int
@@ -1071,24 +655,26 @@ func TestToIntSliceE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToIntSliceE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToIntSlice(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToSliceE(t *testing.T) {
+	c := qt.New(t)
+
 	tests := []struct {
 		input  interface{}
 		expect []interface{}
@@ -1102,24 +688,26 @@ func TestToSliceE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToSliceE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToSlice(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToStringSliceE(t *testing.T) {
+	c := qt.New(t)
+
 	tests := []struct {
 		input  interface{}
 		expect []string
@@ -1141,24 +729,26 @@ func TestToStringSliceE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToStringSliceE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToStringSlice(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToDurationSliceE(t *testing.T) {
+	c := qt.New(t)
+
 	tests := []struct {
 		input  interface{}
 		expect []time.Duration
@@ -1176,24 +766,26 @@ func TestToDurationSliceE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToDurationSliceE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToDurationSlice(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }
 
 func TestToBoolE(t *testing.T) {
+	c := qt.New(t)
+
 	var jf, jt, je json.Number
 	_ = json.Unmarshal([]byte("0"), &jf)
 	_ = json.Unmarshal([]byte("1"), &jt)
@@ -1220,30 +812,30 @@ func TestToBoolE(t *testing.T) {
 		{"T", true, false},
 		{1, true, false},
 		{jt, true, false},
+		{je, true, false},
 		{true, true, false},
 		{-1, true, false},
 
 		// errors
 		{"test", false, true},
-		{je, false, true},
 		{testing.T{}, false, true},
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToBoolE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.Equals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToBool(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.Equals, test.expect, errmsg)
 	}
 }
 
@@ -1268,16 +860,30 @@ func BenchmarkTooInt(b *testing.B) {
 	}
 }
 
+func BenchmarkTrimZeroDecimal(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		trimZeroDecimal("")
+		trimZeroDecimal("123")
+		trimZeroDecimal("120")
+		trimZeroDecimal("120.00")
+	}
+}
+
 func TestIndirectPointers(t *testing.T) {
+	c := qt.New(t)
+
 	x := 13
 	y := &x
 	z := &y
 
-	assert.Equal(t, ToInt(y), 13)
-	assert.Equal(t, ToInt(z), 13)
+	c.Assert(ToInt(y), qt.Equals, 13)
+	c.Assert(ToInt(z), qt.Equals, 13)
+
 }
 
 func TestToTime(t *testing.T) {
+	c := qt.New(t)
+
 	var jntime, jnetime json.Number
 	_ = json.Unmarshal([]byte("1234567890"), &jntime)
 	_ = json.Unmarshal([]byte("123.4567890"), &jnetime)
@@ -1328,24 +934,26 @@ func TestToTime(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToTimeE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v.UTC(), errmsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v.UTC(), qt.Equals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToTime(test.input)
-		assert.Equal(t, test.expect, v.UTC(), errmsg)
+		c.Assert(v.UTC(), qt.Equals, test.expect, errmsg)
 	}
 }
 
 func TestToDurationE(t *testing.T) {
+	c := qt.New(t)
+
 	var td time.Duration = 5
 	var jn json.Number
 	_ = json.Unmarshal([]byte("5"), &jn)
@@ -1383,33 +991,34 @@ func TestToDurationE(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
 		v, err := ToDurationE(test.input)
 		if test.iserr {
-			assert.Error(t, err, errmsg)
+			c.Assert(err, qt.IsNotNil)
 			continue
 		}
 
-		assert.NoError(t, err, errmsg)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.Equals, test.expect, errmsg)
 
 		// Non-E test
 		v = ToDuration(test.input)
-		assert.Equal(t, test.expect, v, errmsg)
+		c.Assert(v, qt.Equals, test.expect, errmsg)
 	}
 }
 
 func TestToTimeWithTimezones(t *testing.T) {
+	c := qt.New(t)
 
 	est, err := time.LoadLocation("EST")
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
 	irn, err := time.LoadLocation("Iran")
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
 	swd, err := time.LoadLocation("Europe/Stockholm")
-	require.NoError(t, err)
+	c.Assert(err, qt.IsNil)
 
 	// Test same local time in different timezones
 	utc2016 := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.UTC)
@@ -1431,9 +1040,9 @@ func TestToTimeWithTimezones(t *testing.T) {
 			swd2016str := swd2016.Format(format.format)
 
 			t.Run("without default location", func(t *testing.T) {
-				assert := require.New(t)
+				c := qt.New(t)
 				converted, err := ToTimeE(est2016str)
-				assert.NoError(err)
+				c.Assert(err, qt.IsNil)
 				if format.hasTimezone() {
 					// Converting inputs with a timezone should preserve it
 					assertTimeEqual(t, est2016, converted)
@@ -1447,9 +1056,9 @@ func TestToTimeWithTimezones(t *testing.T) {
 			})
 
 			t.Run("local timezone without a default location", func(t *testing.T) {
-				assert := require.New(t)
+				c := qt.New(t)
 				converted, err := ToTimeE(swd2016str)
-				assert.NoError(err)
+				c.Assert(err, qt.IsNil)
 				if format.hasTimezone() {
 					// Converting inputs with a timezone should preserve it
 					assertTimeEqual(t, swd2016, converted)
@@ -1463,10 +1072,10 @@ func TestToTimeWithTimezones(t *testing.T) {
 			})
 
 			t.Run("nil default location", func(t *testing.T) {
-				assert := require.New(t)
+				c := qt.New(t)
 
 				converted, err := ToTimeInDefaultLocationE(est2016str, nil)
-				assert.NoError(err)
+				c.Assert(err, qt.IsNil)
 				if format.hasTimezone() {
 					// Converting inputs with a timezone should preserve it
 					assertTimeEqual(t, est2016, converted)
@@ -1481,10 +1090,10 @@ func TestToTimeWithTimezones(t *testing.T) {
 			})
 
 			t.Run("default location not UTC", func(t *testing.T) {
-				assert := require.New(t)
+				c := qt.New(t)
 
 				converted, err := ToTimeInDefaultLocationE(est2016str, irn)
-				assert.NoError(err)
+				c.Assert(err, qt.IsNil)
 				if format.hasTimezone() {
 					// Converting inputs with a timezone should preserve it
 					assertTimeEqual(t, est2016, converted)
@@ -1499,10 +1108,10 @@ func TestToTimeWithTimezones(t *testing.T) {
 			})
 
 			t.Run("time in the local timezone default location not UTC", func(t *testing.T) {
-				assert := require.New(t)
+				c := qt.New(t)
 
 				converted, err := ToTimeInDefaultLocationE(swd2016str, irn)
-				assert.NoError(err)
+				c.Assert(err, qt.IsNil)
 				if format.hasTimezone() {
 					// Converting inputs with a timezone should preserve it
 					assertTimeEqual(t, swd2016, converted)
@@ -1521,18 +1130,27 @@ func TestToTimeWithTimezones(t *testing.T) {
 	}
 }
 
+func TestTrimZeroDecimal(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(trimZeroDecimal("10.0"), qt.Equals, "10")
+	c.Assert(trimZeroDecimal("10.00"), qt.Equals, "10")
+	c.Assert(trimZeroDecimal("10.010"), qt.Equals, "10.010")
+	c.Assert(trimZeroDecimal("0.0000000000"), qt.Equals, "0")
+	c.Assert(trimZeroDecimal("0.00000000001"), qt.Equals, "0.00000000001")
+
+}
+
 func assertTimeEqual(t *testing.T, expected, actual time.Time) {
 	t.Helper()
 	// Compare the dates using a numeric zone as there are cases where
 	// time.Parse will assign a dummy location.
-	// TODO(bep)
-	//require.Equal(t, expected, actual)
-	require.Equal(t, expected.Format(time.RFC1123Z), actual.Format(time.RFC1123Z))
+	qt.Assert(t, actual.Format(time.RFC1123Z), qt.Equals, expected.Format(time.RFC1123Z))
 }
 
 func assertLocationEqual(t *testing.T, expected, actual *time.Location) {
 	t.Helper()
-	require.True(t, locationEqual(expected, actual), fmt.Sprintf("Expected location '%s', got '%s'", expected, actual))
+	qt.Assert(t, locationEqual(expected, actual), qt.IsTrue)
 }
 
 func locationEqual(a, b *time.Location) bool {
