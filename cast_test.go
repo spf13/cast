@@ -1174,6 +1174,19 @@ func BenchmarkTooBool(b *testing.B) {
 	}
 }
 
+func BenchmarkTooInt(b *testing.B) {
+	convert := func(num52 interface{}) {
+		if v := ToInt(num52); v != 52 {
+			b.Fatalf("ToInt returned wrong value, got %d, want %d", v, 32)
+		}
+	}
+	for i := 0; i < b.N; i++ {
+		convert("52")
+		convert(52.0)
+		convert(uint64(52))
+	}
+}
+
 func TestIndirectPointers(t *testing.T) {
 	x := 13
 	y := &x
