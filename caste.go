@@ -924,7 +924,7 @@ func ToStringE(i interface{}) (string, error) {
 	case int64:
 		return strconv.FormatInt(s, 10), nil
 	case int32:
-		return strconv.Itoa(int(s)), nil
+		return strconv.FormatInt(int64(s), 10), nil
 	case int16:
 		return strconv.FormatInt(int64(s), 10), nil
 	case int8:
