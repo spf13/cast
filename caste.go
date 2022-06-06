@@ -501,11 +501,8 @@ func ToUintE(i interface{}) (uint, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
-			if v < 0 {
-				return 0, errNegativeNotAllowed
-			}
 			return uint(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint", i, i)
@@ -577,11 +574,8 @@ func ToUint64E(i interface{}) (uint64, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
-			if v < 0 {
-				return 0, errNegativeNotAllowed
-			}
 			return uint64(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint64", i, i)
@@ -653,11 +647,8 @@ func ToUint32E(i interface{}) (uint32, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
-			if v < 0 {
-				return 0, errNegativeNotAllowed
-			}
 			return uint32(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint32", i, i)
@@ -729,11 +720,8 @@ func ToUint16E(i interface{}) (uint16, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
-			if v < 0 {
-				return 0, errNegativeNotAllowed
-			}
 			return uint16(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint16", i, i)
@@ -805,11 +793,8 @@ func ToUint8E(i interface{}) (uint8, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
-			if v < 0 {
-				return 0, errNegativeNotAllowed
-			}
 			return uint8(v), nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint8", i, i)
