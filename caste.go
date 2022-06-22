@@ -1299,6 +1299,17 @@ func ToIntSliceE(i interface{}) ([]int, error) {
 	switch v := i.(type) {
 	case []int:
 		return v, nil
+	case string:
+		ss := strings.Fields(v)
+		a := make([]int, 0, len(ss))
+		for _, s := range ss {
+			v, err := strconv.Atoi(s)
+			if err != nil {
+				return []int{}, fmt.Errorf("unable to cast %#v of type %T to []int", i, i)
+			}
+			a = append(a, v)
+		}
+		return a, nil
 	}
 
 	kind := reflect.TypeOf(i).Kind()
