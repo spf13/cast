@@ -1095,6 +1095,11 @@ func ToStringMapE(i interface{}) (map[string]interface{}, error) {
 		return m, nil
 	case map[string]interface{}:
 		return v, nil
+	case []interface{}:
+		for x := range v {
+			m[ToString(x)] = v[x]
+		}
+		return m, nil
 	case string:
 		err := jsonStringToObject(v, &m)
 		return m, err
