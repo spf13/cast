@@ -6,7 +6,9 @@
 // Package cast provides easy and safe casting in Go.
 package cast
 
-import "time"
+import (
+	"time"
+)
 
 // ToBool casts an interface to a bool type.
 func ToBool(i interface{}) bool {
@@ -70,6 +72,11 @@ func ToInt8(i interface{}) int8 {
 // ToInt casts an interface to an int type.
 func ToInt(i interface{}) int {
 	v, _ := ToIntE(i)
+	return v
+}
+
+func Atoi(i interface{}) int {
+	v, _ := AtoiE(i)
 	return v
 }
 

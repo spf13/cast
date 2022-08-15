@@ -73,3 +73,5 @@ the code for a complete set.
     cast.ToInt(eight)              // 8
     cast.ToInt(nil)                // 0
 
+    cast.Atoi("0890")              // 890
+
