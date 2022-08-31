@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math"
 	"path"
 	"reflect"
 	"testing"
@@ -109,7 +110,7 @@ func TestToUintE(t *testing.T) {
 }
 
 func TestToUint64E(t *testing.T) {
-	tests := createNumberTestSteps(uint64(0), uint64(1), uint64(8), uint64(0), uint64(8), uint64(8))
+	tests := createNumberTestSteps(uint64(0), uint64(1), uint64(8), uint64(0), uint64(8), uint64(math.MaxUint64))
 
 	runNumberTest(
 		qt.New(t),
@@ -120,7 +121,7 @@ func TestToUint64E(t *testing.T) {
 }
 
 func TestToUint32E(t *testing.T) {
-	tests := createNumberTestSteps(uint32(0), uint32(1), uint32(8), uint32(0), uint32(8), uint32(8))
+	tests := createNumberTestSteps(uint32(0), uint32(1), uint32(8), uint32(0), uint32(8), uint32(math.MaxUint32))
 
 	runNumberTest(
 		qt.New(t),
@@ -131,7 +132,7 @@ func TestToUint32E(t *testing.T) {
 }
 
 func TestToUint16E(t *testing.T) {
-	tests := createNumberTestSteps(uint16(0), uint16(1), uint16(8), uint16(0), uint16(8), uint16(8))
+	tests := createNumberTestSteps(uint16(0), uint16(1), uint16(8), uint16(0), uint16(8), uint16(math.MaxUint16))
 
 	runNumberTest(
 		qt.New(t),
@@ -142,7 +143,7 @@ func TestToUint16E(t *testing.T) {
 }
 
 func TestToUint8E(t *testing.T) {
-	tests := createNumberTestSteps(uint8(0), uint8(1), uint8(8), uint8(0), uint8(8), uint8(8))
+	tests := createNumberTestSteps(uint8(0), uint8(1), uint8(8), uint8(0), uint8(8), uint8(math.MaxUint8))
 
 	runNumberTest(
 		qt.New(t),
@@ -163,7 +164,7 @@ func TestToIntE(t *testing.T) {
 }
 
 func TestToInt64E(t *testing.T) {
-	tests := createNumberTestSteps(int64(0), int64(1), int64(8), int64(-8), int64(8), int64(-8))
+	tests := createNumberTestSteps(int64(0), int64(1), int64(8), int64(-8), int64(math.MaxInt64), int64(math.MinInt64))
 
 	runNumberTest(
 		qt.New(t),
@@ -174,7 +175,7 @@ func TestToInt64E(t *testing.T) {
 }
 
 func TestToInt32E(t *testing.T) {
-	tests := createNumberTestSteps(int32(0), int32(1), int32(8), int32(-8), int32(8), int32(-8))
+	tests := createNumberTestSteps(int32(0), int32(1), int32(8), int32(-8), int32(math.MaxInt32), int32(math.MinInt32))
 
 	runNumberTest(
 		qt.New(t),
@@ -185,7 +186,7 @@ func TestToInt32E(t *testing.T) {
 }
 
 func TestToInt16E(t *testing.T) {
-	tests := createNumberTestSteps(int16(0), int16(1), int16(8), int16(-8), int16(8), int16(-8))
+	tests := createNumberTestSteps(int16(0), int16(1), int16(8), int16(-8), int16(math.MaxInt16), int16(math.MinInt16))
 
 	runNumberTest(
 		qt.New(t),
@@ -196,7 +197,7 @@ func TestToInt16E(t *testing.T) {
 }
 
 func TestToInt8E(t *testing.T) {
-	tests := createNumberTestSteps(int8(0), int8(1), int8(8), int8(-8), int8(8), int8(-8))
+	tests := createNumberTestSteps(int8(0), int8(1), int8(8), int8(-8), int8(math.MaxInt8), int8(math.MinInt8))
 
 	runNumberTest(
 		qt.New(t),
