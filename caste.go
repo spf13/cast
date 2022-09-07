@@ -1197,6 +1197,19 @@ func ToSliceE(i interface{}) ([]interface{}, error) {
 		}
 		return s, nil
 	default:
+		if i != nil {
+			kind := reflect.TypeOf(i).Kind()
+			switch kind {
+			case reflect.Slice, reflect.Array:
+				a := reflect.ValueOf(i)
+				s = make([]interface{}, a.Len())
+				for j := 0; j < a.Len(); j++ {
+					s[j] = a.Index(j).Interface()
+				}
+				return s, nil
+			}
+		}
+
 		return s, fmt.Errorf("unable to cast %#v of type %T to []interface{}", i, i)
 	}
 }
