@@ -161,6 +161,16 @@ func TestToIntE(t *testing.T) {
 		func(v interface{}) interface{} { return ToInt(v) },
 	)
 }
+func TestAtoiE(t *testing.T) {
+	tests := createNumberTestSteps(int(0), int(1), int(8), int(-8), int(8), int(-8))
+	tests = append(tests, testStep{input: "0890", expect: 890, iserr: false})
+	runNumberTest(
+		qt.New(t),
+		tests,
+		func(v interface{}) (interface{}, error) { return AtoiE(v) },
+		func(v interface{}) interface{} { return Atoi(v) },
+	)
+}
 
 func TestToInt64E(t *testing.T) {
 	tests := createNumberTestSteps(int64(0), int64(1), int64(8), int64(-8), int64(8), int64(-8))

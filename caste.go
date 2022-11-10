@@ -487,6 +487,57 @@ func ToIntE(i interface{}) (int, error) {
 	}
 }
 
+func AtoiE(i interface{}) (int, error) {
+	i = indirect(i)
+
+	intv, ok := toInt(i)
+	if ok {
+		return intv, nil
+	}
+
+	switch s := i.(type) {
+	case int64:
+		return int(s), nil
+	case int32:
+		return int(s), nil
+	case int16:
+		return int(s), nil
+	case int8:
+		return int(s), nil
+	case uint:
+		return int(s), nil
+	case uint64:
+		return int(s), nil
+	case uint32:
+		return int(s), nil
+	case uint16:
+		return int(s), nil
+	case uint8:
+		return int(s), nil
+	case float64:
+		return int(s), nil
+	case float32:
+		return int(s), nil
+	case string:
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
+		if err == nil {
+			return int(v), nil
+		}
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
+	case json.Number:
+		return ToIntE(string(s))
+	case bool:
+		if s {
+			return 1, nil
+		}
+		return 0, nil
+	case nil:
+		return 0, nil
+	default:
+		return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
+	}
+}
+
 // ToUintE casts an interface to a uint type.
 func ToUintE(i interface{}) (uint, error) {
 	i = indirect(i)
