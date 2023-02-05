@@ -1,7 +1,7 @@
-cast
-====
+# cast
+
 [![GoDoc](https://godoc.org/github.com/spf13/cast?status.svg)](https://godoc.org/github.com/spf13/cast)
-[![Build Status](https://github.com/spf13/cast/actions/workflows/go.yml/badge.svg)](https://github.com/spf13/cast/actions/workflows/go.yml)
+[![Build Status](https://github.com/spf13/cast/actions/workflows/ci.yml/badge.svg)](https://github.com/spf13/cast/actions/workflows/ci.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/spf13/cast)](https://goreportcard.com/report/github.com/spf13/cast)
 
 Easy and safe casting from one type to another in Go
@@ -72,4 +72,3 @@ the code for a complete set.
 	var eight interface{} = 8
     cast.ToInt(eight)              // 8
     cast.ToInt(nil)                // 0
-
