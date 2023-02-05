@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math"
 	"path"
 	"reflect"
 	"testing"
@@ -34,11 +35,16 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 	isUint := kind == reflect.Uint || kind == reflect.Uint8 || kind == reflect.Uint16 || kind == reflect.Uint32 || kind == reflect.Uint64
 
 	// Some precision is lost when converting from float64 to float32.
+	// rounded variables are necessary for string parsed value comparison
 	eightpoint31_32 := eightpoint31
+	eightpoint31_32_rounded := eightpoint31
 	eightpoint31negative_32 := eightpoint31negative
+	eightpoint31negative_32_rounded := eightpoint31negative
 	if kind == reflect.Float64 {
 		eightpoint31_32 = float64(float32(eightpoint31.(float64)))
+		eightpoint31_32_rounded = math.Floor(float64(float32(eightpoint31.(float64)))*100) / 100
 		eightpoint31negative_32 = float64(float32(eightpoint31negative.(float64)))
+		eightpoint31negative_32_rounded = math.Ceil(float64(float32(eightpoint31negative.(float64)))*100) / 100
 	}
 
 	return []testStep{
@@ -56,7 +62,7 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 		{uint64(8), eight, false},
 		{float32(8.31), eightpoint31_32, false},
 		{float64(8.31), eightpoint31, false},
-		{"8.31", eightpoint31_32, false},
+		{"8.31", eightpoint31_32_rounded, false},
 		{"8.31", eightpoint31, false},
 		{true, one, false},
 		{false, zero, false},
@@ -69,7 +75,7 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 		{int64(-8), eightnegative, isUint},
 		{float32(-8.31), eightpoint31negative_32, isUint},
 		{float64(-8.31), eightpoint31negative, isUint},
-		{"-8.31", eightpoint31negative_32, isUint},
+		{"-8.31", eightpoint31negative_32_rounded, isUint},
 		{"-8.31", eightpoint31negative, isUint},
 		{"-8", eightnegative, isUint},
 		{jeight, eight, false},
