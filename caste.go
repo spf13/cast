@@ -35,7 +35,10 @@ func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.
 	case string:
 		return StringToDateInDefaultLocation(v, location)
 	case json.Number:
-		s, err1 := ToInt64E(v)
+		// Originally this used ToInt64E, but since it supports casting from string float
+		// the behavior of ToTime would have changed if we continued using it.
+		// For now, using json.Number's own Int64 method should be good enough.
+		s, err1 := v.Int64()
 		if err1 != nil {
 			return time.Time{}, fmt.Errorf("unable to cast %#v of type %T to Time", i, i)
 		}
@@ -260,7 +263,7 @@ func ToInt64E(i interface{}) (int64, error) {
 	case float32:
 		return int64(s), nil
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 		if err == nil {
 			return v, nil
 		}
@@ -312,7 +315,7 @@ func ToInt32E(i interface{}) (int32, error) {
 	case float32:
 		return int32(s), nil
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 		if err == nil {
 			return int32(v), nil
 		}
@@ -364,7 +367,7 @@ func ToInt16E(i interface{}) (int16, error) {
 	case float32:
 		return int16(s), nil
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 		if err == nil {
 			return int16(v), nil
 		}
@@ -416,7 +419,7 @@ func ToInt8E(i interface{}) (int8, error) {
 	case float32:
 		return int8(s), nil
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 		if err == nil {
 			return int8(v), nil
 		}
@@ -468,7 +471,7 @@ func ToIntE(i interface{}) (int, error) {
 	case float32:
 		return int(s), nil
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 		if err == nil {
 			return int(v), nil
 		}
@@ -501,7 +504,7 @@ func ToUintE(i interface{}) (uint, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -577,7 +580,7 @@ func ToUint64E(i interface{}) (uint64, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -653,7 +656,7 @@ func ToUint32E(i interface{}) (uint32, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -729,7 +732,7 @@ func ToUint16E(i interface{}) (uint16, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -805,7 +808,7 @@ func ToUint8E(i interface{}) (uint8, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -1456,6 +1459,15 @@ func toInt(v interface{}) (int, bool) {
 	default:
 		return 0, false
 	}
+}
+
+func trimDecimal(s string) string {
+	// trim the decimal part (if any)
+	if i := strings.Index(s, "."); i >= 0 {
+		s = s[:i]
+	}
+
+	return s
 }
 
 func trimZeroDecimal(s string) string {
