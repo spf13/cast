@@ -17,7 +17,7 @@ interface into a bool, etc. Cast does this intelligently when an obvious
 conversion is possible. It doesn’t make any attempts to guess what you meant,
 for example you can only convert a string to an int when it is a string
 representation of an int such as “8”. Cast was developed for use in
-[Hugo](http://hugo.spf13.com), a website engine which uses YAML, TOML or JSON
+[Hugo](https://gohugo.io), a website engine which uses YAML, TOML or JSON
 for meta data.
 
 ## Why use Cast?
