@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: Build
     runs-on: ${{ matrix.os }}
     strategy:
       # Fail fast is disabled because there are Go version specific features and tests
