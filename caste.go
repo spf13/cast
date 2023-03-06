@@ -522,7 +522,7 @@ func ToUintE(i interface{}) (uint, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -598,12 +598,12 @@ func ToUint64E(i interface{}) (uint64, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
 			}
-			return uint64(v), nil
+			return v, nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint64", i, i)
 	case json.Number:
@@ -674,7 +674,7 @@ func ToUint32E(i interface{}) (uint32, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -750,7 +750,7 @@ func ToUint16E(i interface{}) (uint16, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -826,7 +826,7 @@ func ToUint8E(i interface{}) (uint8, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -1414,8 +1414,10 @@ var (
 		{time.RFC822, timeFormatNamedTimezone},
 		{time.RFC850, timeFormatNamedTimezone},
 		{"2006-01-02 15:04:05.999999999 -0700 MST", timeFormatNumericAndNamedTimezone}, // Time.String()
-		{"2006-01-02T15:04:05-0700", timeFormatNumericTimezone},                        // RFC3339 without timezone hh:mm colon
-		{"2006-01-02 15:04:05Z0700", timeFormatNumericTimezone},                        // RFC3339 without T or timezone hh:mm colon
+		{"2006-01-02T15:04:05-0700",
+			timeFormatNumericTimezone}, // RFC3339 without timezone hh:mm colon
+		{"2006-01-02 15:04:05Z0700",
+			timeFormatNumericTimezone}, // RFC3339 without T or timezone hh:mm colon
 		{"2006-01-02 15:04:05", timeFormatNoTimezone},
 		{time.ANSIC, timeFormatNoTimezone},
 		{time.UnixDate, timeFormatNamedTimezone},
