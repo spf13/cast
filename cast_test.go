@@ -678,6 +678,45 @@ func TestToIntSliceE(t *testing.T) {
 	}
 }
 
+func TestToFloat64SliceE(t *testing.T) {
+	c := qt.New(t)
+
+	tests := []struct {
+		input  interface{}
+		expect []float64
+		iserr  bool
+	}{
+		{[]int{1, 3}, []float64{1, 3}, false},
+		{[]float64{1.2, 3.2}, []float64{1.2, 3.2}, false},
+		{[]interface{}{1.2, 3.2}, []float64{1.2, 3.2}, false},
+		{[]string{"2", "3"}, []float64{2, 3}, false},
+		{[]string{"1.2", "3.2"}, []float64{1.2, 3.2}, false},
+		{[2]string{"2", "3"}, []float64{2, 3}, false},
+		{[2]string{"1.2", "3.2"}, []float64{1.2, 3.2}, false},
+		// errors
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+	}
+
+	for i, test := range tests {
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
+
+		v, err := ToFloat64SliceE(test.input)
+		if test.iserr {
+			c.Assert(err, qt.IsNotNil)
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
+
+		// Non-E test
+		v = ToFloat64Slice(test.input)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
+	}
+}
+
 func TestToSliceE(t *testing.T) {
 	c := qt.New(t)
 
