@@ -6,7 +6,10 @@
 // Package cast provides easy and safe casting in Go.
 package cast
 
-import "time"
+import (
+	"encoding/binary"
+	"time"
+)
 
 // ToBool casts an interface to a bool type.
 func ToBool(i interface{}) bool {
@@ -166,6 +169,12 @@ func ToStringSlice(i interface{}) []string {
 // ToIntSlice casts an interface to a []int type.
 func ToIntSlice(i interface{}) []int {
 	v, _ := ToIntSliceE(i)
+	return v
+}
+
+// ToBytes casts an interface to a []byte type.
+func ToBytes(i interface{}, b binary.ByteOrder) []byte {
+	v, _ := ToBytesE(i, b)
 	return v
 }
 
