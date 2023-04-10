@@ -251,6 +251,7 @@ func TestToStringE(t *testing.T) {
 		{int32(8), "8", false},
 		{int64(8), "8", false},
 		{uint(8), "8", false},
+		{uint8(8), "8", false},
 		{uint16(8), "8", false},
 		{uint32(8), "8", false},
 		{uint64(8), "8", false},
