@@ -897,6 +897,17 @@ func BenchmarkTrimZeroDecimal(b *testing.B) {
 	}
 }
 
+func BenchmarkCommonTimeLayouts(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for _, commonLayout := range []string{"2019-04-29", "2017-05-30T00:00:00Z"} {
+			_, err := StringToDateInDefaultLocation(commonLayout, time.UTC)
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	}
+}
+
 func TestIndirectPointers(t *testing.T) {
 	c := qt.New(t)
 
