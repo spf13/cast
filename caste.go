@@ -1406,6 +1406,8 @@ func (f timeFormat) hasTimezone() bool {
 
 var (
 	timeFormats = []timeFormat{
+		// Keep common formats at the top.
+		{"2006-01-02", timeFormatNoTimezone},
 		{time.RFC3339, timeFormatNumericTimezone},
 		{"2006-01-02T15:04:05", timeFormatNoTimezone}, // iso8601 without timezone
 		{time.RFC1123Z, timeFormatNumericTimezone},
@@ -1421,7 +1423,6 @@ var (
 		{time.UnixDate, timeFormatNamedTimezone},
 		{time.RubyDate, timeFormatNumericTimezone},
 		{"2006-01-02 15:04:05Z07:00", timeFormatNumericTimezone},
-		{"2006-01-02", timeFormatNoTimezone},
 		{"02 Jan 2006", timeFormatNoTimezone},
 		{"2006-01-02 15:04:05 -07:00", timeFormatNumericTimezone},
 		{"2006-01-02 15:04:05 -0700", timeFormatNumericTimezone},
