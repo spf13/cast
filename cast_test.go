@@ -797,6 +797,18 @@ func TestToBoolE(t *testing.T) {
 		iserr  bool
 	}{
 		{0, false, false},
+		{int64(0), false, false},
+		{int32(0), false, false},
+		{int16(0), false, false},
+		{int8(0), false, false},
+		{uint(0), false, false},
+		{uint64(0), false, false},
+		{uint32(0), false, false},
+		{uint16(0), false, false},
+		{uint8(0), false, false},
+		{float64(0), false, false},
+		{float32(0), false, false},
+		{time.Duration(0), false, false},
 		{jf, false, false},
 		{nil, false, false},
 		{"false", false, false},
@@ -812,10 +824,26 @@ func TestToBoolE(t *testing.T) {
 		{"t", true, false},
 		{"T", true, false},
 		{1, true, false},
+		{int64(1), true, false},
+		{int32(1), true, false},
+		{int16(1), true, false},
+		{int8(1), true, false},
+		{uint(1), true, false},
+		{uint64(1), true, false},
+		{uint32(1), true, false},
+		{uint16(1), true, false},
+		{uint8(1), true, false},
+		{float64(1), true, false},
+		{float32(1), true, false},
+		{time.Duration(1), true, false},
 		{jt, true, false},
 		{je, true, false},
 		{true, true, false},
 		{-1, true, false},
+		{int64(-1), true, false},
+		{int32(-1), true, false},
+		{int16(-1), true, false},
+		{int8(-1), true, false},
 
 		// errors
 		{"test", false, true},
@@ -867,6 +895,17 @@ func BenchmarkTrimZeroDecimal(b *testing.B) {
 		trimZeroDecimal("123")
 		trimZeroDecimal("120")
 		trimZeroDecimal("120.00")
+	}
+}
+
+func BenchmarkCommonTimeLayouts(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for _, commonLayout := range []string{"2019-04-29", "2017-05-30T00:00:00Z"} {
+			_, err := StringToDateInDefaultLocation(commonLayout, time.UTC)
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
 	}
 }
 
