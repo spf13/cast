@@ -682,6 +682,10 @@ func TestToSliceE(t *testing.T) {
 	}{
 		{[]interface{}{1, 3}, []interface{}{1, 3}, false},
 		{[]map[string]interface{}{{"k1": 1}, {"k2": 2}}, []interface{}{map[string]interface{}{"k1": 1}, map[string]interface{}{"k2": 2}}, false},
+		{[]int{1, 2}, []interface{}{1, 2}, false},
+		{[]struct{}{{}, {}}, []interface{}{struct{}{}, struct{}{}}, false},
+		{[]interface{}{nil, nil}, []interface{}{nil, nil}, false},
+		{[]*int{nil, nil}, []interface{}{(*int)(nil), (*int)(nil)}, false},
 		// errors
 		{nil, nil, true},
 		{testing.T{}, nil, true},
