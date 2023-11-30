@@ -1340,6 +1340,35 @@ func ToIntSliceE(i interface{}) ([]int, error) {
 	}
 }
 
+// ToFloat64SliceE casts an interface to a []float64 type.
+func ToFloat64SliceE(i interface{}) ([]float64, error) {
+	if i == nil {
+		return []float64{}, fmt.Errorf("unable to cast %#v of type %T to []float64", i, i)
+	}
+
+	switch v := i.(type) {
+	case []float64:
+		return v, nil
+	}
+
+	kind := reflect.TypeOf(i).Kind()
+	switch kind {
+	case reflect.Slice, reflect.Array:
+		s := reflect.ValueOf(i)
+		a := make([]float64, s.Len())
+		for j := 0; j < s.Len(); j++ {
+			val, err := ToFloat64E(s.Index(j).Interface())
+			if err != nil {
+				return []float64{}, fmt.Errorf("unable to cast %#v of type %T to []float64", i, i)
+			}
+			a[j] = val
+		}
+		return a, nil
+	default:
+		return []float64{}, fmt.Errorf("unable to cast %#v of type %T to []float64", i, i)
+	}
+}
+
 // ToDurationSliceE casts an interface to a []time.Duration type.
 func ToDurationSliceE(i interface{}) ([]time.Duration, error) {
 	if i == nil {
