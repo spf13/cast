@@ -462,7 +462,7 @@ func ToIntE(i interface{}) (int, error) {
 
 	intv, ok := toInt(i)
 	if ok {
-		return intv, nil
+		return int(intv), nil
 	}
 
 	switch s := i.(type) {
@@ -1467,17 +1467,29 @@ func jsonStringToObject(s string, v interface{}) error {
 // toInt returns the int value of v if v or v's underlying type
 // is an int.
 // Note that this will return false for int64 etc. types.
-func toInt(v interface{}) (int, bool) {
+func toInt(v interface{}) (int64, bool) {
+	if i, ok := tryInt64(v); ok {
+		return i, ok
+	}
 	switch v := v.(type) {
 	case int:
-		return v, true
+		return int64(v), true
 	case time.Weekday:
-		return int(v), true
+		return int64(v), true
 	case time.Month:
-		return int(v), true
+		return int64(v), true
 	default:
 		return 0, false
 	}
+}
+
+// tryInt64 returns the int64 value of v if v or v's underlying type
+func tryInt64(i interface{}) (int64, bool) {
+	val := reflect.ValueOf(i)
+	if val.CanInt() {
+		return val.Int(), true
+	}
+	return 0, false
 }
 
 func trimZeroDecimal(s string) string {
