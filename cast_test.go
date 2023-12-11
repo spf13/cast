@@ -30,6 +30,12 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 	_ = json.Unmarshal([]byte("-8"), &jminuseight)
 	_ = json.Unmarshal([]byte("8.0"), &jfloateight)
 
+	// alias
+	type aliasType int
+	const (
+		eightAliasType aliasType = 8
+	)
+
 	kind := reflect.TypeOf(zero).Kind()
 	isUint := kind == reflect.Uint || kind == reflect.Uint8 || kind == reflect.Uint16 || kind == reflect.Uint32 || kind == reflect.Uint64
 
@@ -1222,9 +1228,3 @@ func locationEqual(a, b *time.Location) bool {
 
 	return tA.Equal(tB)
 }
-
-type BizType int
-
-const (
-	eightAliasType BizType = 8
-)
