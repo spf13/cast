@@ -32,9 +32,6 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 
 	// alias
 	type aliasType int
-	const (
-		eightAliasType aliasType = 8
-	)
 
 	kind := reflect.TypeOf(zero).Kind()
 	isUint := kind == reflect.Uint || kind == reflect.Uint8 || kind == reflect.Uint16 || kind == reflect.Uint32 || kind == reflect.Uint64
@@ -53,7 +50,7 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 		{int16(8), eight, false},
 		{int32(8), eight, false},
 		{int64(8), eight, false},
-		{eightAliasType, eight, false},
+		{aliasType(8), eight, false},
 		{time.Weekday(8), eight, false},
 		{time.Month(8), eight, false},
 		{uint(8), eight, false},
