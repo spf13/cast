@@ -1320,6 +1320,8 @@ func ToIntSliceE(i interface{}) ([]int, error) {
 	switch v := i.(type) {
 	case []int:
 		return v, nil
+	case string:
+		return ToIntSliceE(strings.Fields(v))
 	}
 
 	kind := reflect.TypeOf(i).Kind()
