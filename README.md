@@ -1,13 +1,15 @@
 # cast
 
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/spf13/cast/ci.yaml?branch=master&style=flat-square)](https://github.com/spf13/cast/actions/workflows/ci.yaml)
-[![PkgGoDev](https://pkg.go.dev/badge/mod/github.com/spf13/cast)](https://pkg.go.dev/mod/github.com/spf13/cast)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/PeterlitsZo/cast/ci.yaml?branch=master&style=flat-square)](https://github.com/PeterlitsZo/cast/actions/workflows/ci.yaml)
+[![PkgGoDev](https://pkg.go.dev/badge/mod/github.com/PeterlitsZo/cast)](https://pkg.go.dev/mod/github.com/PeterlitsZo/cast)
 ![Go Version](https://img.shields.io/badge/go%20version-%3E=1.16-61CFDD.svg?style=flat-square)
-[![Go Report Card](https://goreportcard.com/badge/github.com/spf13/cast?style=flat-square)](https://goreportcard.com/report/github.com/spf13/cast)
+[![Go Report Card](https://goreportcard.com/badge/github.com/PeterlitsZo/cast?style=flat-square)](https://goreportcard.com/report/github.com/PeterlitsZo/cast)
 
 Easy and safe casting from one type to another in Go
 
 Don’t Panic! ... Cast
+
+> This project is forked from `spf13/cast`, See section **What's New** to know more.
 
 ## What is Cast?
 
@@ -73,3 +75,15 @@ the code for a complete set.
 	var eight interface{} = 8
     cast.ToInt(eight)              // 8
     cast.ToInt(nil)                // 0
+
+### What's new
+
+- `v0.1.0`:
+    - The original version forked from `spf13/cast`.
+- `v0.1.1`:
+    - Support string-alias type's `ToStringE` and `ToString` function.
+
+      ```go
+      type StrAlias string
+      ToString(StrAlias("foobar")) // "foobar"
+      ```
