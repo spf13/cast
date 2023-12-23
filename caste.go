@@ -911,7 +911,7 @@ func indirect(a interface{}) interface{} {
 // Copyright 2011 The Go Authors. All rights reserved.
 // indirectToStringerOrError returns the value, after dereferencing as many times
 // as necessary to reach the base type (or nil) or an implementation of fmt.Stringer
-// or error,
+// or error.
 func indirectToStringerOrError(a interface{}) interface{} {
 	if a == nil {
 		return nil
@@ -980,6 +980,12 @@ func ToStringE(i interface{}) (string, error) {
 		return s.String(), nil
 	case error:
 		return s.Error(), nil
+	}
+
+	iReflectVal := reflect.ValueOf(i)
+	switch iReflectVal.Kind() {
+	case reflect.String:
+		return iReflectVal.String(), nil
 	default:
 		return "", fmt.Errorf("unable to cast %#v of type %T to string", i, i)
 	}
