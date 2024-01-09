@@ -41,6 +41,13 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 		eightpoint31negative_32 = float64(float32(eightpoint31negative.(float64)))
 	}
 
+	streight := eight
+	streightnegative := eightnegative
+	if kind == reflect.Float32 || kind == reflect.Float64 {
+		streight = eightpoint31
+		streightnegative = eightpoint31negative
+	}
+
 	return []testStep{
 		{int(8), eight, false},
 		{int8(8), eight, false},
@@ -59,6 +66,7 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 		{true, one, false},
 		{false, zero, false},
 		{"8", eight, false},
+		{"8.31", streight, false},
 		{nil, zero, false},
 		{int(-8), eightnegative, isUint},
 		{int8(-8), eightnegative, isUint},
@@ -68,6 +76,7 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 		{float32(-8.31), eightpoint31negative_32, isUint},
 		{float64(-8.31), eightpoint31negative, isUint},
 		{"-8", eightnegative, isUint},
+		{"-8.31", streightnegative, isUint},
 		{jeight, eight, false},
 		{jminuseight, eightnegative, isUint},
 		{jfloateight, eight, false},
@@ -897,6 +906,15 @@ func BenchmarkTrimZeroDecimal(b *testing.B) {
 	}
 }
 
+func BenchmarkTruncateDecimals(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		truncateDecimals("")
+		truncateDecimals("123.")
+		truncateDecimals("120.1")
+		truncateDecimals("120.001")
+	}
+}
+
 func BenchmarkCommonTimeLayouts(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		for _, commonLayout := range []string{"2019-04-29", "2017-05-30T00:00:00Z"} {
@@ -923,9 +941,8 @@ func TestIndirectPointers(t *testing.T) {
 func TestToTime(t *testing.T) {
 	c := qt.New(t)
 
-	var jntime, jnetime json.Number
+	var jntime json.Number
 	_ = json.Unmarshal([]byte("1234567890"), &jntime)
-	_ = json.Unmarshal([]byte("123.4567890"), &jnetime)
 	tests := []struct {
 		input  interface{}
 		expect time.Time
@@ -968,7 +985,7 @@ func TestToTime(t *testing.T) {
 		{time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		// errors
 		{"2006", time.Time{}, true},
-		{jnetime, time.Time{}, true},
+		{nil, time.Time{}, true},
 		{testing.T{}, time.Time{}, true},
 	}
 
@@ -1177,6 +1194,21 @@ func TestTrimZeroDecimal(t *testing.T) {
 	c.Assert(trimZeroDecimal("10.010"), qt.Equals, "10.010")
 	c.Assert(trimZeroDecimal("0.0000000000"), qt.Equals, "0")
 	c.Assert(trimZeroDecimal("0.00000000001"), qt.Equals, "0.00000000001")
+
+}
+
+func TestTruncateDecimals(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(truncateDecimals("+123.0"), qt.Equals, "+123")
+	c.Assert(truncateDecimals("-123.0000000000000000000001"), qt.Equals, "-123")
+	c.Assert(truncateDecimals("123."), qt.Equals, "123")
+	c.Assert(truncateDecimals("0.123"), qt.Equals, "0")
+	c.Assert(truncateDecimals("1230"), qt.Equals, "1230")
+
+	c.Assert(truncateDecimals("0123"), qt.Equals, "0123")
+	c.Assert(truncateDecimals("0x123"), qt.Equals, "0x123")
+	c.Assert(truncateDecimals("foo"), qt.Equals, "foo")
 
 }
 
