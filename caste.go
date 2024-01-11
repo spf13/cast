@@ -1,4 +1,4 @@
-// Copyright © 2014 Steve Francia <spf@spf13.com>.
+// Copyright © 2014 Steve Francia <spf@kaylee595.com>.
 //
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
@@ -260,7 +260,7 @@ func ToInt64E(i interface{}) (int64, error) {
 	case float32:
 		return int64(s), nil
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
 		if err == nil {
 			return v, nil
 		}
@@ -312,7 +312,7 @@ func ToInt32E(i interface{}) (int32, error) {
 	case float32:
 		return int32(s), nil
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
 		if err == nil {
 			return int32(v), nil
 		}
@@ -364,7 +364,7 @@ func ToInt16E(i interface{}) (int16, error) {
 	case float32:
 		return int16(s), nil
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
 		if err == nil {
 			return int16(v), nil
 		}
@@ -416,7 +416,7 @@ func ToInt8E(i interface{}) (int8, error) {
 	case float32:
 		return int8(s), nil
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
 		if err == nil {
 			return int8(v), nil
 		}
@@ -468,7 +468,7 @@ func ToIntE(i interface{}) (int, error) {
 	case float32:
 		return int(s), nil
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
 		if err == nil {
 			return int(v), nil
 		}
@@ -501,7 +501,7 @@ func ToUintE(i interface{}) (uint, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -577,7 +577,7 @@ func ToUint64E(i interface{}) (uint64, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -653,7 +653,7 @@ func ToUint32E(i interface{}) (uint32, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -729,7 +729,7 @@ func ToUint16E(i interface{}) (uint16, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
@@ -805,7 +805,7 @@ func ToUint8E(i interface{}) (uint8, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseInt(trimZeroDecimal(s), 10, 0)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed

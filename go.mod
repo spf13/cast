@@ -1,4 +1,4 @@
-module github.com/spf13/cast
+module github.com/kaylee595/cast
 
 go 1.18
 
