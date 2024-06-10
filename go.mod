@@ -1,8 +1,8 @@
 module github.com/spf13/cast
 
-go 1.18
+go 1.19
 
-require github.com/frankban/quicktest v1.14.4
+require github.com/frankban/quicktest v1.14.6
 
 require (
 	github.com/google/go-cmp v0.5.9 // indirect
