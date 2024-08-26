@@ -648,10 +648,15 @@ func TestToIntSliceE(t *testing.T) {
 		{[]interface{}{1.2, 3.2}, []int{1, 3}, false},
 		{[]string{"2", "3"}, []int{2, 3}, false},
 		{[2]string{"2", "3"}, []int{2, 3}, false},
+		{"", []int{}, false},
+		{"0", []int{0}, false},
+		{"1 2 3", []int{1, 2, 3}, false},
+		{"-1 -2 -3", []int{-1, -2, -3}, false},
 		// errors
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{[]string{"foo", "bar"}, nil, true},
+		{"1 foo 2", nil, true},
 	}
 
 	for i, test := range tests {
