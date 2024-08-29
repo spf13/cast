@@ -1222,18 +1222,26 @@ func ToStringMapInt64E(i interface{}) (map[string]int64, error) {
 
 // ToSliceE casts an interface to a []interface{} type.
 func ToSliceE(i interface{}) ([]interface{}, error) {
-	var s []interface{}
+	if i == nil {
+		return nil, fmt.Errorf("unable to cast %#v of type %T to []interface{}", i, i)
+	}
 
 	switch v := i.(type) {
 	case []interface{}:
-		return append(s, v...), nil
-	case []map[string]interface{}:
-		for _, u := range v {
-			s = append(s, u)
+		return v, nil
+	}
+
+	kind := reflect.TypeOf(i).Kind()
+	switch kind {
+	case reflect.Slice, reflect.Array:
+		s := reflect.ValueOf(i)
+		a := make([]interface{}, s.Len())
+		for j := 0; j < s.Len(); j++ {
+			a[j] = s.Index(j).Interface()
 		}
-		return s, nil
+		return a, nil
 	default:
-		return s, fmt.Errorf("unable to cast %#v of type %T to []interface{}", i, i)
+		return nil, fmt.Errorf("unable to cast %#v of type %T to []interface{}", i, i)
 	}
 }
 
