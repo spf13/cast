@@ -233,10 +233,14 @@ func TestToStringE(t *testing.T) {
 
 	var jn json.Number
 	_ = json.Unmarshal([]byte("8"), &jn)
+
 	type Key struct {
 		k string
 	}
 	key := &Key{"foo"}
+
+	type StrAlias string
+	sa := StrAlias("bar")
 
 	tests := []struct {
 		input  interface{}
@@ -266,6 +270,8 @@ func TestToStringE(t *testing.T) {
 		{template.JS("(1+2)"), "(1+2)", false},
 		{template.CSS("a"), "a", false},
 		{template.HTMLAttr("a"), "a", false},
+		{sa, "bar", false},
+
 		// errors
 		{testing.T{}, "", true},
 		{key, "", true},
