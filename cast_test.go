@@ -111,6 +111,12 @@ func TestToUintE(t *testing.T) {
 func TestToUint64E(t *testing.T) {
 	tests := createNumberTestSteps(uint64(0), uint64(1), uint64(8), uint64(0), uint64(8), uint64(8))
 
+	// Maximum value of uint64
+	tests = append(tests,
+		testStep{"18446744073709551615", uint64(18446744073709551615), false},
+		testStep{"18446744073709551616", uint64(0), true},
+	)
+
 	runNumberTest(
 		qt.New(t),
 		tests,
