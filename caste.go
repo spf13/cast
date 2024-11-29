@@ -613,7 +613,7 @@ func ToUint64E(i interface{}) (uint64, error) {
 
 	switch s := i.(type) {
 	case string:
-		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
+		v, err := strconv.ParseUint(trimZeroDecimal(s), 10, 64)
 		if err == nil {
 			if v < 0 {
 				return 0, errNegativeNotAllowed
