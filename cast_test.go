@@ -244,34 +244,69 @@ func TestToStringE(t *testing.T) {
 	}
 	key := &Key{"foo"}
 
+	type Int int
+	type Int8 int8
+	type Int16 int16
+	type Int32 int32
+	type Int64 int64
+	type Uint uint
+	type Uint8 uint8
+	type Uint16 uint16
+	type Uint32 uint32
+	type Uint64 uint64
+	type Float32 float32
+	type Float64 float64
+	type String string
+	type Bool bool
+
+	var i8 int = 8
+
 	tests := []struct {
 		input  interface{}
 		expect string
 		iserr  bool
 	}{
 		{int(8), "8", false},
+		{&i8, "8", false},
 		{int8(8), "8", false},
 		{int16(8), "8", false},
 		{int32(8), "8", false},
 		{int64(8), "8", false},
+		{Int(8), "8", false},
+		{Int8(8), "8", false},
+		{Int16(8), "8", false},
+		{Int32(8), "8", false},
+		{Int64(8), "8", false},
 		{uint(8), "8", false},
 		{uint8(8), "8", false},
 		{uint16(8), "8", false},
 		{uint32(8), "8", false},
 		{uint64(8), "8", false},
+		{Uint(8), "8", false},
+		{Uint8(8), "8", false},
+		{Uint16(8), "8", false},
+		{Uint32(8), "8", false},
+		{Uint64(8), "8", false},
 		{float32(8.31), "8.31", false},
 		{float64(8.31), "8.31", false},
+		{Float32(8.31), "8.31", false},
+		{Float64(8.31), "8.31", false},
 		{jn, "8", false},
 		{true, "true", false},
 		{false, "false", false},
+		{Bool(true), "true", false},
+		{Bool(false), "false", false},
 		{nil, "", false},
 		{[]byte("one time"), "one time", false},
 		{"one more time", "one more time", false},
+		{String("one more time"), "one more time", false},
 		{template.HTML("one time"), "one time", false},
 		{template.URL("http://somehost.foo"), "http://somehost.foo", false},
 		{template.JS("(1+2)"), "(1+2)", false},
 		{template.CSS("a"), "a", false},
 		{template.HTMLAttr("a"), "a", false},
+		{time.Second, "1s", false},
+		{errors.New("error"), "error", false},
 		// errors
 		{testing.T{}, "", true},
 		{key, "", true},
@@ -873,7 +908,7 @@ func TestToBoolE(t *testing.T) {
 	}
 }
 
-func BenchmarkTooBool(b *testing.B) {
+func BenchmarkToBool(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		if !ToBool(true) {
 			b.Fatal("ToBool returned false")
@@ -881,10 +916,23 @@ func BenchmarkTooBool(b *testing.B) {
 	}
 }
 
-func BenchmarkTooInt(b *testing.B) {
+func BenchmarkToInt(b *testing.B) {
 	convert := func(num52 interface{}) {
 		if v := ToInt(num52); v != 52 {
-			b.Fatalf("ToInt returned wrong value, got %d, want %d", v, 32)
+			b.Fatalf("ToInt returned wrong value, got %d, want %d", v, 52)
+		}
+	}
+	for i := 0; i < b.N; i++ {
+		convert("52")
+		convert(52.0)
+		convert(uint64(52))
+	}
+}
+
+func BenchmarkToString(b *testing.B) {
+	convert := func(i interface{}) {
+		if v := ToString(i); v == "" {
+			b.Fatalf("ToInt returned wrong value, got %v", v)
 		}
 	}
 	for i := 0; i < b.N; i++ {
