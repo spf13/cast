@@ -31,6 +31,15 @@ func ToTimeE(i interface{}) (tim time.Time, err error) {
 	return ToTimeInDefaultLocationE(i, time.UTC)
 }
 
+// ToTimePE plus casts an interface to a time.Time type.
+func ToTimePE(fn func(interface{}) (time.Time, error), i interface{}) (time.Time, error) {
+	v, err := ToTimeE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToTimeInDefaultLocationE casts an empty interface to time.Time,
 // interpreting inputs without a timezone to be in the given location,
 // or the local timezone if nil.
@@ -65,6 +74,14 @@ func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.
 	}
 }
 
+func ToTimeInDefaultLocationPE(fn func(interface{}, *time.Location) (time.Time, error), i interface{}, location *time.Location) (time.Time, error) {
+	v, err := ToTimeInDefaultLocationE(i, location)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i, location)
+}
+
 // ToDurationE casts an interface to a time.Duration type.
 func ToDurationE(i interface{}) (d time.Duration, err error) {
 	i = indirect(i)
@@ -97,6 +114,16 @@ func ToDurationE(i interface{}) (d time.Duration, err error) {
 		err = fmt.Errorf("unable to cast %#v of type %T to Duration", i, i)
 		return
 	}
+}
+
+// ToDurationPE plus casts an interface to a time.Duration type.
+func ToDurationPE(fn func(interface{}) (time.Duration, error), i interface{}) (time.Duration, error) {
+	v, err := ToDurationE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+
+	return fn(i)
 }
 
 // ToBoolE casts an interface to a bool type.
@@ -145,6 +172,15 @@ func ToBoolE(i interface{}) (bool, error) {
 	default:
 		return false, fmt.Errorf("unable to cast %#v of type %T to bool", i, i)
 	}
+}
+
+// ToBoolPE plus casts an interface to a bool type.
+func ToBoolPE(fn func(interface{}) (bool, error), i interface{}) (bool, error) {
+	v, err := ToBoolE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // ToFloat64E casts an interface to a float64 type.
@@ -205,6 +241,15 @@ func ToFloat64E(i interface{}) (float64, error) {
 	}
 }
 
+// ToFloat64PE plus casts an interface to a float64 type.
+func ToFloat64PE(fn func(interface{}) (float64, error), i interface{}) (float64, error) {
+	v, err := ToFloat64E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToFloat32E casts an interface to a float32 type.
 func ToFloat32E(i interface{}) (float32, error) {
 	i = indirect(i)
@@ -263,6 +308,15 @@ func ToFloat32E(i interface{}) (float32, error) {
 	}
 }
 
+// ToFloat32PE plus casts an interface to a float32 type.
+func ToFloat32PE(fn func(interface{}) (float32, error), i interface{}) (float32, error) {
+	v, err := ToFloat32E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToInt64E casts an interface to an int64 type.
 func ToInt64E(i interface{}) (int64, error) {
 	i = indirect(i)
@@ -313,6 +367,15 @@ func ToInt64E(i interface{}) (int64, error) {
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
 	}
+}
+
+// ToInt64PE plus casts an interface to an int64 type.
+func ToInt64PE(fn func(interface{}) (int64, error), i interface{}) (int64, error) {
+	v, err := ToInt64E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // ToInt32E casts an interface to an int32 type.
@@ -367,6 +430,15 @@ func ToInt32E(i interface{}) (int32, error) {
 	}
 }
 
+// ToInt32PE plus casts an interface to an int32 type.
+func ToInt32PE(fn func(interface{}) (int32, error), i interface{}) (int32, error) {
+	v, err := ToInt32E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToInt16E casts an interface to an int16 type.
 func ToInt16E(i interface{}) (int16, error) {
 	i = indirect(i)
@@ -417,6 +489,15 @@ func ToInt16E(i interface{}) (int16, error) {
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
 	}
+}
+
+// ToInt16PE plus casts an interface to an int16 type.
+func ToInt16PE(fn func(interface{}) (int16, error), i interface{}) (int16, error) {
+	v, err := ToInt16E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // ToInt8E casts an interface to an int8 type.
@@ -471,6 +552,15 @@ func ToInt8E(i interface{}) (int8, error) {
 	}
 }
 
+// ToInt8PE plus casts an interface to an int8 type.
+func ToInt8PE(fn func(interface{}) (int8, error), i interface{}) (int8, error) {
+	v, err := ToInt8E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToIntE casts an interface to an int type.
 func ToIntE(i interface{}) (int, error) {
 	i = indirect(i)
@@ -521,6 +611,15 @@ func ToIntE(i interface{}) (int, error) {
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
 	}
+}
+
+// ToIntPE plus casts an interface to an int type.
+func ToIntPE(fn func(interface{}) (int, error), i interface{}) (int, error) {
+	v, err := ToIntE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // ToUintE casts an interface to a uint type.
@@ -599,6 +698,15 @@ func ToUintE(i interface{}) (uint, error) {
 	}
 }
 
+// ToUintPE plus casts an interface to a uint type.
+func ToUintPE(fn func(interface{}) (uint, error), i interface{}) (uint, error) {
+	v, err := ToUintE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToUint64E casts an interface to a uint64 type.
 func ToUint64E(i interface{}) (uint64, error) {
 	i = indirect(i)
@@ -673,6 +781,15 @@ func ToUint64E(i interface{}) (uint64, error) {
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint64", i, i)
 	}
+}
+
+// ToUint64PE plus casts an interface to a uint64 type.
+func ToUint64PE(fn func(interface{}) (uint64, error), i interface{}) (uint64, error) {
+	v, err := ToUint64E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // ToUint32E casts an interface to a uint32 type.
@@ -751,6 +868,15 @@ func ToUint32E(i interface{}) (uint32, error) {
 	}
 }
 
+// ToUint32PE plus casts an interface to a uint32 type.
+func ToUint32PE(fn func(interface{}) (uint32, error), i interface{}) (uint32, error) {
+	v, err := ToUint32E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToUint16E casts an interface to a uint16 type.
 func ToUint16E(i interface{}) (uint16, error) {
 	i = indirect(i)
@@ -827,6 +953,15 @@ func ToUint16E(i interface{}) (uint16, error) {
 	}
 }
 
+// ToUint16PE plus casts an interface to a uint16 type.
+func ToUint16PE(fn func(interface{}) (uint16, error), i interface{}) (uint16, error) {
+	v, err := ToUint16E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToUint8E casts an interface to a uint type.
 func ToUint8E(i interface{}) (uint8, error) {
 	i = indirect(i)
@@ -901,6 +1036,15 @@ func ToUint8E(i interface{}) (uint8, error) {
 	default:
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint8", i, i)
 	}
+}
+
+// ToUint8PE plus casts an interface to a uint8 type.
+func ToUint8PE(fn func(interface{}) (uint8, error), i interface{}) (uint8, error) {
+	v, err := ToUint8E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // From html/template/content.go
@@ -1000,6 +1144,15 @@ func ToStringE(i interface{}) (string, error) {
 	}
 }
 
+// ToStringPE plus casts an interface to a string type.
+func ToStringPE(fn func(interface{}) (string, error), i interface{}) (string, error) {
+	v, err := ToStringE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToStringMapStringE casts an interface to a map[string]string type.
 func ToStringMapStringE(i interface{}) (map[string]string, error) {
 	m := map[string]string{}
@@ -1028,6 +1181,15 @@ func ToStringMapStringE(i interface{}) (map[string]string, error) {
 	default:
 		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]string", i, i)
 	}
+}
+
+// ToStringMapStringPE plus casts an interface to a map[string]string type.
+func ToStringMapStringPE(fn func(interface{}) (map[string]string, error), i interface{}) (map[string]string, error) {
+	v, err := ToStringMapStringE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // ToStringMapStringSliceE casts an interface to a map[string][]string type.
@@ -1094,6 +1256,15 @@ func ToStringMapStringSliceE(i interface{}) (map[string][]string, error) {
 	return m, nil
 }
 
+// ToStringMapStringSlicePE plus casts an interface to a map[string][]string type.
+func ToStringMapStringSlicePE(fn func(interface{}) (map[string][]string, error), i interface{}) (map[string][]string, error) {
+	v, err := ToStringMapStringSliceE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToStringMapBoolE casts an interface to a map[string]bool type.
 func ToStringMapBoolE(i interface{}) (map[string]bool, error) {
 	m := map[string]bool{}
@@ -1119,6 +1290,15 @@ func ToStringMapBoolE(i interface{}) (map[string]bool, error) {
 	}
 }
 
+// ToStringMapBoolPE plus casts an interface to a map[string]bool type.
+func ToStringMapBoolPE(fn func(interface{}) (map[string]bool, error), i interface{}) (map[string]bool, error) {
+	v, err := ToStringMapBoolE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToStringMapE casts an interface to a map[string]interface{} type.
 func ToStringMapE(i interface{}) (map[string]interface{}, error) {
 	m := map[string]interface{}{}
@@ -1137,6 +1317,15 @@ func ToStringMapE(i interface{}) (map[string]interface{}, error) {
 	default:
 		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]interface{}", i, i)
 	}
+}
+
+// ToStringMapPE plus casts an interface to a map[string]interface{} type.
+func ToStringMapPE(fn func(interface{}) (map[string]interface{}, error), i interface{}) (map[string]interface{}, error) {
+	v, err := ToStringMapE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // ToStringMapIntE casts an interface to a map[string]int{} type.
@@ -1180,6 +1369,15 @@ func ToStringMapIntE(i interface{}) (map[string]int, error) {
 	return m, nil
 }
 
+// ToStringMapIntPE plus casts an interface to a map[string]int{} type.
+func ToStringMapIntPE(fn func(interface{}) (map[string]int, error), i interface{}) (map[string]int, error) {
+	v, err := ToStringMapIntE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToStringMapInt64E casts an interface to a map[string]int64{} type.
 func ToStringMapInt64E(i interface{}) (map[string]int64, error) {
 	m := map[string]int64{}
@@ -1220,6 +1418,15 @@ func ToStringMapInt64E(i interface{}) (map[string]int64, error) {
 	return m, nil
 }
 
+// ToStringMapInt64PE plus casts an interface to a map[string]int64{} type.
+func ToStringMapInt64PE(fn func(interface{}) (map[string]int64, error), i interface{}) (map[string]int64, error) {
+	v, err := ToStringMapInt64E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToSliceE casts an interface to a []interface{} type.
 func ToSliceE(i interface{}) ([]interface{}, error) {
 	var s []interface{}
@@ -1235,6 +1442,15 @@ func ToSliceE(i interface{}) ([]interface{}, error) {
 	default:
 		return s, fmt.Errorf("unable to cast %#v of type %T to []interface{}", i, i)
 	}
+}
+
+// ToSlicePE plus casts an interface to a []interface{} type.
+func ToSlicePE(fn func(interface{}) ([]interface{}, error), i interface{}) ([]interface{}, error) {
+	v, err := ToSliceE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // ToBoolSliceE casts an interface to a []bool type.
@@ -1264,6 +1480,15 @@ func ToBoolSliceE(i interface{}) ([]bool, error) {
 	default:
 		return []bool{}, fmt.Errorf("unable to cast %#v of type %T to []bool", i, i)
 	}
+}
+
+// ToBoolSlicePE plus casts an interface to a []bool type.
+func ToBoolSlicePE(fn func(interface{}) ([]bool, error), i interface{}) ([]bool, error) {
+	v, err := ToBoolSliceE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // ToStringSliceE casts an interface to a []string type.
@@ -1326,6 +1551,15 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 	}
 }
 
+// ToStringSlicePE plus casts an interface to a []string type.
+func ToStringSlicePE(fn func(interface{}) ([]string, error), i interface{}) ([]string, error) {
+	v, err := ToStringSliceE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // ToIntSliceE casts an interface to a []int type.
 func ToIntSliceE(i interface{}) ([]int, error) {
 	if i == nil {
@@ -1353,6 +1587,15 @@ func ToIntSliceE(i interface{}) ([]int, error) {
 	default:
 		return []int{}, fmt.Errorf("unable to cast %#v of type %T to []int", i, i)
 	}
+}
+
+// ToIntSlicePE plus casts an interface to a []int type.
+func ToIntSlicePE(fn func(interface{}) ([]int, error), i interface{}) ([]int, error) {
+	v, err := ToIntSliceE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
 }
 
 // ToDurationSliceE casts an interface to a []time.Duration type.
@@ -1384,6 +1627,15 @@ func ToDurationSliceE(i interface{}) ([]time.Duration, error) {
 	}
 }
 
+// ToDurationSlicePE plus casts an interface to a []time.Duration type.
+func ToDurationSlicePE(fn func(interface{}) ([]time.Duration, error), i interface{}) ([]time.Duration, error) {
+	v, err := ToDurationSliceE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
 // StringToDate attempts to parse a string into a time.Time type using a
 // predefined list of formats.  If no suitable format is found, an error is
 // returned.
@@ -1391,11 +1643,29 @@ func StringToDate(s string) (time.Time, error) {
 	return parseDateWith(s, time.UTC, timeFormats)
 }
 
+// StringToDatePE plus attempts to parse a string into a time.Time type using a
+func StringToDatePE(fn func(string) (time.Time, error), s string) (time.Time, error) {
+	d, err := StringToDate(s)
+	if err == nil || fn == nil {
+		return d, nil
+	}
+	return fn(s)
+}
+
 // StringToDateInDefaultLocation casts an empty interface to a time.Time,
 // interpreting inputs without a timezone to be in the given location,
 // or the local timezone if nil.
 func StringToDateInDefaultLocation(s string, location *time.Location) (time.Time, error) {
 	return parseDateWith(s, location, timeFormats)
+}
+
+// StringToDateInDefaultLocationPE plus casts an empty interface to a time.Time,
+func StringToDateInDefaultLocationPE(fn func(string, *time.Location) (time.Time, error), s string, location *time.Location) (time.Time, error) {
+	d, err := StringToDateInDefaultLocation(s, location)
+	if err == nil || fn == nil {
+		return d, nil
+	}
+	return fn(s, location)
 }
 
 type timeFormatType int
