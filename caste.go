@@ -61,6 +61,9 @@ func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.
 	case uint32:
 		return time.Unix(int64(v), 0), nil
 	default:
+		if iNative, changed := toNative(v); changed {
+			return ToTimeInDefaultLocationE(iNative, location)
+		}
 		return time.Time{}, fmt.Errorf("unable to cast %#v of type %T to Time", i, i)
 	}
 }
@@ -94,6 +97,10 @@ func ToDurationE(i interface{}) (d time.Duration, err error) {
 		d = time.Duration(s.Float64())
 		return
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToDurationE(iNative)
+		}
+
 		err = fmt.Errorf("unable to cast %#v of type %T to Duration", i, i)
 		return
 	}
@@ -143,6 +150,9 @@ func ToBoolE(i interface{}) (bool, error) {
 		}
 		return false, fmt.Errorf("unable to cast %#v of type %T to bool", i, i)
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToBoolE(iNative)
+		}
 		return false, fmt.Errorf("unable to cast %#v of type %T to bool", i, i)
 	}
 }
@@ -201,6 +211,9 @@ func ToFloat64E(i interface{}) (float64, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToFloat64E(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to float64", i, i)
 	}
 }
@@ -259,6 +272,9 @@ func ToFloat32E(i interface{}) (float32, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToFloat32E(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to float32", i, i)
 	}
 }
@@ -311,6 +327,9 @@ func ToInt64E(i interface{}) (int64, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToInt64E(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int64", i, i)
 	}
 }
@@ -363,6 +382,9 @@ func ToInt32E(i interface{}) (int32, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToInt32E(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int32", i, i)
 	}
 }
@@ -415,6 +437,9 @@ func ToInt16E(i interface{}) (int16, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToInt16E(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int16", i, i)
 	}
 }
@@ -467,6 +492,9 @@ func ToInt8E(i interface{}) (int8, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToInt8E(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int8", i, i)
 	}
 }
@@ -519,6 +547,9 @@ func ToIntE(i interface{}) (int, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToIntE(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to int", i, i)
 	}
 }
@@ -595,6 +626,9 @@ func ToUintE(i interface{}) (uint, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToUintE(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint", i, i)
 	}
 }
@@ -671,6 +705,9 @@ func ToUint64E(i interface{}) (uint64, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToUint64E(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint64", i, i)
 	}
 }
@@ -747,6 +784,9 @@ func ToUint32E(i interface{}) (uint32, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToUint32E(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint32", i, i)
 	}
 }
@@ -823,6 +863,9 @@ func ToUint16E(i interface{}) (uint16, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToUint16E(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint16", i, i)
 	}
 }
@@ -899,6 +942,9 @@ func ToUint8E(i interface{}) (uint8, error) {
 	case nil:
 		return 0, nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToUint8E(iNative)
+		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint8", i, i)
 	}
 }
@@ -996,6 +1042,9 @@ func ToStringE(i interface{}) (string, error) {
 	case error:
 		return s.Error(), nil
 	default:
+		if iNative, changed := toNative(i); changed {
+			return ToStringE(iNative)
+		}
 		return "", fmt.Errorf("unable to cast %#v of type %T to string", i, i)
 	}
 }
@@ -1507,4 +1556,26 @@ func trimZeroDecimal(s string) string {
 		}
 	}
 	return s
+}
+
+// toNative is called when converting to a basic type (int, int8, int16, int32, int64, uint, uint8, uint16, uint32,
+// uint64, float32, float64, bool). If the current interface's type is created from a basic type, toNative will convert
+// it to a basic data type.
+func toNative(v interface{}) (interface{}, bool) {
+	var vNative = v
+	value := reflect.ValueOf(v)
+	switch {
+	case value.CanInt():
+		vNative = value.Int()
+	case value.CanUint():
+		vNative = value.Uint()
+	case value.CanFloat():
+		vNative = value.Float()
+	case value.Kind() == reflect.Bool:
+		vNative = value.Bool()
+	case value.Kind() == reflect.String:
+		vNative = value.String()
+	}
+
+	return vNative, reflect.TypeOf(vNative) != reflect.TypeOf(v)
 }

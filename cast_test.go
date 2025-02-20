@@ -41,6 +41,10 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 		eightpoint31negative_32 = float64(float32(eightpoint31negative.(float64)))
 	}
 
+	type int2 int
+	type uint2 uint
+	type float642 float64
+
 	return []testStep{
 		{int(8), eight, false},
 		{int8(8), eight, false},
@@ -73,6 +77,9 @@ func createNumberTestSteps(zero, one, eight, eightnegative, eightpoint31, eightp
 		{jfloateight, eight, false},
 		{"test", zero, true},
 		{testing.T{}, zero, true},
+		{int2(8), eight, false},
+		{uint2(8), eight, false},
+		{float642(8.31), eightpoint31, false},
 	}
 }
 
@@ -244,6 +251,8 @@ func TestToStringE(t *testing.T) {
 	}
 	key := &Key{"foo"}
 
+	type string2 string
+
 	tests := []struct {
 		input  interface{}
 		expect string
@@ -275,6 +284,7 @@ func TestToStringE(t *testing.T) {
 		// errors
 		{testing.T{}, "", true},
 		{key, "", true},
+		{string2("foo"), "foo", false},
 	}
 
 	for i, test := range tests {
@@ -796,6 +806,8 @@ func TestToBoolE(t *testing.T) {
 	_ = json.Unmarshal([]byte("0"), &jf)
 	_ = json.Unmarshal([]byte("1"), &jt)
 	_ = json.Unmarshal([]byte("1.0"), &je)
+
+	type bool2 bool
 	tests := []struct {
 		input  interface{}
 		expect bool
@@ -853,6 +865,9 @@ func TestToBoolE(t *testing.T) {
 		// errors
 		{"test", false, true},
 		{testing.T{}, false, true},
+
+		{bool2(false), false, false},
+		{bool2(true), true, false},
 	}
 
 	for i, test := range tests {
@@ -921,8 +936,16 @@ func TestIndirectPointers(t *testing.T) {
 	y := &x
 	z := &y
 
+	type int1 int
+	a := int1(14)
+	pa := &a
+	ppa := &pa
+
 	c.Assert(ToInt(y), qt.Equals, 13)
 	c.Assert(ToInt(z), qt.Equals, 13)
+
+	c.Assert(ToInt(pa), qt.Equals, 14)
+	c.Assert(ToInt(ppa), qt.Equals, 14)
 
 }
 
