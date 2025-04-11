@@ -693,6 +693,9 @@ func TestToFloat64SliceE(t *testing.T) {
 		{[]string{"1.2", "3.2"}, []float64{1.2, 3.2}, false},
 		{[2]string{"2", "3"}, []float64{2, 3}, false},
 		{[2]string{"1.2", "3.2"}, []float64{1.2, 3.2}, false},
+		{[]int32{1, 3}, []float64{1.0, 3.0}, false},
+		{[]int64{1, 3}, []float64{1.0, 3.0}, false},
+		{[]bool{true, false}, []float64{1.0, 0.0}, false},
 		// errors
 		{nil, nil, true},
 		{testing.T{}, nil, true},
@@ -713,6 +716,47 @@ func TestToFloat64SliceE(t *testing.T) {
 
 		// Non-E test
 		v = ToFloat64Slice(test.input)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
+	}
+}
+
+func TestToUintSliceE(t *testing.T) {
+	c := qt.New(t)
+
+	tests := []struct {
+		input  interface{}
+		expect []uint
+		iserr  bool
+	}{
+		{[]uint{1, 3}, []uint{1, 3}, false},
+		{[]interface{}{1, 3}, []uint{1, 3}, false},
+		{[]string{"2", "3"}, []uint{2, 3}, false},
+		{[]int{1, 3}, []uint{1, 3}, false},
+		{[]int32{1, 3}, []uint{1, 3}, false},
+		{[]int64{1, 3}, []uint{1, 3}, false},
+		{[]float32{1.0, 3.0}, []uint{1, 3}, false},
+		{[]float64{1.0, 3.0}, []uint{1, 3}, false},
+		{[]bool{true, false}, []uint{1, 0}, false},
+		// errors
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+	}
+
+	for i, test := range tests {
+		errmsg := qt.Commentf("i = %d", i) // assert helper message
+
+		v, err := ToUintSliceE(test.input)
+		if test.iserr {
+			c.Assert(err, qt.IsNotNil)
+			continue
+		}
+
+		c.Assert(err, qt.IsNil)
+		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
+
+		// Non-E test
+		v = ToUintSlice(test.input)
 		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
 	}
 }

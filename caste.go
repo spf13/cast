@@ -615,9 +615,6 @@ func ToUint64E(i interface{}) (uint64, error) {
 	case string:
 		v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
 		if err == nil {
-			if v < 0 {
-				return 0, errNegativeNotAllowed
-			}
 			return v, nil
 		}
 		return 0, fmt.Errorf("unable to cast %#v of type %T to uint64", i, i)
@@ -1327,6 +1324,11 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 // ToIntSliceE casts an interface to a []int type.
 func ToIntSliceE(i interface{}) ([]int, error) {
 	return toSliceE(i, ToIntE)
+}
+
+// ToUintSliceE casts an interface to a []uint type.
+func ToUintSliceE(i interface{}) ([]uint, error) {
+	return toSliceE(i, ToUintE)
 }
 
 // ToFloat64SliceE casts an interface to a []float64 type.
