@@ -1237,14 +1237,13 @@ func ToSliceE(i interface{}) ([]interface{}, error) {
 	}
 }
 
-// ToBoolSliceE casts an interface to a []bool type.
-func ToBoolSliceE(i interface{}) ([]bool, error) {
+func toSliceE[T any](i any, fn func(any) (T, error)) ([]T, error) {
 	if i == nil {
-		return []bool{}, fmt.Errorf("unable to cast %#v of type %T to []bool", i, i)
+		return []T{}, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
 	}
 
 	switch v := i.(type) {
-	case []bool:
+	case []T:
 		return v, nil
 	}
 
@@ -1252,18 +1251,23 @@ func ToBoolSliceE(i interface{}) ([]bool, error) {
 	switch kind {
 	case reflect.Slice, reflect.Array:
 		s := reflect.ValueOf(i)
-		a := make([]bool, s.Len())
+		a := make([]T, s.Len())
 		for j := 0; j < s.Len(); j++ {
-			val, err := ToBoolE(s.Index(j).Interface())
+			val, err := fn(s.Index(j).Interface())
 			if err != nil {
-				return []bool{}, fmt.Errorf("unable to cast %#v of type %T to []bool", i, i)
+				return []T{}, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
 			}
 			a[j] = val
 		}
 		return a, nil
 	default:
-		return []bool{}, fmt.Errorf("unable to cast %#v of type %T to []bool", i, i)
+		return []T{}, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
 	}
+}
+
+// ToBoolSliceE casts an interface to a []bool type.
+func ToBoolSliceE(i interface{}) ([]bool, error) {
+	return toSliceE(i, ToBoolE)
 }
 
 // ToStringSliceE casts an interface to a []string type.
@@ -1328,60 +1332,12 @@ func ToStringSliceE(i interface{}) ([]string, error) {
 
 // ToIntSliceE casts an interface to a []int type.
 func ToIntSliceE(i interface{}) ([]int, error) {
-	if i == nil {
-		return []int{}, fmt.Errorf("unable to cast %#v of type %T to []int", i, i)
-	}
-
-	switch v := i.(type) {
-	case []int:
-		return v, nil
-	}
-
-	kind := reflect.TypeOf(i).Kind()
-	switch kind {
-	case reflect.Slice, reflect.Array:
-		s := reflect.ValueOf(i)
-		a := make([]int, s.Len())
-		for j := 0; j < s.Len(); j++ {
-			val, err := ToIntE(s.Index(j).Interface())
-			if err != nil {
-				return []int{}, fmt.Errorf("unable to cast %#v of type %T to []int", i, i)
-			}
-			a[j] = val
-		}
-		return a, nil
-	default:
-		return []int{}, fmt.Errorf("unable to cast %#v of type %T to []int", i, i)
-	}
+	return toSliceE(i, ToIntE)
 }
 
 // ToDurationSliceE casts an interface to a []time.Duration type.
 func ToDurationSliceE(i interface{}) ([]time.Duration, error) {
-	if i == nil {
-		return []time.Duration{}, fmt.Errorf("unable to cast %#v of type %T to []time.Duration", i, i)
-	}
-
-	switch v := i.(type) {
-	case []time.Duration:
-		return v, nil
-	}
-
-	kind := reflect.TypeOf(i).Kind()
-	switch kind {
-	case reflect.Slice, reflect.Array:
-		s := reflect.ValueOf(i)
-		a := make([]time.Duration, s.Len())
-		for j := 0; j < s.Len(); j++ {
-			val, err := ToDurationE(s.Index(j).Interface())
-			if err != nil {
-				return []time.Duration{}, fmt.Errorf("unable to cast %#v of type %T to []time.Duration", i, i)
-			}
-			a[j] = val
-		}
-		return a, nil
-	default:
-		return []time.Duration{}, fmt.Errorf("unable to cast %#v of type %T to []time.Duration", i, i)
-	}
+	return toSliceE(i, ToDurationE)
 }
 
 // StringToDate attempts to parse a string into a time.Time type using a
