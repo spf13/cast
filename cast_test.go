@@ -606,6 +606,52 @@ func TestToStringMapStringE(t *testing.T) {
 	}
 }
 
+func TestToStringMapTimeDuration(t *testing.T) {
+	var expectResult = map[string]time.Duration{"key 1": 300000000000, "key 2": 36000000000000, "key 3": 4530918273645}
+	var stringMapString = map[string]string{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"}
+	var stringMapInterface = map[string]interface{}{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"}
+	var interfaceMapString = map[interface{}]string{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"}
+	var interfaceMapInterface = map[interface{}]interface{}{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"}
+	var jsonString = `{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"}`
+	var invalidJsonString = `{"key 1": "5m", "key 2": "10h", "key 3": "1h15m30.918273645s"`
+	var emptyString = ""
+
+	tests := []struct {
+		input  interface{}
+		expect map[string]time.Duration
+		iserr  bool
+	}{
+		{stringMapString, expectResult, false},
+		{stringMapInterface, expectResult, false},
+		{interfaceMapString, expectResult, false},
+		{interfaceMapInterface, expectResult, false},
+		{jsonString, expectResult, false},
+
+		// errors
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{emptyString, nil, true},
+		{invalidJsonString, nil, true},
+	}
+
+	for i, test := range tests {
+		errmsg := fmt.Sprintf("i = %d", i) // assert helper message
+
+		v, err := ToStringMapTimeDurationE(test.input)
+		if test.iserr {
+			assert.Error(t, err, errmsg, test)
+			continue
+		}
+
+		assert.NoError(t, err, errmsg)
+		assert.Equal(t, test.expect, v, errmsg)
+
+		// Non-E test
+		v = ToStringMapTimeDuration(test.input)
+		assert.Equal(t, test.expect, v, errmsg)
+	}
+}
+
 func TestToBoolSliceE(t *testing.T) {
 	c := qt.New(t)
 
