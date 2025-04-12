@@ -1000,34 +1000,55 @@ func ToStringE(i interface{}) (string, error) {
 	}
 }
 
-// ToStringMapStringE casts an interface to a map[string]string type.
-func ToStringMapStringE(i interface{}) (map[string]string, error) {
-	m := map[string]string{}
+func toMapE[K comparable, V any](i any, keyFn func(any) K, valFn func(any) V) (map[K]V, error) {
+	m := map[K]V{}
+
+	if i == nil {
+		return m, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, m)
+	}
 
 	switch v := i.(type) {
-	case map[string]string:
+	case map[K]V:
 		return v, nil
-	case map[string]interface{}:
+
+	case map[K]any:
 		for k, val := range v {
-			m[ToString(k)] = ToString(val)
+			m[k] = valFn(val)
 		}
+
 		return m, nil
-	case map[interface{}]string:
+
+	case map[any]V:
 		for k, val := range v {
-			m[ToString(k)] = ToString(val)
+			m[keyFn(k)] = val
 		}
+
 		return m, nil
-	case map[interface{}]interface{}:
+
+	case map[any]any:
 		for k, val := range v {
-			m[ToString(k)] = ToString(val)
+			m[keyFn(k)] = valFn(val)
 		}
+
 		return m, nil
+
 	case string:
 		err := jsonStringToObject(v, &m)
+
 		return m, err
+
 	default:
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]string", i, i)
+		return m, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, m)
 	}
+}
+
+func toStringMapE[T any](i any, fn func(any) T) (map[string]T, error) {
+	return toMapE(i, ToString, fn)
+}
+
+// ToStringMapStringE casts an interface to a map[string]string type.
+func ToStringMapStringE(i any) (map[string]string, error) {
+	return toStringMapE(i, ToString)
 }
 
 // ToStringMapStringSliceE casts an interface to a map[string][]string type.
@@ -1096,128 +1117,81 @@ func ToStringMapStringSliceE(i interface{}) (map[string][]string, error) {
 
 // ToStringMapBoolE casts an interface to a map[string]bool type.
 func ToStringMapBoolE(i interface{}) (map[string]bool, error) {
-	m := map[string]bool{}
-
-	switch v := i.(type) {
-	case map[interface{}]interface{}:
-		for k, val := range v {
-			m[ToString(k)] = ToBool(val)
-		}
-		return m, nil
-	case map[string]interface{}:
-		for k, val := range v {
-			m[ToString(k)] = ToBool(val)
-		}
-		return m, nil
-	case map[string]bool:
-		return v, nil
-	case string:
-		err := jsonStringToObject(v, &m)
-		return m, err
-	default:
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]bool", i, i)
-	}
+	return toStringMapE(i, ToBool)
 }
 
 // ToStringMapE casts an interface to a map[string]interface{} type.
 func ToStringMapE(i interface{}) (map[string]interface{}, error) {
-	m := map[string]interface{}{}
+	fn := func(i any) any { return i }
+
+	return toStringMapE(i, fn)
+}
+
+func toStringMapIntE[T int | int64](i any, fn func(any) T, fnE func(any) (T, error)) (map[string]T, error) {
+	m := map[string]T{}
+
+	if i == nil {
+		return m, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, m)
+	}
 
 	switch v := i.(type) {
-	case map[interface{}]interface{}:
+	case map[string]T:
+		return v, nil
+
+	case map[string]any:
+		for k, val := range v {
+			m[k] = fn(val)
+		}
+
+		return m, nil
+
+	case map[any]T:
 		for k, val := range v {
 			m[ToString(k)] = val
 		}
+
 		return m, nil
-	case map[string]interface{}:
-		return v, nil
+
+	case map[any]any:
+		for k, val := range v {
+			m[ToString(k)] = fn(val)
+		}
+
+		return m, nil
+
 	case string:
 		err := jsonStringToObject(v, &m)
-		return m, err
-	default:
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]interface{}", i, i)
-	}
-}
 
-// ToStringMapIntE casts an interface to a map[string]int{} type.
-func ToStringMapIntE(i interface{}) (map[string]int, error) {
-	m := map[string]int{}
-	if i == nil {
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
-	}
-
-	switch v := i.(type) {
-	case map[interface{}]interface{}:
-		for k, val := range v {
-			m[ToString(k)] = ToInt(val)
-		}
-		return m, nil
-	case map[string]interface{}:
-		for k, val := range v {
-			m[k] = ToInt(val)
-		}
-		return m, nil
-	case map[string]int:
-		return v, nil
-	case string:
-		err := jsonStringToObject(v, &m)
 		return m, err
 	}
 
 	if reflect.TypeOf(i).Kind() != reflect.Map {
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
+		return m, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, m)
 	}
 
 	mVal := reflect.ValueOf(m)
 	v := reflect.ValueOf(i)
+
 	for _, keyVal := range v.MapKeys() {
-		val, err := ToIntE(v.MapIndex(keyVal).Interface())
+		val, err := fnE(v.MapIndex(keyVal).Interface())
 		if err != nil {
-			return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int", i, i)
+			return m, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, m)
 		}
+
 		mVal.SetMapIndex(keyVal, reflect.ValueOf(val))
 	}
+
 	return m, nil
+}
+
+// ToStringMapIntE casts an interface to a map[string]int{} type.
+func ToStringMapIntE(i any) (map[string]int, error) {
+	return toStringMapIntE(i, ToInt, ToIntE)
 }
 
 // ToStringMapInt64E casts an interface to a map[string]int64{} type.
 func ToStringMapInt64E(i interface{}) (map[string]int64, error) {
-	m := map[string]int64{}
-	if i == nil {
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int64", i, i)
-	}
-
-	switch v := i.(type) {
-	case map[interface{}]interface{}:
-		for k, val := range v {
-			m[ToString(k)] = ToInt64(val)
-		}
-		return m, nil
-	case map[string]interface{}:
-		for k, val := range v {
-			m[k] = ToInt64(val)
-		}
-		return m, nil
-	case map[string]int64:
-		return v, nil
-	case string:
-		err := jsonStringToObject(v, &m)
-		return m, err
-	}
-
-	if reflect.TypeOf(i).Kind() != reflect.Map {
-		return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int64", i, i)
-	}
-	mVal := reflect.ValueOf(m)
-	v := reflect.ValueOf(i)
-	for _, keyVal := range v.MapKeys() {
-		val, err := ToInt64E(v.MapIndex(keyVal).Interface())
-		if err != nil {
-			return m, fmt.Errorf("unable to cast %#v of type %T to map[string]int64", i, i)
-		}
-		mVal.SetMapIndex(keyVal, reflect.ValueOf(val))
-	}
-	return m, nil
+	return toStringMapIntE(i, ToInt64, ToInt64E)
 }
 
 // ToSliceE casts an interface to a []interface{} type.
