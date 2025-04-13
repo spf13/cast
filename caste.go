@@ -1329,6 +1329,11 @@ func ToIntSliceE(i interface{}) ([]int, error) {
 	return toSliceE(i, ToIntE)
 }
 
+// ToFloat64SliceE casts an interface to a []float64 type.
+func ToFloat64SliceE(i interface{}) ([]float64, error) {
+	return toSliceE(i, ToFloat64E)
+}
+
 // ToDurationSliceE casts an interface to a []time.Duration type.
 func ToDurationSliceE(i interface{}) ([]time.Duration, error) {
 	return toSliceE(i, ToDurationE)
