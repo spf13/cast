@@ -169,6 +169,12 @@ func ToIntSlice(i interface{}) []int {
 	return v
 }
 
+// ToUintSlice casts an interface to a []uint type.
+func ToUintSlice(i interface{}) []uint {
+	v, _ := ToUintSliceE(i)
+	return v
+}
+
 // ToFloat64Slice casts an interface to a []float64 type.
 func ToFloat64Slice(i interface{}) []float64 {
 	v, _ := ToFloat64SliceE(i)
