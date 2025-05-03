@@ -139,6 +139,12 @@ func ToStringMapInt64(i interface{}) map[string]int64 {
 	return v
 }
 
+// ToStringMapTimeDuration casts an interface to a map[string]time.Duration type.
+func ToStringMapTimeDuration(i interface{}) map[string]time.Duration {
+	v, _ := ToStringMapTimeDurationE(i)
+	return v
+}
+
 // ToStringMap casts an interface to a map[string]interface{} type.
 func ToStringMap(i interface{}) map[string]interface{} {
 	v, _ := ToStringMapE(i)
