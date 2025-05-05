@@ -280,18 +280,27 @@ func TestToStringE(t *testing.T) {
 	for i, test := range tests {
 		errmsg := qt.Commentf("i = %d", i) // assert helper message
 
+		// Non-E test
+		v := ToString(test.input)
+		c.Assert(v, qt.Equals, test.expect, errmsg)
+
+		// Non-pointer test
 		v, err := ToStringE(test.input)
 		if test.iserr {
 			c.Assert(err, qt.IsNotNil, errmsg)
-			continue
+		} else {
+			c.Assert(err, qt.IsNil, errmsg)
+			c.Assert(v, qt.Equals, test.expect, errmsg)
 		}
 
-		c.Assert(err, qt.IsNil, errmsg)
-		c.Assert(v, qt.Equals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToString(test.input)
-		c.Assert(v, qt.Equals, test.expect, errmsg)
+		// Pointer test
+		v, err = ToStringE(&test.input)
+		if test.iserr {
+			c.Assert(err, qt.IsNotNil, errmsg)
+		} else {
+			c.Assert(err, qt.IsNil, errmsg)
+			c.Assert(v, qt.Equals, test.expect, errmsg)
+		}
 	}
 }
 
@@ -308,7 +317,8 @@ func TestStringerToString(t *testing.T) {
 
 	var x foo
 	x.val = "bar"
-	c.Assert(ToString(x), qt.Equals, "bar")
+	c.Assert(ToString(x), qt.Equals, "bar", qt.Commentf("non-pointer test"))
+	c.Assert(ToString(&x), qt.Equals, "bar", qt.Commentf("pointer test"))
 }
 
 type fu struct {
@@ -324,7 +334,8 @@ func TestErrorToString(t *testing.T) {
 
 	var x fu
 	x.val = "bar"
-	c.Assert(ToString(x), qt.Equals, "bar")
+	c.Assert(ToString(x), qt.Equals, "bar", qt.Commentf("non-pointer test"))
+	c.Assert(ToString(&x), qt.Equals, "bar", qt.Commentf("pointer test"))
 }
 
 func TestStringMapStringSliceE(t *testing.T) {
