@@ -43,6 +43,66 @@ func ToFloat32(i interface{}) float32 {
 	return v
 }
 
+// ToBaseInt64 casts an interface to an int64 type.
+func ToBaseInt64(i interface{}, base int) int64 {
+	v, _ := ToInt64EB(i, base)
+	return v
+}
+
+// ToBaseInt32 casts an interface to an int32 type.
+func ToBaseInt32(i interface{}, base int) int32 {
+	v, _ := ToInt32EB(i, base)
+	return v
+}
+
+// ToBaseInt16 casts an interface to an int16 type.
+func ToBaseInt16(i interface{}, base int) int16 {
+	v, _ := ToInt16EB(i, base)
+	return v
+}
+
+// ToBaseInt8 casts an interface to an int8 type.
+func ToBaseInt8(i interface{}, base int) int8 {
+	v, _ := ToInt8EB(i, base)
+	return v
+}
+
+// ToBaseInt casts an interface to an int type.
+func ToBaseInt(i interface{}, base int) int {
+	v, _ := ToIntEB(i, base)
+	return v
+}
+
+// ToBaseUint casts an interface to a uint type.
+func ToBaseUint(i interface{}, base int) uint {
+	v, _ := ToUintEB(i, base)
+	return v
+}
+
+// ToBaseUint64 casts an interface to a uint64 type.
+func ToBaseUint64(i interface{}, base int) uint64 {
+	v, _ := ToUint64EB(i, base)
+	return v
+}
+
+// ToBaseUint32 casts an interface to a uint32 type.
+func ToBaseUint32(i interface{}, base int) uint32 {
+	v, _ := ToUint32EB(i, base)
+	return v
+}
+
+// ToBaseUint16 casts an interface to a uint16 type.
+func ToBaseUint16(i interface{}, base int) uint16 {
+	v, _ := ToUint16EB(i, base)
+	return v
+}
+
+// ToBaseUint8 casts an interface to a uint8 type.
+func ToBaseUint8(i interface{}, base int) uint8 {
+	v, _ := ToUint8EB(i, base)
+	return v
+}
+
 // ToInt64 casts an interface to an int64 type.
 func ToInt64(i interface{}) int64 {
 	v, _ := ToInt64E(i)
