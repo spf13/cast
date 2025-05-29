@@ -6,7 +6,7 @@ import (
 	. "github.com/dave/jennifer/jen"
 )
 
-//go:generate sh -c "go run . > ../zz_generated.cast.go"
+//go:generate sh -c "go run . > ../zz_generated.go"
 
 func main() {
 	file := NewFile("cast")
