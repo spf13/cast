@@ -976,6 +976,8 @@ func ToStringE(i interface{}) (string, error) {
 		return s.String(), nil
 	case []byte:
 		return string(s), nil
+	case []string:
+		return strings.Join(s, ","), nil
 	case template.HTML:
 		return string(s), nil
 	case template.URL:
