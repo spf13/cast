@@ -74,6 +74,13 @@ the code for a complete set.
     cast.ToInt(eight)              // 8
     cast.ToInt(nil)                // 0
 
+### Example 'ToBaseInt':
+
+    cast.ToBaseInt(8, 10)          // 8
+    cast.ToBaseInt(8, 16)          // 8
+    cast.ToBaseInt(8, 2)           // 1000
+    cast.ToBaseInt("08", 10)       // 8
+
 ## License
 
 The project is licensed under the [MIT License](LICENSE).
