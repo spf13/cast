@@ -85,11 +85,6 @@ func ToDurationE(i interface{}) (d time.Duration, err error) {
 	}
 }
 
-// ToDurationSliceE casts an interface to a []time.Duration type.
-func ToDurationSliceE(i interface{}) ([]time.Duration, error) {
-	return toSliceE(i, ToDurationE)
-}
-
 // StringToDate attempts to parse a string into a time.Time type using a
 // predefined list of formats.  If no suitable format is found, an error is
 // returned.
