@@ -34,14 +34,11 @@ type unsigned interface {
 func toNumber[T number](i any) (T, bool) {
 	i = indirect(i)
 
-	intv, ok := toInt(i)
-	if ok {
-		return T(intv), true
-	}
-
 	switch s := i.(type) {
 	case T:
 		return s, true
+	case int:
+		return T(s), true
 	case int8:
 		return T(s), true
 	case int16:
@@ -72,6 +69,10 @@ func toNumber[T number](i any) (T, bool) {
 		return 0, true
 	case nil:
 		return 0, true
+	case time.Weekday:
+		return T(s), true
+	case time.Month:
+		return T(s), true
 	}
 
 	return 0, false
@@ -123,18 +124,15 @@ func toNumberE[T number](i any, parseFn func(string) (T, error)) (T, error) {
 func toUnsignedNumber[T unsigned](i any) (T, bool, bool) {
 	i = indirect(i)
 
-	intv, ok := toInt(i)
-	if ok {
-		if intv < 0 {
-			return 0, false, false
-		}
-
-		return T(intv), true, true
-	}
-
 	switch s := i.(type) {
 	case T:
 		return s, true, true
+	case int:
+		if s < 0 {
+			return 0, false, false
+		}
+
+		return T(s), true, true
 	case int8:
 		if s < 0 {
 			return 0, false, false
@@ -189,6 +187,18 @@ func toUnsignedNumber[T unsigned](i any) (T, bool, bool) {
 		return 0, true, true
 	case nil:
 		return 0, true, true
+	case time.Weekday:
+		if s < 0 {
+			return 0, false, false
+		}
+
+		return T(s), true, true
+	case time.Month:
+		if s < 0 {
+			return 0, false, false
+		}
+
+		return T(s), true, true
 	}
 
 	return 0, true, false
@@ -340,22 +350,6 @@ func ToUint16E(i any) (uint16, error) {
 // ToUint8E casts an interface to a uint type.
 func ToUint8E(i any) (uint8, error) {
 	return toUnsignedNumberE[uint8](i, parseUint[uint8])
-}
-
-// toInt returns the int value of v if v or v's underlying type
-// is an int.
-// Note that this will return false for int64 etc. types.
-func toInt(v interface{}) (int, bool) {
-	switch v := v.(type) {
-	case int:
-		return v, true
-	case time.Weekday:
-		return int(v), true
-	case time.Month:
-		return int(v), true
-	default:
-		return 0, false
-	}
 }
 
 func trimZeroDecimal(s string) string {
