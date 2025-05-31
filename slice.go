@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"time"
 )
 
 // ToSliceE casts any value to a []any type.
@@ -73,11 +72,6 @@ func toSliceEOk[T any](i any, fn func(any) (T, error)) ([]T, bool, error) {
 	}
 }
 
-// ToBoolSliceE casts an interface to a []bool type.
-func ToBoolSliceE(i interface{}) ([]bool, error) {
-	return toSliceE(i, ToBoolE)
-}
-
 // ToStringSliceE casts any value to a []string type.
 func ToStringSliceE(i any) ([]string, error) {
 	if a, ok, err := toSliceEOk(i, ToStringE); ok {
@@ -99,29 +93,4 @@ func ToStringSliceE(i any) ([]string, error) {
 	default:
 		return a, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, a)
 	}
-}
-
-// ToIntSliceE casts an interface to a []int type.
-func ToIntSliceE(i interface{}) ([]int, error) {
-	return toSliceE(i, ToIntE)
-}
-
-// ToUintSliceE casts an interface to a []uint type.
-func ToUintSliceE(i interface{}) ([]uint, error) {
-	return toSliceE(i, ToUintE)
-}
-
-// ToFloat64SliceE casts an interface to a []float64 type.
-func ToFloat64SliceE(i interface{}) ([]float64, error) {
-	return toSliceE(i, ToFloat64E)
-}
-
-// ToInt64SliceE casts an interface to a []int64 type.
-func ToInt64SliceE(i interface{}) ([]int64, error) {
-	return toSliceE(i, ToInt64E)
-}
-
-// ToDurationSliceE casts an interface to a []time.Duration type.
-func ToDurationSliceE(i interface{}) ([]time.Duration, error) {
-	return toSliceE(i, ToDurationE)
 }
