@@ -72,12 +72,8 @@ func runTests[T cast.Basic](t *testing.T, testCases []testCase, to func(i any) T
 						c.Assert(v, qt.Equals, testCase.expected)
 					}
 				})
-			})
 
-			t.Run("", func(t *testing.T) {
-				t.Parallel()
-
-				t.Run("Value", func(t *testing.T) {
+				t.Run("Pointer", func(t *testing.T) {
 					t.Run("ToType", func(t *testing.T) {
 						t.Parallel()
 
