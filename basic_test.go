@@ -87,6 +87,7 @@ func TestToBoolE(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
+		// TODO: remove after minimum Go version is >=1.22
 		testCase := testCase
 
 		t.Run("", func(t *testing.T) {
@@ -134,19 +135,15 @@ func BenchmarkToBool(b *testing.B) {
 }
 
 func TestToStringE(t *testing.T) {
-	c := qt.New(t)
-
-	var jn json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
 	type Key struct {
 		k string
 	}
 	key := &Key{"foo"}
 
-	tests := []struct {
-		input  interface{}
-		expect string
-		iserr  bool
+	testCases := []struct {
+		input       any
+		expected    any
+		expectError bool
 	}{
 		{int(8), "8", false},
 		{int8(8), "8", false},
@@ -160,7 +157,7 @@ func TestToStringE(t *testing.T) {
 		{uint64(8), "8", false},
 		{float32(8.31), "8.31", false},
 		{float64(8.31), "8.31", false},
-		{jn, "8", false},
+		{json.Number("8"), "8", false},
 		{true, "true", false},
 		{false, "false", false},
 		{nil, "", false},
@@ -171,35 +168,52 @@ func TestToStringE(t *testing.T) {
 		{template.JS("(1+2)"), "(1+2)", false},
 		{template.CSS("a"), "a", false},
 		{template.HTMLAttr("a"), "a", false},
+
+		{foo{val: "bar"}, "bar", false},
+		{fu{val: "bar"}, "bar", false},
+
 		// errors
 		{testing.T{}, "", true},
 		{key, "", true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
+	for _, testCase := range testCases {
+		// TODO: remove after minimum Go version is >=1.22
+		testCase := testCase
 
-		// Non-E test
-		v := ToString(test.input)
-		c.Assert(v, qt.Equals, test.expect, errmsg)
+		t.Run("", func(t *testing.T) {
+			c := qt.New(t)
 
-		// Non-pointer test
-		v, err := ToStringE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil, errmsg)
-		} else {
-			c.Assert(err, qt.IsNil, errmsg)
-			c.Assert(v, qt.Equals, test.expect, errmsg)
-		}
+			{
+				v := ToString(testCase.input)
+				c.Assert(v, qt.Equals, testCase.expected)
+			}
 
-		// Pointer test
-		v, err = ToStringE(&test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil, errmsg)
-		} else {
-			c.Assert(err, qt.IsNil, errmsg)
-			c.Assert(v, qt.Equals, test.expect, errmsg)
-		}
+			{
+				v := To[string](testCase.input)
+				c.Assert(v, qt.Equals, testCase.expected)
+			}
+
+			{
+				v, err := ToStringE(testCase.input)
+				if testCase.expectError {
+					c.Assert(err, qt.IsNotNil)
+				} else {
+					c.Assert(err, qt.IsNil)
+					c.Assert(v, qt.Equals, testCase.expected)
+				}
+			}
+
+			{
+				v, err := ToE[string](testCase.input)
+				if testCase.expectError {
+					c.Assert(err, qt.IsNotNil)
+				} else {
+					c.Assert(err, qt.IsNil)
+					c.Assert(v, qt.Equals, testCase.expected)
+				}
+			}
+		})
 	}
 }
 
@@ -211,28 +225,10 @@ func (x foo) String() string {
 	return x.val
 }
 
-func TestStringerToString(t *testing.T) {
-	c := qt.New(t)
-
-	var x foo
-	x.val = "bar"
-	c.Assert(ToString(x), qt.Equals, "bar", qt.Commentf("non-pointer test"))
-	c.Assert(ToString(&x), qt.Equals, "bar", qt.Commentf("pointer test"))
-}
-
 type fu struct {
 	val string
 }
 
 func (x fu) Error() string {
 	return x.val
-}
-
-func TestErrorToString(t *testing.T) {
-	c := qt.New(t)
-
-	var x fu
-	x.val = "bar"
-	c.Assert(ToString(x), qt.Equals, "bar", qt.Commentf("non-pointer test"))
-	c.Assert(ToString(&x), qt.Equals, "bar", qt.Commentf("pointer test"))
 }
