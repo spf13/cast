@@ -6,6 +6,7 @@
 package cast
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 )
@@ -202,4 +203,11 @@ func ToStringMapIntE(i any) (map[string]int, error) {
 // ToStringMapInt64E casts an interface to a map[string]int64{} type.
 func ToStringMapInt64E(i interface{}) (map[string]int64, error) {
 	return toStringMapIntE(i, ToInt64, ToInt64E)
+}
+
+// jsonStringToObject attempts to unmarshall a string as JSON into
+// the object passed as pointer.
+func jsonStringToObject(s string, v interface{}) error {
+	data := []byte(s)
+	return json.Unmarshal(data, v)
 }

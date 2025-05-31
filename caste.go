@@ -6,7 +6,6 @@
 package cast
 
 import (
-	"encoding/json"
 	"reflect"
 )
 
@@ -27,11 +26,4 @@ func indirect(a interface{}) interface{} {
 		v = v.Elem()
 	}
 	return v.Interface()
-}
-
-// jsonStringToObject attempts to unmarshall a string as JSON into
-// the object passed as pointer.
-func jsonStringToObject(s string, v interface{}) error {
-	data := []byte(s)
-	return json.Unmarshal(data, v)
 }
