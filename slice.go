@@ -32,8 +32,8 @@ func ToSliceE(i any) ([]any, error) {
 	}
 }
 
-func toSliceE[T any](i any, fn func(any) (T, error)) ([]T, error) {
-	v, ok, err := toSliceEOk(i, fn)
+func toSliceE[T Basic](i any) ([]T, error) {
+	v, ok, err := toSliceEOk[T](i)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func toSliceE[T any](i any, fn func(any) (T, error)) ([]T, error) {
 	return v, nil
 }
 
-func toSliceEOk[T any](i any, fn func(any) (T, error)) ([]T, bool, error) {
+func toSliceEOk[T Basic](i any) ([]T, bool, error) {
 	i, _ = indirect(i)
 	if i == nil {
 		return nil, true, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
@@ -64,7 +64,7 @@ func toSliceEOk[T any](i any, fn func(any) (T, error)) ([]T, bool, error) {
 		a := make([]T, s.Len())
 
 		for j := 0; j < s.Len(); j++ {
-			val, err := fn(s.Index(j).Interface())
+			val, err := ToE[T](s.Index(j).Interface())
 			if err != nil {
 				return nil, true, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
 			}
@@ -80,7 +80,7 @@ func toSliceEOk[T any](i any, fn func(any) (T, error)) ([]T, bool, error) {
 
 // ToStringSliceE casts any value to a []string type.
 func ToStringSliceE(i any) ([]string, error) {
-	if a, ok, err := toSliceEOk(i, ToStringE); ok {
+	if a, ok, err := toSliceEOk[string](i); ok {
 		if err != nil {
 			return nil, err
 		}

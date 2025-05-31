@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	. "github.com/dave/jennifer/jen"
 )
@@ -46,24 +47,24 @@ var toFuncs = []struct {
 }
 
 var toSliceFuncs = []struct {
-	baseName   string
+	typeName   string
 	returnType *Statement
 }{
-	{"ToBool", Bool()},
-	// {"ToTime", Qual("time", "Time")},
-	{"ToDuration", Qual("time", "Duration")},
-	{"ToInt", Int()},
-	{"ToInt8", Int8()},
-	{"ToInt16", Int16()},
-	{"ToInt32", Int32()},
-	{"ToInt64", Int64()},
-	{"ToUint", Uint()},
-	{"ToUint8", Uint8()},
-	{"ToUint16", Uint16()},
-	{"ToUint32", Uint32()},
-	{"ToUint64", Uint64()},
-	{"ToFloat32", Float32()},
-	{"ToFloat64", Float64()},
+	{"bool", Bool()},
+	// {"time", Qual("time", "Time")},
+	{"duration", Qual("time", "Duration")},
+	{"int", Int()},
+	{"int8", Int8()},
+	{"int16", Int16()},
+	{"int32", Int32()},
+	{"int64", Int64()},
+	{"uint", Uint()},
+	{"uint8", Uint8()},
+	{"uint16", Uint16()},
+	{"uint32", Uint32()},
+	{"uint64", Uint64()},
+	{"float32", Float32()},
+	{"float64", Float64()},
 }
 
 func main() {
@@ -80,7 +81,7 @@ func main() {
 	}
 
 	for _, fn := range toSliceFuncs {
-		toSliceEFunc(file, fn.baseName, fn.returnType)
+		toSliceEFunc(file, fn.typeName, fn.returnType)
 	}
 
 	fmt.Printf("%#v", file)
@@ -117,17 +118,17 @@ func toFuncWithParams(file *File, funcName string, returnType *Statement, args .
 		})
 }
 
-func toSliceEFunc(file *File, baseName string, returnType *Statement) {
-	funcName := baseName + "SliceE"
-	returnType = Index().Add(returnType)
+func toSliceEFunc(file *File, typeName string, returnType *Statement) {
+	funcName := "To" + strings.ToUpper(typeName[:1]) + typeName[1:] + "SliceE"
+	sliceReturnType := Index().Add(returnType)
 
-	file.Comment(fmt.Sprintf("%s casts any value to a(n) %s type.", funcName, returnType.GoString()))
+	file.Comment(fmt.Sprintf("%s casts any value to a(n) %s type.", funcName, sliceReturnType.GoString()))
 
 	varI := Id("i")
 
 	file.Func().
-		Id(funcName).Params(varI.Clone().Any()).Params(returnType, Error()).
+		Id(funcName).Params(varI.Clone().Any()).Params(sliceReturnType, Error()).
 		BlockFunc(func(g *Group) {
-			g.Return(Id("toSliceE").Call(varI, Id(baseName+"E")))
+			g.Return(Id("toSliceE").Types(returnType).Call(varI))
 		})
 }
