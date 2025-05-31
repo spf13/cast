@@ -17,78 +17,108 @@ import (
 )
 
 type numberContext struct {
-	specific func(any) (any, error)
-	generic  func(any) (any, error)
+	specific    func(any) any
+	generic     func(any) any
+	specificErr func(any) (any, error)
+	genericErr  func(any) (any, error)
 
 	// Order of samples:
 	// zero, one, 8, -8, 8.3, -8.3, min, max, underflow string, overflow string
 	samples []any
 }
 
-func toAny[T cast.Number](fn func(any) (T, error)) func(i any) (any, error) {
+func toAny[T cast.Number](fn func(any) T) func(i any) any {
+	return func(i any) any { return fn(i) }
+}
+
+func toAnyErr[T cast.Number](fn func(any) (T, error)) func(i any) (any, error) {
 	return func(i any) (any, error) { return fn(i) }
 }
 
 var numberContexts = map[string]numberContext{
 	"int": {
-		specific: toAny(cast.ToIntE),
-		generic:  toAny(cast.ToNumberE[int]),
-		samples:  []any{int(0), int(1), int(8), int(-8), int(8), int(-8), math.MinInt, math.MaxInt, nil, nil},
+		specific:    toAny(cast.ToInt),
+		generic:     toAny(cast.ToNumber[int]),
+		specificErr: toAnyErr(cast.ToIntE),
+		genericErr:  toAnyErr(cast.ToNumberE[int]),
+		samples:     []any{int(0), int(1), int(8), int(-8), int(8), int(-8), math.MinInt, math.MaxInt, nil, nil},
 	},
 	"int8": {
-		specific: toAny(cast.ToInt8E),
-		generic:  toAny(cast.ToNumberE[int8]),
-		samples:  []any{int8(0), int8(1), int8(8), int8(-8), int8(8), int8(-8), int8(math.MinInt8), int8(math.MaxInt8), "-129", "128"},
+		specific:    toAny(cast.ToInt8),
+		generic:     toAny(cast.ToNumber[int8]),
+		specificErr: toAnyErr(cast.ToInt8E),
+		genericErr:  toAnyErr(cast.ToNumberE[int8]),
+		samples:     []any{int8(0), int8(1), int8(8), int8(-8), int8(8), int8(-8), int8(math.MinInt8), int8(math.MaxInt8), "-129", "128"},
 	},
 	"int16": {
-		specific: toAny(cast.ToInt16E),
-		generic:  toAny(cast.ToNumberE[int16]),
-		samples:  []any{int16(0), int16(1), int16(8), int16(-8), int16(8), int16(-8), int16(math.MinInt16), int16(math.MaxInt16), "-32769", "32768"},
+		specific:    toAny(cast.ToInt16),
+		generic:     toAny(cast.ToNumber[int16]),
+		specificErr: toAnyErr(cast.ToInt16E),
+		genericErr:  toAnyErr(cast.ToNumberE[int16]),
+		samples:     []any{int16(0), int16(1), int16(8), int16(-8), int16(8), int16(-8), int16(math.MinInt16), int16(math.MaxInt16), "-32769", "32768"},
 	},
 	"int32": {
-		specific: toAny(cast.ToInt32E),
-		generic:  toAny(cast.ToNumberE[int32]),
-		samples:  []any{int32(0), int32(1), int32(8), int32(-8), int32(8), int32(-8), int32(math.MinInt32), int32(math.MaxInt32), "-2147483649", "2147483648"},
+		specific:    toAny(cast.ToInt32),
+		generic:     toAny(cast.ToNumber[int32]),
+		specificErr: toAnyErr(cast.ToInt32E),
+		genericErr:  toAnyErr(cast.ToNumberE[int32]),
+		samples:     []any{int32(0), int32(1), int32(8), int32(-8), int32(8), int32(-8), int32(math.MinInt32), int32(math.MaxInt32), "-2147483649", "2147483648"},
 	},
 	"int64": {
-		specific: toAny(cast.ToInt64E),
-		generic:  toAny(cast.ToNumberE[int64]),
-		samples:  []any{int64(0), int64(1), int64(8), int64(-8), int64(8), int64(-8), int64(math.MinInt64), int64(math.MaxInt64), "-9223372036854775809", "9223372036854775808"},
+		specific:    toAny(cast.ToInt64),
+		generic:     toAny(cast.ToNumber[int64]),
+		specificErr: toAnyErr(cast.ToInt64E),
+		genericErr:  toAnyErr(cast.ToNumberE[int64]),
+		samples:     []any{int64(0), int64(1), int64(8), int64(-8), int64(8), int64(-8), int64(math.MinInt64), int64(math.MaxInt64), "-9223372036854775809", "9223372036854775808"},
 	},
 	"uint": {
-		specific: toAny(cast.ToUintE),
-		generic:  toAny(cast.ToNumberE[uint]),
-		samples:  []any{uint(0), uint(1), uint(8), uint(0), uint(8), uint(0), uint(0), uint(math.MaxUint), nil, nil},
+		specific:    toAny(cast.ToUint),
+		generic:     toAny(cast.ToNumber[uint]),
+		specificErr: toAnyErr(cast.ToUintE),
+		genericErr:  toAnyErr(cast.ToNumberE[uint]),
+		samples:     []any{uint(0), uint(1), uint(8), uint(0), uint(8), uint(0), uint(0), uint(math.MaxUint), nil, nil},
 	},
 	"uint8": {
-		specific: toAny(cast.ToUint8E),
-		generic:  toAny(cast.ToNumberE[uint8]),
-		samples:  []any{uint8(0), uint8(1), uint8(8), uint8(0), uint8(8), uint8(0), uint8(0), uint8(math.MaxUint8), "-1", "256"},
+		specific:    toAny(cast.ToUint8),
+		generic:     toAny(cast.ToNumber[uint8]),
+		specificErr: toAnyErr(cast.ToUint8E),
+		genericErr:  toAnyErr(cast.ToNumberE[uint8]),
+		samples:     []any{uint8(0), uint8(1), uint8(8), uint8(0), uint8(8), uint8(0), uint8(0), uint8(math.MaxUint8), "-1", "256"},
 	},
 	"uint16": {
-		specific: toAny(cast.ToUint16E),
-		generic:  toAny(cast.ToNumberE[uint16]),
-		samples:  []any{uint16(0), uint16(1), uint16(8), uint16(0), uint16(8), uint16(0), uint16(0), uint16(math.MaxUint16), "-1", "65536"},
+		specific:    toAny(cast.ToUint16),
+		generic:     toAny(cast.ToNumber[uint16]),
+		specificErr: toAnyErr(cast.ToUint16E),
+		genericErr:  toAnyErr(cast.ToNumberE[uint16]),
+		samples:     []any{uint16(0), uint16(1), uint16(8), uint16(0), uint16(8), uint16(0), uint16(0), uint16(math.MaxUint16), "-1", "65536"},
 	},
 	"uint32": {
-		specific: toAny(cast.ToUint32E),
-		generic:  toAny(cast.ToNumberE[uint32]),
-		samples:  []any{uint32(0), uint32(1), uint32(8), uint32(0), uint32(8), uint32(0), uint32(0), uint32(math.MaxUint32), "-1", "4294967296"},
+		specific:    toAny(cast.ToUint32),
+		generic:     toAny(cast.ToNumber[uint32]),
+		specificErr: toAnyErr(cast.ToUint32E),
+		genericErr:  toAnyErr(cast.ToNumberE[uint32]),
+		samples:     []any{uint32(0), uint32(1), uint32(8), uint32(0), uint32(8), uint32(0), uint32(0), uint32(math.MaxUint32), "-1", "4294967296"},
 	},
 	"uint64": {
-		specific: toAny(cast.ToUint64E),
-		generic:  toAny(cast.ToNumberE[uint64]),
-		samples:  []any{uint64(0), uint64(1), uint64(8), uint64(0), uint64(8), uint64(0), uint64(0), uint64(math.MaxUint64), "-1", "18446744073709551616"},
+		specific:    toAny(cast.ToUint64),
+		generic:     toAny(cast.ToNumber[uint64]),
+		specificErr: toAnyErr(cast.ToUint64E),
+		genericErr:  toAnyErr(cast.ToNumberE[uint64]),
+		samples:     []any{uint64(0), uint64(1), uint64(8), uint64(0), uint64(8), uint64(0), uint64(0), uint64(math.MaxUint64), "-1", "18446744073709551616"},
 	},
 	"float32": {
-		specific: toAny(cast.ToFloat32E),
-		generic:  toAny(cast.ToNumberE[float32]),
-		samples:  []any{float32(0), float32(1), float32(8), float32(-8), float32(8.31), float32(-8.31), float32(-math.MaxFloat32), float32(math.MaxFloat32), nil, nil},
+		specific:    toAny(cast.ToFloat32),
+		generic:     toAny(cast.ToNumber[float32]),
+		specificErr: toAnyErr(cast.ToFloat32E),
+		genericErr:  toAnyErr(cast.ToNumberE[float32]),
+		samples:     []any{float32(0), float32(1), float32(8), float32(-8), float32(8.31), float32(-8.31), float32(-math.MaxFloat32), float32(math.MaxFloat32), nil, nil},
 	},
 	"float64": {
-		specific: toAny(cast.ToFloat64E),
-		generic:  toAny(cast.ToNumberE[float64]),
-		samples:  []any{float64(0), float64(1), float64(8), float64(-8), float64(8.31), float64(-8.31), float64(-math.MaxFloat64), float64(math.MaxFloat64), nil, nil},
+		specific:    toAny(cast.ToFloat64),
+		generic:     toAny(cast.ToNumber[float64]),
+		specificErr: toAnyErr(cast.ToFloat64E),
+		genericErr:  toAnyErr(cast.ToNumberE[float64]),
+		samples:     []any{float64(0), float64(1), float64(8), float64(-8), float64(8.31), float64(-8.31), float64(-math.MaxFloat64), float64(math.MaxFloat64), nil, nil},
 	},
 }
 
@@ -203,7 +233,17 @@ func TestToNumber(t *testing.T) {
 					c := qt.New(t)
 
 					{
-						v, err := ctx.specific(testCase.input)
+						v := ctx.specific(testCase.input)
+						c.Assert(v, qt.Equals, testCase.expected)
+					}
+
+					{
+						v := ctx.generic(testCase.input)
+						c.Assert(v, qt.Equals, testCase.expected)
+					}
+
+					{
+						v, err := ctx.specificErr(testCase.input)
 						if testCase.expectError {
 							c.Assert(err, qt.IsNotNil)
 						} else {
@@ -213,7 +253,7 @@ func TestToNumber(t *testing.T) {
 					}
 
 					{
-						v, err := ctx.generic(testCase.input)
+						v, err := ctx.genericErr(testCase.input)
 						if testCase.expectError {
 							c.Assert(err, qt.IsNotNil)
 						} else {
@@ -244,38 +284,38 @@ func BenchmarkNumber(b *testing.B) {
 			testCase{
 				name:     typeName,
 				input:    "123",
-				specific: ctx.specific,
-				generic:  ctx.generic,
+				specific: ctx.specificErr,
+				generic:  ctx.genericErr,
 			},
 			testCase{
 				name:     typeName,
 				input:    "1234567890123",
-				specific: ctx.specific,
-				generic:  ctx.generic,
+				specific: ctx.specificErr,
+				generic:  ctx.genericErr,
 			},
 			testCase{
 				name:     typeName,
 				input:    "-123",
-				specific: ctx.specific,
-				generic:  ctx.generic,
+				specific: ctx.specificErr,
+				generic:  ctx.genericErr,
 			},
 			testCase{
 				name:     typeName,
 				input:    "-1234567890123",
-				specific: ctx.specific,
-				generic:  ctx.generic,
+				specific: ctx.specificErr,
+				generic:  ctx.genericErr,
 			},
 			testCase{
 				name:     typeName,
 				input:    "0000000000123",
-				specific: ctx.specific,
-				generic:  ctx.generic,
+				specific: ctx.specificErr,
+				generic:  ctx.genericErr,
 			},
 			testCase{
 				name:     typeName,
 				input:    "00000000001234567890123",
-				specific: ctx.specific,
-				generic:  ctx.generic,
+				specific: ctx.specificErr,
+				generic:  ctx.genericErr,
 			},
 		)
 	}
