@@ -303,12 +303,12 @@ func BenchmarkNumber(b *testing.B) {
 		generic  func(any) (any, error)
 	}
 
-	var cases []testCase
+	var testCases []testCase
 
 	// TODO: sort keys before iterating (once Go version is updated)
 	for typeName, ctx := range numberContexts {
-		cases = append(
-			cases,
+		testCases = append(
+			testCases,
 			testCase{
 				name:     typeName,
 				input:    "123",
@@ -348,19 +348,22 @@ func BenchmarkNumber(b *testing.B) {
 		)
 	}
 
-	for _, c := range cases {
-		b.Run(c.name, func(b *testing.B) {
+	for _, testCase := range testCases {
+		// TODO: remove after minimum Go version is >=1.22
+		testCase := testCase
+
+		b.Run(testCase.name, func(b *testing.B) {
 			b.Run("Specific", func(b *testing.B) {
 				// TODO: use b.Loop() once updated to Go 1.24
 				for i := 0; i < b.N; i++ {
-					_, _ = c.specific(c.input)
+					_, _ = testCase.specific(testCase.input)
 				}
 			})
 
 			b.Run("Generic", func(b *testing.B) {
 				// TODO: use b.Loop() once updated to Go 1.24
 				for i := 0; i < b.N; i++ {
-					_, _ = c.generic(c.input)
+					_, _ = testCase.generic(testCase.input)
 				}
 			})
 		})
