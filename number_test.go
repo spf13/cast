@@ -17,6 +17,8 @@ import (
 )
 
 type numberContext struct {
+	to          func(any) any
+	toErr       func(any) (any, error)
 	specific    func(any) any
 	generic     func(any) any
 	specificErr func(any) (any, error)
@@ -37,6 +39,8 @@ func toAnyErr[T cast.Number](fn func(any) (T, error)) func(i any) (any, error) {
 
 var numberContexts = map[string]numberContext{
 	"int": {
+		to:          toAny(cast.To[int]),
+		toErr:       toAnyErr(cast.ToE[int]),
 		specific:    toAny(cast.ToInt),
 		generic:     toAny(cast.ToNumber[int]),
 		specificErr: toAnyErr(cast.ToIntE),
@@ -44,6 +48,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{int(0), int(1), int(8), int(-8), int(8), int(-8), math.MinInt, math.MaxInt, nil, nil},
 	},
 	"int8": {
+		to:          toAny(cast.To[int8]),
+		toErr:       toAnyErr(cast.ToE[int8]),
 		specific:    toAny(cast.ToInt8),
 		generic:     toAny(cast.ToNumber[int8]),
 		specificErr: toAnyErr(cast.ToInt8E),
@@ -51,6 +57,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{int8(0), int8(1), int8(8), int8(-8), int8(8), int8(-8), int8(math.MinInt8), int8(math.MaxInt8), "-129", "128"},
 	},
 	"int16": {
+		to:          toAny(cast.To[int16]),
+		toErr:       toAnyErr(cast.ToE[int16]),
 		specific:    toAny(cast.ToInt16),
 		generic:     toAny(cast.ToNumber[int16]),
 		specificErr: toAnyErr(cast.ToInt16E),
@@ -58,6 +66,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{int16(0), int16(1), int16(8), int16(-8), int16(8), int16(-8), int16(math.MinInt16), int16(math.MaxInt16), "-32769", "32768"},
 	},
 	"int32": {
+		to:          toAny(cast.To[int32]),
+		toErr:       toAnyErr(cast.ToE[int32]),
 		specific:    toAny(cast.ToInt32),
 		generic:     toAny(cast.ToNumber[int32]),
 		specificErr: toAnyErr(cast.ToInt32E),
@@ -65,6 +75,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{int32(0), int32(1), int32(8), int32(-8), int32(8), int32(-8), int32(math.MinInt32), int32(math.MaxInt32), "-2147483649", "2147483648"},
 	},
 	"int64": {
+		to:          toAny(cast.To[int64]),
+		toErr:       toAnyErr(cast.ToE[int64]),
 		specific:    toAny(cast.ToInt64),
 		generic:     toAny(cast.ToNumber[int64]),
 		specificErr: toAnyErr(cast.ToInt64E),
@@ -72,6 +84,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{int64(0), int64(1), int64(8), int64(-8), int64(8), int64(-8), int64(math.MinInt64), int64(math.MaxInt64), "-9223372036854775809", "9223372036854775808"},
 	},
 	"uint": {
+		to:          toAny(cast.To[uint]),
+		toErr:       toAnyErr(cast.ToE[uint]),
 		specific:    toAny(cast.ToUint),
 		generic:     toAny(cast.ToNumber[uint]),
 		specificErr: toAnyErr(cast.ToUintE),
@@ -79,6 +93,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{uint(0), uint(1), uint(8), uint(0), uint(8), uint(0), uint(0), uint(math.MaxUint), nil, nil},
 	},
 	"uint8": {
+		to:          toAny(cast.To[uint8]),
+		toErr:       toAnyErr(cast.ToE[uint8]),
 		specific:    toAny(cast.ToUint8),
 		generic:     toAny(cast.ToNumber[uint8]),
 		specificErr: toAnyErr(cast.ToUint8E),
@@ -86,6 +102,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{uint8(0), uint8(1), uint8(8), uint8(0), uint8(8), uint8(0), uint8(0), uint8(math.MaxUint8), "-1", "256"},
 	},
 	"uint16": {
+		to:          toAny(cast.To[uint16]),
+		toErr:       toAnyErr(cast.ToE[uint16]),
 		specific:    toAny(cast.ToUint16),
 		generic:     toAny(cast.ToNumber[uint16]),
 		specificErr: toAnyErr(cast.ToUint16E),
@@ -93,6 +111,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{uint16(0), uint16(1), uint16(8), uint16(0), uint16(8), uint16(0), uint16(0), uint16(math.MaxUint16), "-1", "65536"},
 	},
 	"uint32": {
+		to:          toAny(cast.To[uint32]),
+		toErr:       toAnyErr(cast.ToE[uint32]),
 		specific:    toAny(cast.ToUint32),
 		generic:     toAny(cast.ToNumber[uint32]),
 		specificErr: toAnyErr(cast.ToUint32E),
@@ -100,6 +120,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{uint32(0), uint32(1), uint32(8), uint32(0), uint32(8), uint32(0), uint32(0), uint32(math.MaxUint32), "-1", "4294967296"},
 	},
 	"uint64": {
+		to:          toAny(cast.To[uint64]),
+		toErr:       toAnyErr(cast.ToE[uint64]),
 		specific:    toAny(cast.ToUint64),
 		generic:     toAny(cast.ToNumber[uint64]),
 		specificErr: toAnyErr(cast.ToUint64E),
@@ -107,6 +129,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{uint64(0), uint64(1), uint64(8), uint64(0), uint64(8), uint64(0), uint64(0), uint64(math.MaxUint64), "-1", "18446744073709551616"},
 	},
 	"float32": {
+		to:          toAny(cast.To[float32]),
+		toErr:       toAnyErr(cast.ToE[float32]),
 		specific:    toAny(cast.ToFloat32),
 		generic:     toAny(cast.ToNumber[float32]),
 		specificErr: toAnyErr(cast.ToFloat32E),
@@ -114,6 +138,8 @@ var numberContexts = map[string]numberContext{
 		samples:     []any{float32(0), float32(1), float32(8), float32(-8), float32(8.31), float32(-8.31), float32(-math.MaxFloat32), float32(math.MaxFloat32), nil, nil},
 	},
 	"float64": {
+		to:          toAny(cast.To[float64]),
+		toErr:       toAnyErr(cast.ToE[float64]),
 		specific:    toAny(cast.ToFloat64),
 		generic:     toAny(cast.ToNumber[float64]),
 		specificErr: toAnyErr(cast.ToFloat64E),
