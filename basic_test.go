@@ -77,7 +77,7 @@ func TestBool(t *testing.T) {
 		{int32(-1), true, false},
 		{int64(-1), true, false},
 
-		// errors
+		// Failure cases
 		{"test", false, true},
 		{testing.T{}, false, true},
 	}
@@ -127,7 +127,7 @@ func TestString(t *testing.T) {
 		{foo{val: "bar"}, "bar", false},
 		{fu{val: "bar"}, "bar", false},
 
-		// errors
+		// Failure cases
 		{testing.T{}, "", true},
 		{key, "", true},
 	}

@@ -238,7 +238,7 @@ func generateNumberTestCases(samples []any) []testCase {
 	return testCases
 }
 
-func TestToNumber(t *testing.T) {
+func TestNumber(t *testing.T) {
 	t.Parallel()
 
 	for typeName, ctx := range numberContexts {
