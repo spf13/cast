@@ -15,31 +15,30 @@ import (
 )
 
 func TestToBoolE(t *testing.T) {
-	c := qt.New(t)
-
-	var jf, jt, je json.Number
-	_ = json.Unmarshal([]byte("0"), &jf)
-	_ = json.Unmarshal([]byte("1"), &jt)
-	_ = json.Unmarshal([]byte("1.0"), &je)
-	tests := []struct {
-		input  interface{}
-		expect bool
-		iserr  bool
+	testCases := []struct {
+		input       any
+		expected    any
+		expectError bool
 	}{
 		{0, false, false},
-		{int64(0), false, false},
-		{int32(0), false, false},
-		{int16(0), false, false},
+		{int(0), false, false},
 		{int8(0), false, false},
+		{int16(0), false, false},
+		{int32(0), false, false},
+		{int64(0), false, false},
 		{uint(0), false, false},
-		{uint64(0), false, false},
-		{uint32(0), false, false},
-		{uint16(0), false, false},
 		{uint8(0), false, false},
-		{float64(0), false, false},
+		{uint16(0), false, false},
+		{uint32(0), false, false},
+		{uint64(0), false, false},
 		{float32(0), false, false},
+		{float32(0.0), false, false},
+		{float64(0), false, false},
+		{float64(0.0), false, false},
+
 		{time.Duration(0), false, false},
-		{jf, false, false},
+		{json.Number("0"), false, false},
+
 		{nil, false, false},
 		{"false", false, false},
 		{"FALSE", false, false},
@@ -53,52 +52,80 @@ func TestToBoolE(t *testing.T) {
 		{"True", true, false},
 		{"t", true, false},
 		{"T", true, false},
+
 		{1, true, false},
-		{int64(1), true, false},
-		{int32(1), true, false},
-		{int16(1), true, false},
+		{int(1), true, false},
 		{int8(1), true, false},
+		{int16(1), true, false},
+		{int32(1), true, false},
+		{int64(1), true, false},
 		{uint(1), true, false},
-		{uint64(1), true, false},
-		{uint32(1), true, false},
-		{uint16(1), true, false},
 		{uint8(1), true, false},
-		{float64(1), true, false},
+		{uint16(1), true, false},
+		{uint32(1), true, false},
+		{uint64(1), true, false},
 		{float32(1), true, false},
+		{float32(1.0), true, false},
+		{float64(1), true, false},
+		{float64(1.0), true, false},
+
 		{time.Duration(1), true, false},
-		{jt, true, false},
-		{je, true, false},
+		{json.Number("1"), true, false},
+		{json.Number("1.0"), true, false},
+
 		{true, true, false},
 		{-1, true, false},
-		{int64(-1), true, false},
-		{int32(-1), true, false},
-		{int16(-1), true, false},
+		{int(-1), true, false},
 		{int8(-1), true, false},
+		{int16(-1), true, false},
+		{int32(-1), true, false},
+		{int64(-1), true, false},
 
 		// errors
 		{"test", false, true},
 		{testing.T{}, false, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
+	for _, testCase := range testCases {
+		testCase := testCase
 
-		v, err := ToBoolE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
+		t.Run("", func(t *testing.T) {
+			c := qt.New(t)
 
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.Equals, test.expect, errmsg)
+			{
+				v := ToBool(testCase.input)
+				c.Assert(v, qt.Equals, testCase.expected)
+			}
 
-		// Non-E test
-		v = ToBool(test.input)
-		c.Assert(v, qt.Equals, test.expect, errmsg)
+			{
+				v := To[bool](testCase.input)
+				c.Assert(v, qt.Equals, testCase.expected)
+			}
+
+			{
+				v, err := ToBoolE(testCase.input)
+				if testCase.expectError {
+					c.Assert(err, qt.IsNotNil)
+				} else {
+					c.Assert(err, qt.IsNil)
+					c.Assert(v, qt.Equals, testCase.expected)
+				}
+			}
+
+			{
+				v, err := ToE[bool](testCase.input)
+				if testCase.expectError {
+					c.Assert(err, qt.IsNotNil)
+				} else {
+					c.Assert(err, qt.IsNil)
+					c.Assert(v, qt.Equals, testCase.expected)
+				}
+			}
+		})
 	}
 }
 
-func BenchmarkTooBool(b *testing.B) {
+func BenchmarkToBool(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		if !ToBool(true) {
 			b.Fatal("ToBool returned false")
