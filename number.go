@@ -88,7 +88,7 @@ func ToNumber[T Number](i any) T {
 // It returns false as the second parameter if the conversion fails.
 // This is to signal other callers that they should proceed with their own conversions.
 func toNumber[T Number](i any) (T, bool) {
-	i = indirect(i)
+	i, _ = indirect(i)
 
 	switch s := i.(type) {
 	case T:
@@ -140,7 +140,7 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 		return n, nil
 	}
 
-	i = indirect(i)
+	i, _ = indirect(i)
 
 	switch s := i.(type) {
 	case string:
@@ -188,7 +188,7 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 }
 
 func toUnsignedNumber[T Number](i any) (T, bool, bool) {
-	i = indirect(i)
+	i, _ = indirect(i)
 
 	switch s := i.(type) {
 	case T:
@@ -276,7 +276,7 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 		return n, nil
 	}
 
-	i = indirect(i)
+	i, _ = indirect(i)
 
 	if !valid {
 		return 0, errNegativeNotAllowed
