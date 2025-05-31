@@ -24,7 +24,7 @@ func ToTimeE(i any) (time.Time, error) {
 // interpreting inputs without a timezone to be in the given location,
 // or the local timezone if nil.
 func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, err error) {
-	i = indirect(i)
+	i, _ = indirect(i)
 
 	switch v := i.(type) {
 	case time.Time:
@@ -60,7 +60,7 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 
 // ToDurationE casts any value to a [time.Duration] type.
 func ToDurationE(i any) (time.Duration, error) {
-	i = indirect(i)
+	i, _ = indirect(i)
 
 	switch s := i.(type) {
 	case time.Duration:

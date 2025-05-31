@@ -139,3 +139,29 @@ func runTests[T cast.Basic](t *testing.T, testCases []testCase, to func(i any) T
 		})
 	}
 }
+
+func BenchmarkCast(b *testing.B) {
+	b.Run("Bool", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			cast.ToBool("true")
+		}
+	})
+
+	b.Run("String", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			cast.ToString(123456789)
+		}
+	})
+
+	b.Run("Number", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			cast.ToNumber[int]("123456789")
+		}
+	})
+
+	b.Run("Int64", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			cast.ToInt64("123456789")
+		}
+	})
+}

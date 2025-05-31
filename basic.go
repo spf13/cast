@@ -9,14 +9,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"reflect"
 	"strconv"
 	"time"
 )
 
 // ToBoolE casts any value to a bool type.
 func ToBoolE(i any) (bool, error) {
-	i = indirect(i)
+	i, _ = indirect(i)
 
 	switch b := i.(type) {
 	case bool:
@@ -115,16 +114,8 @@ func ToStringE(i any) (string, error) {
 	case error:
 		return s.Error(), nil
 	default:
-		v := reflect.ValueOf(s)
-		var isPtr bool
-
-		for v.Kind() == reflect.Ptr && !v.IsNil() {
-			isPtr = true
-			v = v.Elem()
-		}
-
-		if isPtr {
-			return ToStringE(v.Interface())
+		if i, ok := indirect(s); ok {
+			return ToStringE(i)
 		}
 
 		return "", fmt.Errorf("unable to cast %#v of type %T to string", i, i)
