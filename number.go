@@ -153,7 +153,7 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 			return v, nil
 		}
 
-		return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+		return 0, fmt.Errorf(errorMsg, i, i, n)
 	case json.Number:
 		if s == "" {
 			return 0, nil
@@ -164,26 +164,26 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 			return v, nil
 		}
 
-		return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+		return 0, fmt.Errorf(errorMsg, i, i, n)
 	case float64EProvider:
 		if _, ok := any(n).(float64); !ok {
-			return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+			return 0, fmt.Errorf(errorMsg, i, i, n)
 		}
 
 		v, err := s.Float64()
 		if err != nil {
-			return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+			return 0, fmt.Errorf(errorMsg, i, i, n)
 		}
 
 		return T(v), nil
 	case float64Provider:
 		if _, ok := any(n).(float64); !ok {
-			return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+			return 0, fmt.Errorf(errorMsg, i, i, n)
 		}
 
 		return T(s.Float64()), nil
 	default:
-		return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+		return 0, fmt.Errorf(errorMsg, i, i, n)
 	}
 }
 
@@ -293,7 +293,7 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 			return v, nil
 		}
 
-		return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+		return 0, fmt.Errorf(errorMsg, i, i, n)
 	case json.Number:
 		if s == "" {
 			return 0, nil
@@ -304,15 +304,15 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 			return v, nil
 		}
 
-		return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+		return 0, fmt.Errorf(errorMsg, i, i, n)
 	case float64EProvider:
 		if _, ok := any(n).(float64); !ok {
-			return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+			return 0, fmt.Errorf(errorMsg, i, i, n)
 		}
 
 		v, err := s.Float64()
 		if err != nil {
-			return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+			return 0, fmt.Errorf(errorMsg, i, i, n)
 		}
 
 		if v < 0 {
@@ -322,7 +322,7 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 		return T(v), nil
 	case float64Provider:
 		if _, ok := any(n).(float64); !ok {
-			return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+			return 0, fmt.Errorf(errorMsg, i, i, n)
 		}
 
 		v := s.Float64()
@@ -333,7 +333,7 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 
 		return T(v), nil
 	default:
-		return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
+		return 0, fmt.Errorf(errorMsg, i, i, n)
 	}
 }
 

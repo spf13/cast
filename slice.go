@@ -28,7 +28,7 @@ func ToSliceE(i any) ([]any, error) {
 
 		return s, nil
 	default:
-		return s, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, s)
+		return s, fmt.Errorf(errorMsg, i, i, s)
 	}
 }
 
@@ -39,7 +39,7 @@ func toSliceE[T Basic](i any) ([]T, error) {
 	}
 
 	if !ok {
-		return nil, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
+		return nil, fmt.Errorf(errorMsg, i, i, []T{})
 	}
 
 	return v, nil
@@ -48,7 +48,7 @@ func toSliceE[T Basic](i any) ([]T, error) {
 func toSliceEOk[T Basic](i any) ([]T, bool, error) {
 	i, _ = indirect(i)
 	if i == nil {
-		return nil, true, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
+		return nil, true, fmt.Errorf(errorMsg, i, i, []T{})
 	}
 
 	switch v := i.(type) {
@@ -66,7 +66,7 @@ func toSliceEOk[T Basic](i any) ([]T, bool, error) {
 		for j := 0; j < s.Len(); j++ {
 			val, err := ToE[T](s.Index(j).Interface())
 			if err != nil {
-				return nil, true, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
+				return nil, true, fmt.Errorf(errorMsg, i, i, []T{})
 			}
 
 			a[j] = val
@@ -96,11 +96,11 @@ func ToStringSliceE(i any) ([]string, error) {
 	case any:
 		str, err := ToStringE(v)
 		if err != nil {
-			return nil, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, a)
+			return nil, fmt.Errorf(errorMsg, i, i, a)
 		}
 
 		return []string{str}, nil
 	default:
-		return nil, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, a)
+		return nil, fmt.Errorf(errorMsg, i, i, a)
 	}
 }
