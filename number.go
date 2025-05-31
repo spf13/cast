@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -391,7 +392,7 @@ func parseNumber[T Number](s string) (T, error) {
 }
 
 func parseInt[T integer](s string) (T, error) {
-	v, err := strconv.ParseInt(trimZeroDecimal(s), 0, 0)
+	v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
 	if err != nil {
 		return 0, err
 	}
@@ -400,7 +401,7 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(trimZeroDecimal(s), 0, 0)
+	v, err := strconv.ParseUint(trimDecimal(s), 0, 0)
 	if err != nil {
 		return 0, err
 	}
@@ -504,5 +505,17 @@ func trimZeroDecimal(s string) string {
 			return s
 		}
 	}
+	return s
+}
+
+// trimming decimals seems significantly faster than parsing to float first
+//
+// see BenchmarkDecimal
+func trimDecimal(s string) string {
+	// trim the decimal part (if any)
+	if i := strings.Index(s, "."); i >= 0 {
+		s = s[:i]
+	}
+
 	return s
 }

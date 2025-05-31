@@ -204,19 +204,22 @@ func generateNumberTestCases(samples []any) []testCase {
 		{int64(-8), eightNegative, isUint},
 		{float32(-8.31), eightPoint31Negative_32, isUint},
 		{float64(-8.31), eightPoint31Negative, isUint},
-		{"-8", eightNegative, isUint},
 
 		// Other basic types
 		{true, one, false},
 		{false, zero, false},
 		{"8", eight, false},
+		{"-8", eightNegative, isUint},
+		{"8.31", eightPoint31, false},
+		{"-8.31", eightPoint31Negative, isUint},
 		{"", zero, false},
 		{nil, zero, false},
 
 		// JSON
 		{json.Number("8"), eight, false},
 		{json.Number("-8"), eightNegative, isUint},
-		{json.Number("8.0"), eight, false},
+		{json.Number("8.31"), eightPoint31, false},
+		{json.Number("-8.31"), eightPoint31Negative, isUint},
 		{json.Number(""), zero, false},
 
 		// Failure cases

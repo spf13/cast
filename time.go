@@ -29,7 +29,11 @@ func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.
 	case string:
 		return StringToDateInDefaultLocation(v, location)
 	case json.Number:
-		s, err1 := ToInt64E(v)
+		// Originally this used ToInt64E, but adding string float conversion broke ToTime.
+		// the behavior of ToTime would have changed if we continued using it.
+		// For now, using json.Number's own Int64 method should be good enough to preserve backwards compatibility.
+		v = json.Number(trimZeroDecimal(string(v)))
+		s, err1 := v.Int64()
 		if err1 != nil {
 			return time.Time{}, fmt.Errorf("unable to cast %#v of type %T to Time", i, i)
 		}
