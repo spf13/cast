@@ -215,6 +215,7 @@ func generateNumberTestCases(samples []any) []testCase {
 		{true, one, false},
 		{false, zero, false},
 		{"8", eight, false},
+		{"", zero, false},
 		{nil, zero, false},
 
 		// JSON
