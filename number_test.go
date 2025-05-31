@@ -167,11 +167,6 @@ func generateNumberTestCases(samples []any) []testCase {
 	_ = underflowString
 	_ = overflowString
 
-	var jsonEight, jsonEightNegative, jsonEightPointZero json.Number
-	_ = json.Unmarshal([]byte("8"), &jsonEight)
-	_ = json.Unmarshal([]byte("-8"), &jsonEightNegative)
-	_ = json.Unmarshal([]byte("8.0"), &jsonEightPointZero)
-
 	kind := reflect.TypeOf(zero).Kind()
 	isUint := kind == reflect.Uint || kind == reflect.Uint8 || kind == reflect.Uint16 || kind == reflect.Uint32 || kind == reflect.Uint64
 
@@ -219,9 +214,9 @@ func generateNumberTestCases(samples []any) []testCase {
 		{nil, zero, false},
 
 		// JSON
-		{jsonEight, eight, false},
-		{jsonEightNegative, eightNegative, isUint},
-		{jsonEightPointZero, eight, false},
+		{json.Number("8"), eight, false},
+		{json.Number("-8"), eightNegative, isUint},
+		{json.Number("8.0"), eight, false},
 
 		// Failure cases
 		{"test", zero, true},
