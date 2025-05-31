@@ -38,22 +38,22 @@ var numberContexts = map[string]numberContext{
 	"int8": {
 		specific: toAny(cast.ToInt8E),
 		generic:  toAny(cast.ToNumberE[int8]),
-		samples:  []any{int8(0), int8(1), int8(8), int8(-8), int8(8), int8(-8), math.MinInt8, math.MaxInt8, "-129", "128"},
+		samples:  []any{int8(0), int8(1), int8(8), int8(-8), int8(8), int8(-8), int8(math.MinInt8), int8(math.MaxInt8), "-129", "128"},
 	},
 	"int16": {
 		specific: toAny(cast.ToInt16E),
 		generic:  toAny(cast.ToNumberE[int16]),
-		samples:  []any{int16(0), int16(1), int16(8), int16(-8), int16(8), int16(-8), math.MinInt16, math.MaxInt16, "-32769", "32768"},
+		samples:  []any{int16(0), int16(1), int16(8), int16(-8), int16(8), int16(-8), int16(math.MinInt16), int16(math.MaxInt16), "-32769", "32768"},
 	},
 	"int32": {
 		specific: toAny(cast.ToInt32E),
 		generic:  toAny(cast.ToNumberE[int32]),
-		samples:  []any{int32(0), int32(1), int32(8), int32(-8), int32(8), int32(-8), math.MinInt32, math.MaxInt32, "-2147483649", "2147483648"},
+		samples:  []any{int32(0), int32(1), int32(8), int32(-8), int32(8), int32(-8), int32(math.MinInt32), int32(math.MaxInt32), "-2147483649", "2147483648"},
 	},
 	"int64": {
 		specific: toAny(cast.ToInt64E),
 		generic:  toAny(cast.ToNumberE[int64]),
-		samples:  []any{int64(0), int64(1), int64(8), int64(-8), int64(8), int64(-8), math.MinInt64, math.MaxInt64, "-9223372036854775809", "9223372036854775808"},
+		samples:  []any{int64(0), int64(1), int64(8), int64(-8), int64(8), int64(-8), int64(math.MinInt64), int64(math.MaxInt64), "-9223372036854775809", "9223372036854775808"},
 	},
 	"uint": {
 		specific: toAny(cast.ToUintE),
@@ -125,7 +125,8 @@ func generateNumberTestCases(samples []any) []testCase {
 		eightPoint31Negative_32 = float64(float32(eightPoint31Negative.(float64)))
 	}
 
-	return []testCase{
+	testCases := []testCase{
+		// Positive numbers
 		{int(8), eight, false},
 		{int8(8), eight, false},
 		{int16(8), eight, false},
@@ -140,10 +141,9 @@ func generateNumberTestCases(samples []any) []testCase {
 		{uint64(8), eight, false},
 		{float32(8.31), eightPoint31_32, false},
 		{float64(8.31), eightPoint31, false},
-		{true, one, false},
-		{false, zero, false},
-		{"8", eight, false},
-		{nil, zero, false},
+		{cast.ToString(max), max, false},
+
+		// Negative numbers
 		{int(-8), eightNegative, isUint},
 		{int8(-8), eightNegative, isUint},
 		{int16(-8), eightNegative, isUint},
@@ -152,12 +152,32 @@ func generateNumberTestCases(samples []any) []testCase {
 		{float32(-8.31), eightPoint31Negative_32, isUint},
 		{float64(-8.31), eightPoint31Negative, isUint},
 		{"-8", eightNegative, isUint},
+
+		// Other basic types
+		{true, one, false},
+		{false, zero, false},
+		{"8", eight, false},
+		{nil, zero, false},
+
+		// JSON
 		{jsonEight, eight, false},
 		{jsonEightNegative, eightNegative, isUint},
 		{jsonEightPointZero, eight, false},
+
+		// Failure cases
 		{"test", zero, true},
 		{testing.T{}, zero, true},
 	}
+
+	if isUint && underflowString != nil {
+		testCases = append(testCases, testCase{underflowString, zero, true})
+	}
+
+	if kind == reflect.Uint64 && isUint && overflowString != nil {
+		testCases = append(testCases, testCase{overflowString, zero, true})
+	}
+
+	return testCases
 }
 
 func TestToNumber(t *testing.T) {
