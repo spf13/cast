@@ -48,6 +48,8 @@ func toSliceEOk[T any](i any, fn func(any) (T, error)) ([]T, bool, error) {
 		return nil, false, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
 	}
 
+	// i, _ = indirect(i)
+
 	switch v := i.(type) {
 	case []T:
 		// TODO: clone slice
@@ -59,13 +61,16 @@ func toSliceEOk[T any](i any, fn func(any) (T, error)) ([]T, bool, error) {
 	case reflect.Slice, reflect.Array:
 		s := reflect.ValueOf(i)
 		a := make([]T, s.Len())
+
 		for j := 0; j < s.Len(); j++ {
 			val, err := fn(s.Index(j).Interface())
 			if err != nil {
 				return nil, true, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
 			}
+
 			a[j] = val
 		}
+
 		return a, true, nil
 	default:
 		return nil, false, nil
@@ -75,7 +80,11 @@ func toSliceEOk[T any](i any, fn func(any) (T, error)) ([]T, bool, error) {
 // ToStringSliceE casts any value to a []string type.
 func ToStringSliceE(i any) ([]string, error) {
 	if a, ok, err := toSliceEOk(i, ToStringE); ok {
-		return a, err
+		if err != nil {
+			return nil, err
+		}
+
+		return a, nil
 	}
 
 	var a []string
@@ -86,11 +95,11 @@ func ToStringSliceE(i any) ([]string, error) {
 	case any:
 		str, err := ToStringE(v)
 		if err != nil {
-			return a, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, a)
+			return nil, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, a)
 		}
 
 		return []string{str}, nil
 	default:
-		return a, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, a)
+		return nil, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, a)
 	}
 }

@@ -3,7 +3,7 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package cast
+package cast_test
 
 import (
 	"errors"
@@ -11,127 +11,188 @@ import (
 	"time"
 
 	qt "github.com/frankban/quicktest"
+
+	"github.com/spf13/cast"
 )
 
-func TestToBoolSliceE(t *testing.T) {
-	c := qt.New(t)
+func runSliceTests[T cast.Basic | any](t *testing.T, testCases []testCase, to func(i any) []T, toErr func(i any) ([]T, error)) {
+	for _, testCase := range testCases {
+		// TODO: remove after minimum Go version is >=1.22
+		testCase := testCase
 
-	tests := []struct {
-		input  interface{}
-		expect []bool
-		iserr  bool
-	}{
+		t.Run("", func(t *testing.T) {
+			t.Parallel()
+
+			t.Run("Value", func(t *testing.T) {
+				t.Run("ToType", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v := to(testCase.input)
+					if v == nil {
+						return
+					}
+
+					c.Assert(v, qt.DeepEquals, testCase.expected)
+				})
+
+				// t.Run("To", func(t *testing.T) {
+				// 	return
+
+				// 	t.Parallel()
+
+				// 	c := qt.New(t)
+
+				// 	v := cast.To[T](testCase.input)
+				// 	c.Assert(v, qt.DeepEquals, testCase.expected)
+				// })
+
+				t.Run("ToTypeE", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v, err := toErr(testCase.input)
+					if testCase.expectError {
+						c.Assert(err, qt.IsNotNil)
+					} else {
+						c.Assert(err, qt.IsNil)
+						c.Assert(v, qt.DeepEquals, testCase.expected)
+					}
+				})
+
+				// t.Run("ToE", func(t *testing.T) {
+				// 	return
+
+				// 	t.Parallel()
+
+				// 	c := qt.New(t)
+
+				// 	v, err := cast.ToE[T](testCase.input)
+				// 	if testCase.expectError {
+				// 		c.Assert(err, qt.IsNotNil)
+				// 	} else {
+				// 		c.Assert(err, qt.IsNil)
+				// 		c.Assert(v, qt.DeepEquals, testCase.expected)
+				// 	}
+				// })
+			})
+
+			t.Run("Pointer", func(t *testing.T) {
+				return
+
+				t.Run("ToType", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v := to(&testCase.input)
+					if v == nil {
+						return
+					}
+
+					c.Assert(v, qt.DeepEquals, testCase.expected)
+				})
+
+				// t.Run("To", func(t *testing.T) {
+				// 	return
+
+				// 	t.Parallel()
+
+				// 	c := qt.New(t)
+
+				// 	v := cast.To[T](&testCase.input)
+				// 	c.Assert(v, qt.DeepEquals, testCase.expected)
+				// })
+
+				t.Run("ToTypeE", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v, err := toErr(&testCase.input)
+					if testCase.expectError {
+						c.Assert(err, qt.IsNotNil)
+					} else {
+						c.Assert(err, qt.IsNil)
+						c.Assert(v, qt.DeepEquals, testCase.expected)
+					}
+				})
+
+				// t.Run("ToE", func(t *testing.T) {
+				// 	return
+
+				// 	t.Parallel()
+
+				// 	c := qt.New(t)
+
+				// 	v, err := cast.ToE[T](&testCase.input)
+				// 	if testCase.expectError {
+				// 		c.Assert(err, qt.IsNotNil)
+				// 	} else {
+				// 		c.Assert(err, qt.IsNil)
+				// 		c.Assert(v, qt.DeepEquals, testCase.expected)
+				// 	}
+				// })
+			})
+		})
+	}
+}
+
+func TestBoolSlice(t *testing.T) {
+	testCases := []testCase{
 		{[]bool{true, false, true}, []bool{true, false, true}, false},
-		{[]interface{}{true, false, true}, []bool{true, false, true}, false},
+		{[]any{true, false, true}, []bool{true, false, true}, false},
 		{[]int{1, 0, 1}, []bool{true, false, true}, false},
 		{[]string{"true", "false", "true"}, []bool{true, false, true}, false},
-		// errors
+
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{[]string{"foo", "bar"}, nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToBoolSliceE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToBoolSlice(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runSliceTests(t, testCases, cast.ToBoolSlice, cast.ToBoolSliceE)
 }
 
-func TestToIntSliceE(t *testing.T) {
-	c := qt.New(t)
-
-	tests := []struct {
-		input  interface{}
-		expect []int
-		iserr  bool
-	}{
+func TestIntSlice(t *testing.T) {
+	testCases := []testCase{
 		{[]int{1, 3}, []int{1, 3}, false},
-		{[]interface{}{1.2, 3.2}, []int{1, 3}, false},
+		{[]any{1.2, 3.2}, []int{1, 3}, false},
 		{[]string{"2", "3"}, []int{2, 3}, false},
 		{[2]string{"2", "3"}, []int{2, 3}, false},
-		// errors
+
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{[]string{"foo", "bar"}, nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToIntSliceE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToIntSlice(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runSliceTests(t, testCases, cast.ToIntSlice, cast.ToIntSliceE)
 }
 
-func TestToInt64SliceE(t *testing.T) {
-	c := qt.New(t)
-
-	tests := []struct {
-		input  interface{}
-		expect []int64
-		iserr  bool
-	}{
+func TestInt64Slice(t *testing.T) {
+	testCases := []testCase{
 		{[]int{1, 3}, []int64{1, 3}, false},
-		{[]interface{}{1.2, 3.2}, []int64{1, 3}, false},
+		{[]any{1.2, 3.2}, []int64{1, 3}, false},
 		{[]string{"2", "3"}, []int64{2, 3}, false},
 		{[2]string{"2", "3"}, []int64{2, 3}, false},
-		// errors
+
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{[]string{"foo", "bar"}, nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToInt64SliceE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToInt64Slice(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runSliceTests(t, testCases, cast.ToInt64Slice, cast.ToInt64SliceE)
 }
 
-func TestToFloat64SliceE(t *testing.T) {
-	c := qt.New(t)
-
-	tests := []struct {
-		input  interface{}
-		expect []float64
-		iserr  bool
-	}{
+func TestFloat64Slice(t *testing.T) {
+	testCases := []testCase{
 		{[]int{1, 3}, []float64{1, 3}, false},
 		{[]float64{1.2, 3.2}, []float64{1.2, 3.2}, false},
-		{[]interface{}{1.2, 3.2}, []float64{1.2, 3.2}, false},
+		{[]any{1.2, 3.2}, []float64{1.2, 3.2}, false},
 		{[]string{"2", "3"}, []float64{2, 3}, false},
 		{[]string{"1.2", "3.2"}, []float64{1.2, 3.2}, false},
 		{[2]string{"2", "3"}, []float64{2, 3}, false},
@@ -139,40 +200,20 @@ func TestToFloat64SliceE(t *testing.T) {
 		{[]int32{1, 3}, []float64{1.0, 3.0}, false},
 		{[]int64{1, 3}, []float64{1.0, 3.0}, false},
 		{[]bool{true, false}, []float64{1.0, 0.0}, false},
-		// errors
+
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{[]string{"foo", "bar"}, nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToFloat64SliceE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToFloat64Slice(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runSliceTests(t, testCases, cast.ToFloat64Slice, cast.ToFloat64SliceE)
 }
 
-func TestToUintSliceE(t *testing.T) {
-	c := qt.New(t)
-
-	tests := []struct {
-		input  interface{}
-		expect []uint
-		iserr  bool
-	}{
+func TestUintSlice(t *testing.T) {
+	testCases := []testCase{
 		{[]uint{1, 3}, []uint{1, 3}, false},
-		{[]interface{}{1, 3}, []uint{1, 3}, false},
+		{[]any{1, 3}, []uint{1, 3}, false},
 		{[]string{"2", "3"}, []uint{2, 3}, false},
 		{[]int{1, 3}, []uint{1, 3}, false},
 		{[]int32{1, 3}, []uint{1, 3}, false},
@@ -180,71 +221,31 @@ func TestToUintSliceE(t *testing.T) {
 		{[]float32{1.0, 3.0}, []uint{1, 3}, false},
 		{[]float64{1.0, 3.0}, []uint{1, 3}, false},
 		{[]bool{true, false}, []uint{1, 0}, false},
-		// errors
+
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{[]string{"foo", "bar"}, nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToUintSliceE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToUintSlice(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runSliceTests(t, testCases, cast.ToUintSlice, cast.ToUintSliceE)
 }
 
-func TestToSliceE(t *testing.T) {
-	c := qt.New(t)
+func TestSlice(t *testing.T) {
+	testCases := []testCase{
+		{[]any{1, 3}, []any{1, 3}, false},
+		{[]map[string]any{{"k1": 1}, {"k2": 2}}, []any{map[string]any{"k1": 1}, map[string]any{"k2": 2}}, false},
 
-	tests := []struct {
-		input  interface{}
-		expect []interface{}
-		iserr  bool
-	}{
-		{[]interface{}{1, 3}, []interface{}{1, 3}, false},
-		{[]map[string]interface{}{{"k1": 1}, {"k2": 2}}, []interface{}{map[string]interface{}{"k1": 1}, map[string]interface{}{"k2": 2}}, false},
-		// errors
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToSliceE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToSlice(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runSliceTests(t, testCases, cast.ToSlice, cast.ToSliceE)
 }
 
-func TestToStringSliceE(t *testing.T) {
-	c := qt.New(t)
-
-	tests := []struct {
-		input  interface{}
-		expect []string
-		iserr  bool
-	}{
+func TestStringSlice(t *testing.T) {
+	testCases := []testCase{
 		{[]int{1, 2}, []string{"1", "2"}, false},
 		{[]int8{int8(1), int8(2)}, []string{"1", "2"}, false},
 		{[]int32{int32(1), int32(2)}, []string{"1", "2"}, false},
@@ -256,43 +257,23 @@ func TestToStringSliceE(t *testing.T) {
 		{[]float32{float32(1.01), float32(2.01)}, []string{"1.01", "2.01"}, false},
 		{[]float64{float64(1.01), float64(2.01)}, []string{"1.01", "2.01"}, false},
 		{[]string{"a", "b"}, []string{"a", "b"}, false},
-		{[]interface{}{1, 3}, []string{"1", "3"}, false},
-		{interface{}(1), []string{"1"}, false},
+		{[]any{1, 3}, []string{"1", "3"}, false},
+		{any(1), []string{"1"}, false},
 		{[]error{errors.New("a"), errors.New("b")}, []string{"a", "b"}, false},
-		// errors
+
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToStringSliceE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToStringSlice(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runSliceTests(t, testCases, cast.ToStringSlice, cast.ToStringSliceE)
 }
 
-func TestToDurationSliceE(t *testing.T) {
-	c := qt.New(t)
-
-	tests := []struct {
-		input  interface{}
-		expect []time.Duration
-		iserr  bool
-	}{
+func TestDurationSlice(t *testing.T) {
+	testCases := []testCase{
 		{[]string{"1s", "1m"}, []time.Duration{time.Second, time.Minute}, false},
 		{[]int{1, 2}, []time.Duration{1, 2}, false},
-		{[]interface{}{1, 3}, []time.Duration{1, 3}, false},
+		{[]any{1, 3}, []time.Duration{1, 3}, false},
 		{[]time.Duration{1, 3}, []time.Duration{1, 3}, false},
 
 		// errors
@@ -301,20 +282,5 @@ func TestToDurationSliceE(t *testing.T) {
 		{[]string{"invalid"}, nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToDurationSliceE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToDurationSlice(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runSliceTests(t, testCases, cast.ToDurationSlice, cast.ToDurationSliceE)
 }

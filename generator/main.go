@@ -50,7 +50,7 @@ var toSliceFuncs = []struct {
 	returnType *Statement
 }{
 	{"ToBool", Bool()},
-	{"ToTime", Qual("time", "Time")},
+	// {"ToTime", Qual("time", "Time")},
 	{"ToDuration", Qual("time", "Duration")},
 	{"ToInt", Int()},
 	{"ToInt8", Int8()},

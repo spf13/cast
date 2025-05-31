@@ -195,11 +195,6 @@ func ToBoolSliceE(i any) ([]bool, error) {
 	return toSliceE(i, ToBoolE)
 }
 
-// ToTimeSliceE casts any value to a(n) []time.Time type.
-func ToTimeSliceE(i any) ([]time.Time, error) {
-	return toSliceE(i, ToTimeE)
-}
-
 // ToDurationSliceE casts any value to a(n) []time.Duration type.
 func ToDurationSliceE(i any) ([]time.Duration, error) {
 	return toSliceE(i, ToDurationE)
