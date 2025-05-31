@@ -20,5 +20,4 @@ func TestIndirectPointers(t *testing.T) {
 
 	c.Assert(ToInt(y), qt.Equals, 13)
 	c.Assert(ToInt(z), qt.Equals, 13)
-
 }
