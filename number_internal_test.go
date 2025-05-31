@@ -11,7 +11,7 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-func BenchmarkTooInt(b *testing.B) {
+func BenchmarkToInt(b *testing.B) {
 	convert := func(num52 interface{}) {
 		if v := ToInt(num52); v != 52 {
 			b.Fatalf("ToInt returned wrong value, got %d, want %d", v, 32)
