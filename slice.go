@@ -13,6 +13,8 @@ import (
 
 // ToSliceE casts any value to a []any type.
 func ToSliceE(i any) ([]any, error) {
+	i, _ = indirect(i)
+
 	var s []any
 
 	switch v := i.(type) {
@@ -44,11 +46,10 @@ func toSliceE[T any](i any, fn func(any) (T, error)) ([]T, error) {
 }
 
 func toSliceEOk[T any](i any, fn func(any) (T, error)) ([]T, bool, error) {
+	i, _ = indirect(i)
 	if i == nil {
-		return nil, false, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
+		return nil, true, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, []T{})
 	}
-
-	// i, _ = indirect(i)
 
 	switch v := i.(type) {
 	case []T:
