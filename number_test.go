@@ -217,6 +217,7 @@ func generateNumberTestCases(samples []any) []testCase {
 		{json.Number("8"), eight, false},
 		{json.Number("-8"), eightNegative, isUint},
 		{json.Number("8.0"), eight, false},
+		{json.Number(""), zero, false},
 
 		// Failure cases
 		{"test", zero, true},
