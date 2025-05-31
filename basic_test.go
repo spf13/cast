@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-func TestToBoolE(t *testing.T) {
+func TestBool(t *testing.T) {
 	testCases := []testCase{
 		{0, false, false},
 		{int(0), false, false},
@@ -93,7 +93,7 @@ func BenchmarkToBool(b *testing.B) {
 	}
 }
 
-func TestToStringE(t *testing.T) {
+func TestString(t *testing.T) {
 	type Key struct {
 		k string
 	}
