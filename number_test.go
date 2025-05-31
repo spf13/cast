@@ -1,9 +1,18 @@
+// Copyright © 2014 Steve Francia <spf@spf13.com>.
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file.
+
 package cast_test
 
 import (
+	"encoding/json"
 	"math"
+	"reflect"
 	"testing"
+	"time"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/spf13/cast"
 )
 
@@ -12,7 +21,7 @@ type numberContext struct {
 	generic  func(any) (any, error)
 
 	// Order of samples:
-	// zero, one, 8, -8, 8.3, -8.3, min, max
+	// zero, one, 8, -8, 8.3, -8.3, min, max, underflow string, overflow string
 	samples []any
 }
 
@@ -24,63 +33,178 @@ var numberContexts = map[string]numberContext{
 	"int": {
 		specific: toAny(cast.ToIntE),
 		generic:  toAny(cast.ToNumberE[int]),
-		samples:  []any{int(0), int(1), int(8), int(-8), int(8), int(-8), math.MinInt, math.MaxInt},
+		samples:  []any{int(0), int(1), int(8), int(-8), int(8), int(-8), math.MinInt, math.MaxInt, nil, nil},
 	},
 	"int8": {
 		specific: toAny(cast.ToInt8E),
 		generic:  toAny(cast.ToNumberE[int8]),
-		samples:  []any{int8(0), int8(1), int8(8), int8(-8), int8(8), int8(-8), math.MinInt8, math.MaxInt8},
+		samples:  []any{int8(0), int8(1), int8(8), int8(-8), int8(8), int8(-8), math.MinInt8, math.MaxInt8, "-129", "128"},
 	},
 	"int16": {
 		specific: toAny(cast.ToInt16E),
 		generic:  toAny(cast.ToNumberE[int16]),
-		samples:  []any{int16(0), int16(1), int16(8), int16(-8), int16(8), int16(-8), math.MinInt16, math.MaxInt16},
+		samples:  []any{int16(0), int16(1), int16(8), int16(-8), int16(8), int16(-8), math.MinInt16, math.MaxInt16, "-32769", "32768"},
 	},
 	"int32": {
 		specific: toAny(cast.ToInt32E),
 		generic:  toAny(cast.ToNumberE[int32]),
-		samples:  []any{int32(0), int32(1), int32(8), int32(-8), int32(8), int32(-8), math.MinInt32, math.MaxInt32},
+		samples:  []any{int32(0), int32(1), int32(8), int32(-8), int32(8), int32(-8), math.MinInt32, math.MaxInt32, "-2147483649", "2147483648"},
 	},
 	"int64": {
 		specific: toAny(cast.ToInt64E),
 		generic:  toAny(cast.ToNumberE[int64]),
-		samples:  []any{int64(0), int64(1), int64(8), int64(-8), int64(8), int64(-8), math.MinInt64, math.MaxInt64},
+		samples:  []any{int64(0), int64(1), int64(8), int64(-8), int64(8), int64(-8), math.MinInt64, math.MaxInt64, "-9223372036854775809", "9223372036854775808"},
 	},
 	"uint": {
 		specific: toAny(cast.ToUintE),
 		generic:  toAny(cast.ToNumberE[uint]),
-		samples:  []any{uint(0), uint(1), uint(8), uint(0), uint(8), uint(0), uint(0), uint(math.MaxUint)},
+		samples:  []any{uint(0), uint(1), uint(8), uint(0), uint(8), uint(0), uint(0), uint(math.MaxUint), nil, nil},
 	},
 	"uint8": {
 		specific: toAny(cast.ToUint8E),
 		generic:  toAny(cast.ToNumberE[uint8]),
-		samples:  []any{uint8(0), uint8(1), uint8(8), uint8(0), uint8(8), uint8(0), uint8(0), uint8(math.MaxUint8)},
+		samples:  []any{uint8(0), uint8(1), uint8(8), uint8(0), uint8(8), uint8(0), uint8(0), uint8(math.MaxUint8), "-1", "256"},
 	},
 	"uint16": {
 		specific: toAny(cast.ToUint16E),
 		generic:  toAny(cast.ToNumberE[uint16]),
-		samples:  []any{uint16(0), uint16(1), uint16(8), uint16(0), uint16(8), uint16(0), uint16(0), uint16(math.MaxUint16)},
+		samples:  []any{uint16(0), uint16(1), uint16(8), uint16(0), uint16(8), uint16(0), uint16(0), uint16(math.MaxUint16), "-1", "65536"},
 	},
 	"uint32": {
 		specific: toAny(cast.ToUint32E),
 		generic:  toAny(cast.ToNumberE[uint32]),
-		samples:  []any{uint32(0), uint32(1), uint32(8), uint32(0), uint32(8), uint32(0), uint32(0), uint32(math.MaxUint32)},
+		samples:  []any{uint32(0), uint32(1), uint32(8), uint32(0), uint32(8), uint32(0), uint32(0), uint32(math.MaxUint32), "-1", "4294967296"},
 	},
 	"uint64": {
 		specific: toAny(cast.ToUint64E),
 		generic:  toAny(cast.ToNumberE[uint64]),
-		samples:  []any{uint64(0), uint64(1), uint64(8), uint64(0), uint64(8), uint64(0), uint64(0), uint64(math.MaxUint64)},
+		samples:  []any{uint64(0), uint64(1), uint64(8), uint64(0), uint64(8), uint64(0), uint64(0), uint64(math.MaxUint64), "-1", "18446744073709551616"},
 	},
 	"float32": {
 		specific: toAny(cast.ToFloat32E),
 		generic:  toAny(cast.ToNumberE[float32]),
-		samples:  []any{float32(0), float32(1), float32(8), float32(0), float32(8.3), float32(-8.3), float32(-math.MaxFloat32), float32(math.MaxFloat32)},
+		samples:  []any{float32(0), float32(1), float32(8), float32(-8), float32(8.31), float32(-8.31), float32(-math.MaxFloat32), float32(math.MaxFloat32), nil, nil},
 	},
 	"float64": {
 		specific: toAny(cast.ToFloat64E),
 		generic:  toAny(cast.ToNumberE[float64]),
-		samples:  []any{float64(0), float64(1), float64(8), float64(0), float64(8.3), float64(-8.3), float64(-math.MaxFloat64), float64(math.MaxFloat64)},
+		samples:  []any{float64(0), float64(1), float64(8), float64(-8), float64(8.31), float64(-8.31), float64(-math.MaxFloat64), float64(math.MaxFloat64), nil, nil},
 	},
+}
+
+func generateNumberTestCases(samples []any) []testCase {
+	zero := samples[0]
+	one := samples[1]
+	eight := samples[2]
+	eightNegative := samples[3]
+	eightPoint31 := samples[4]
+	eightPoint31Negative := samples[5]
+	min := samples[6]
+	max := samples[7]
+	underflowString := samples[8]
+	overflowString := samples[9]
+
+	_ = min
+	_ = max
+	_ = underflowString
+	_ = overflowString
+
+	var jsonEight, jsonEightNegative, jsonEightPointZero json.Number
+	_ = json.Unmarshal([]byte("8"), &jsonEight)
+	_ = json.Unmarshal([]byte("-8"), &jsonEightNegative)
+	_ = json.Unmarshal([]byte("8.0"), &jsonEightPointZero)
+
+	kind := reflect.TypeOf(zero).Kind()
+	isUint := kind == reflect.Uint || kind == reflect.Uint8 || kind == reflect.Uint16 || kind == reflect.Uint32 || kind == reflect.Uint64
+
+	// Some precision is lost when converting from float64 to float32.
+	eightPoint31_32 := eightPoint31
+	eightPoint31Negative_32 := eightPoint31Negative
+	if kind == reflect.Float64 {
+		eightPoint31_32 = float64(float32(eightPoint31.(float64)))
+		eightPoint31Negative_32 = float64(float32(eightPoint31Negative.(float64)))
+	}
+
+	return []testCase{
+		{int(8), eight, false},
+		{int8(8), eight, false},
+		{int16(8), eight, false},
+		{int32(8), eight, false},
+		{int64(8), eight, false},
+		{time.Weekday(8), eight, false},
+		{time.Month(8), eight, false},
+		{uint(8), eight, false},
+		{uint8(8), eight, false},
+		{uint16(8), eight, false},
+		{uint32(8), eight, false},
+		{uint64(8), eight, false},
+		{float32(8.31), eightPoint31_32, false},
+		{float64(8.31), eightPoint31, false},
+		{true, one, false},
+		{false, zero, false},
+		{"8", eight, false},
+		{nil, zero, false},
+		{int(-8), eightNegative, isUint},
+		{int8(-8), eightNegative, isUint},
+		{int16(-8), eightNegative, isUint},
+		{int32(-8), eightNegative, isUint},
+		{int64(-8), eightNegative, isUint},
+		{float32(-8.31), eightPoint31Negative_32, isUint},
+		{float64(-8.31), eightPoint31Negative, isUint},
+		{"-8", eightNegative, isUint},
+		{jsonEight, eight, false},
+		{jsonEightNegative, eightNegative, isUint},
+		{jsonEightPointZero, eight, false},
+		{"test", zero, true},
+		{testing.T{}, zero, true},
+	}
+}
+
+func TestToNumber(t *testing.T) {
+	t.Parallel()
+
+	for typeName, ctx := range numberContexts {
+		// TODO: remove after minimum Go version is >=1.22
+		typeName := typeName
+		ctx := ctx
+
+		t.Run(typeName, func(t *testing.T) {
+			t.Parallel()
+
+			testCases := generateNumberTestCases(ctx.samples)
+
+			for _, testCase := range testCases {
+				// TODO: remove after minimum Go version is >=1.22
+				testCase := testCase
+
+				t.Run("", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					{
+						v, err := ctx.specific(testCase.input)
+						if testCase.expectError {
+							c.Assert(err, qt.IsNotNil)
+						} else {
+							c.Assert(err, qt.IsNil)
+							c.Assert(v, qt.Equals, testCase.expected)
+						}
+					}
+
+					{
+						v, err := ctx.generic(testCase.input)
+						if testCase.expectError {
+							c.Assert(err, qt.IsNotNil)
+						} else {
+							c.Assert(err, qt.IsNil)
+							c.Assert(v, qt.Equals, testCase.expected)
+						}
+					}
+				})
+			}
+		})
+	}
 }
 
 func BenchmarkNumber(b *testing.B) {
