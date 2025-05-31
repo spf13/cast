@@ -164,4 +164,16 @@ func BenchmarkCast(b *testing.B) {
 			cast.ToInt64("123456789")
 		}
 	})
+
+	b.Run("BoolSlice", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			cast.ToBoolSlice([]string{"true", "false", "TRUE", "false"})
+		}
+	})
+
+	b.Run("StringSlice", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			cast.ToStringSlice([]int{123456789, 123456789, 123456789, 123456789})
+		}
+	})
 }
