@@ -56,9 +56,9 @@ func ToBoolE(i any) (bool, error) {
 			return v != 0, nil
 		}
 
-		return false, fmt.Errorf("unable to cast %#v of type %T to bool", i, i)
+		return false, fmt.Errorf(errorMsg, i, i, false)
 	default:
-		return false, fmt.Errorf("unable to cast %#v of type %T to bool", i, i)
+		return false, fmt.Errorf(errorMsg, i, i, false)
 	}
 }
 
@@ -118,6 +118,6 @@ func ToStringE(i any) (string, error) {
 			return ToStringE(i)
 		}
 
-		return "", fmt.Errorf("unable to cast %#v of type %T to string", i, i)
+		return "", fmt.Errorf(errorMsg, i, i, "")
 	}
 }

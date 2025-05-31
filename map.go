@@ -177,7 +177,7 @@ func toStringMapIntE[T int | int64](i any, fn func(any) T, fnE func(any) (T, err
 	}
 
 	if reflect.TypeOf(i).Kind() != reflect.Map {
-		return m, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, m)
+		return m, fmt.Errorf(errorMsg, i, i, m)
 	}
 
 	mVal := reflect.ValueOf(m)
@@ -186,7 +186,7 @@ func toStringMapIntE[T int | int64](i any, fn func(any) T, fnE func(any) (T, err
 	for _, keyVal := range v.MapKeys() {
 		val, err := fnE(v.MapIndex(keyVal).Interface())
 		if err != nil {
-			return m, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, m)
+			return m, fmt.Errorf(errorMsg, i, i, m)
 		}
 
 		mVal.SetMapIndex(keyVal, reflect.ValueOf(val))

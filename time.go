@@ -38,7 +38,7 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 		v = json.Number(trimZeroDecimal(string(v)))
 		s, err1 := v.Int64()
 		if err1 != nil {
-			return time.Time{}, fmt.Errorf("unable to cast %#v of type %T to Time", i, i)
+			return time.Time{}, fmt.Errorf(errorMsg, i, i, time.Time{})
 		}
 		return time.Unix(s, 0), nil
 	case int:
@@ -54,7 +54,7 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 	case uint64:
 		return time.Unix(int64(v), 0), nil
 	default:
-		return time.Time{}, fmt.Errorf("unable to cast %#v of type %T to Time", i, i)
+		return time.Time{}, fmt.Errorf(errorMsg, i, i, time.Time{})
 	}
 }
 
@@ -88,7 +88,7 @@ func ToDurationE(i any) (time.Duration, error) {
 
 		return time.ParseDuration(s)
 	default:
-		return 0, fmt.Errorf("unable to cast %#v of type %T to time.Duration", i, i)
+		return 0, fmt.Errorf(errorMsg, i, i, time.Duration(0))
 	}
 }
 

@@ -8,6 +8,8 @@ package cast
 
 import "time"
 
+const errorMsg = "unable to cast %#v of type %T to %T"
+
 // Basic is a type parameter constraint for functions accepting basic types.
 //
 // It represents the supported basic types this package can cast to.
