@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cast/internal"
 )
 
-func TestToTime(t *testing.T) {
+func TestTime(t *testing.T) {
 	testCases := []testCase{
 		{"2009-11-10 23:00:00 +0000 UTC", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC), false},   // Time.String()
 		{"Tue Nov 10 23:00:00 2009", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC), false},        // ANSIC
@@ -65,7 +65,7 @@ func TestToTime(t *testing.T) {
 	runTests(t, testCases, cast.ToTime, cast.ToTimeE)
 }
 
-func TestToDurationE(t *testing.T) {
+func TestDuration(t *testing.T) {
 	var expected time.Duration = 5
 
 	testCases := []testCase{
@@ -100,7 +100,7 @@ func TestToDurationE(t *testing.T) {
 	runTests(t, testCases, cast.ToDuration, cast.ToDurationE)
 }
 
-func TestToTimeWithTimezones(t *testing.T) {
+func TestTimeWithTimezones(t *testing.T) {
 	c := qt.New(t)
 
 	est, err := time.LoadLocation("EST")
