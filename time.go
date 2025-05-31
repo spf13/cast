@@ -7,6 +7,7 @@ package cast
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -14,15 +15,15 @@ import (
 	"github.com/spf13/cast/internal"
 )
 
-// ToTimeE casts an interface to a time.Time type.
-func ToTimeE(i interface{}) (tim time.Time, err error) {
+// ToTimeE any value to a [time.Time] type.
+func ToTimeE(i any) (time.Time, error) {
 	return ToTimeInDefaultLocationE(i, time.UTC)
 }
 
-// ToTimeInDefaultLocationE casts an empty interface to time.Time,
+// ToTimeInDefaultLocationE casts an empty interface to [time.Time],
 // interpreting inputs without a timezone to be in the given location,
 // or the local timezone if nil.
-func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.Time, err error) {
+func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, err error) {
 	i = indirect(i)
 
 	switch v := i.(type) {
@@ -42,63 +43,64 @@ func ToTimeInDefaultLocationE(i interface{}, location *time.Location) (tim time.
 		return time.Unix(s, 0), nil
 	case int:
 		return time.Unix(int64(v), 0), nil
-	case int64:
-		return time.Unix(v, 0), nil
 	case int32:
 		return time.Unix(int64(v), 0), nil
+	case int64:
+		return time.Unix(v, 0), nil
 	case uint:
 		return time.Unix(int64(v), 0), nil
-	case uint64:
-		return time.Unix(int64(v), 0), nil
 	case uint32:
+		return time.Unix(int64(v), 0), nil
+	case uint64:
 		return time.Unix(int64(v), 0), nil
 	default:
 		return time.Time{}, fmt.Errorf("unable to cast %#v of type %T to Time", i, i)
 	}
 }
 
-// ToDurationE casts an interface to a time.Duration type.
-func ToDurationE(i interface{}) (d time.Duration, err error) {
+// ToDurationE casts any value to a [time.Duration] type.
+func ToDurationE(i any) (time.Duration, error) {
 	i = indirect(i)
 
 	switch s := i.(type) {
 	case time.Duration:
 		return s, nil
-	case int, int64, int32, int16, int8, uint, uint64, uint32, uint16, uint8:
-		d = time.Duration(ToInt64(s))
-		return
-	case float32, float64:
-		d = time.Duration(ToFloat64(s))
-		return
-	case string:
-		if strings.ContainsAny(s, "nsuµmh") {
-			d, err = time.ParseDuration(s)
-		} else {
-			d, err = time.ParseDuration(s + "ns")
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		v, err := ToInt64E(s)
+		if err != nil {
+			// TODO: once there is better error handling, this should be easier
+			return 0, errors.New(strings.ReplaceAll(err.Error(), " int64", "time.Duration"))
 		}
-		return
-	case float64EProvider:
-		var v float64
-		v, err = s.Float64()
-		d = time.Duration(v)
-		return
-	case float64Provider:
-		d = time.Duration(s.Float64())
-		return
+
+		return time.Duration(v), nil
+	case float32, float64, float64EProvider, float64Provider:
+		v, err := ToFloat64E(s)
+		if err != nil {
+			// TODO: once there is better error handling, this should be easier
+			return 0, errors.New(strings.ReplaceAll(err.Error(), " float64", "time.Duration"))
+		}
+
+		return time.Duration(v), nil
+	case string:
+		if !strings.ContainsAny(s, "nsuµmh") {
+			return time.ParseDuration(s + "ns")
+		}
+
+		return time.ParseDuration(s)
 	default:
-		err = fmt.Errorf("unable to cast %#v of type %T to Duration", i, i)
-		return
+		return 0, fmt.Errorf("unable to cast %#v of type %T to time.Duration", i, i)
 	}
 }
 
-// StringToDate attempts to parse a string into a time.Time type using a
-// predefined list of formats.  If no suitable format is found, an error is
-// returned.
+// StringToDate attempts to parse a string into a [time.Time] type using a
+// predefined list of formats.
+//
+// If no suitable format is found, an error is returned.
 func StringToDate(s string) (time.Time, error) {
 	return internal.ParseDateWith(s, time.UTC, internal.TimeFormats)
 }
 
-// StringToDateInDefaultLocation casts an empty interface to a time.Time,
+// StringToDateInDefaultLocation casts an empty interface to a [time.Time],
 // interpreting inputs without a timezone to be in the given location,
 // or the local timezone if nil.
 func StringToDateInDefaultLocation(s string, location *time.Location) (time.Time, error) {
