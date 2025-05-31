@@ -189,3 +189,73 @@ func ToDurationSlice(i any) []time.Duration {
 	v, _ := ToDurationSliceE(i)
 	return v
 }
+
+// ToBoolSliceE casts any value to a(n) []bool type.
+func ToBoolSliceE(i any) ([]bool, error) {
+	return toSliceE[bool](i)
+}
+
+// ToDurationSliceE casts any value to a(n) []time.Duration type.
+func ToDurationSliceE(i any) ([]time.Duration, error) {
+	return toSliceE[time.Duration](i)
+}
+
+// ToIntSliceE casts any value to a(n) []int type.
+func ToIntSliceE(i any) ([]int, error) {
+	return toSliceE[int](i)
+}
+
+// ToInt8SliceE casts any value to a(n) []int8 type.
+func ToInt8SliceE(i any) ([]int8, error) {
+	return toSliceE[int8](i)
+}
+
+// ToInt16SliceE casts any value to a(n) []int16 type.
+func ToInt16SliceE(i any) ([]int16, error) {
+	return toSliceE[int16](i)
+}
+
+// ToInt32SliceE casts any value to a(n) []int32 type.
+func ToInt32SliceE(i any) ([]int32, error) {
+	return toSliceE[int32](i)
+}
+
+// ToInt64SliceE casts any value to a(n) []int64 type.
+func ToInt64SliceE(i any) ([]int64, error) {
+	return toSliceE[int64](i)
+}
+
+// ToUintSliceE casts any value to a(n) []uint type.
+func ToUintSliceE(i any) ([]uint, error) {
+	return toSliceE[uint](i)
+}
+
+// ToUint8SliceE casts any value to a(n) []uint8 type.
+func ToUint8SliceE(i any) ([]uint8, error) {
+	return toSliceE[uint8](i)
+}
+
+// ToUint16SliceE casts any value to a(n) []uint16 type.
+func ToUint16SliceE(i any) ([]uint16, error) {
+	return toSliceE[uint16](i)
+}
+
+// ToUint32SliceE casts any value to a(n) []uint32 type.
+func ToUint32SliceE(i any) ([]uint32, error) {
+	return toSliceE[uint32](i)
+}
+
+// ToUint64SliceE casts any value to a(n) []uint64 type.
+func ToUint64SliceE(i any) ([]uint64, error) {
+	return toSliceE[uint64](i)
+}
+
+// ToFloat32SliceE casts any value to a(n) []float32 type.
+func ToFloat32SliceE(i any) ([]float32, error) {
+	return toSliceE[float32](i)
+}
+
+// ToFloat64SliceE casts any value to a(n) []float64 type.
+func ToFloat64SliceE(i any) ([]float64, error) {
+	return toSliceE[float64](i)
+}
