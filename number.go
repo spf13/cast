@@ -141,6 +141,10 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 
 	switch s := i.(type) {
 	case string:
+		if s == "" {
+			return 0, nil
+		}
+
 		v, err := parseFn(s)
 		if err == nil {
 			return v, nil
@@ -148,6 +152,10 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 
 		return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
 	case json.Number:
+		if s == "" {
+			return 0, nil
+		}
+
 		v, err := parseFn(string(s))
 		if err == nil {
 			return v, nil
@@ -271,6 +279,10 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 
 	switch s := i.(type) {
 	case string:
+		if s == "" {
+			return 0, nil
+		}
+
 		v, err := parseFn(s)
 		if err == nil {
 			return v, nil
@@ -278,6 +290,10 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 
 		return 0, fmt.Errorf("unable to cast %#v of type %T to %T", i, i, n)
 	case json.Number:
+		if s == "" {
+			return 0, nil
+		}
+
 		v, err := parseFn(string(s))
 		if err == nil {
 			return v, nil
