@@ -3,7 +3,7 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package cast
+package cast_test
 
 import (
 	"encoding/json"
@@ -13,30 +13,12 @@ import (
 	"time"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/spf13/cast"
+	"github.com/spf13/cast/internal"
 )
 
-func BenchmarkCommonTimeLayouts(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		for _, commonLayout := range []string{"2019-04-29", "2017-05-30T00:00:00Z"} {
-			_, err := StringToDateInDefaultLocation(commonLayout, time.UTC)
-			if err != nil {
-				b.Fatal(err)
-			}
-		}
-	}
-}
-
 func TestToTime(t *testing.T) {
-	c := qt.New(t)
-
-	var jntime, jnetime json.Number
-	_ = json.Unmarshal([]byte("1234567890"), &jntime)
-	_ = json.Unmarshal([]byte("123.4567890"), &jnetime)
-	tests := []struct {
-		input  interface{}
-		expect time.Time
-		iserr  bool
-	}{
+	testCases := []testCase{
 		{"2009-11-10 23:00:00 +0000 UTC", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC), false},   // Time.String()
 		{"Tue Nov 10 23:00:00 2009", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC), false},        // ANSIC
 		{"Tue Nov 10 23:00:00 UTC 2009", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC), false},    // UnixDate
@@ -70,87 +52,51 @@ func TestToTime(t *testing.T) {
 		{uint(1482597504), time.Date(2016, 12, 24, 16, 38, 24, 0, time.UTC), false},
 		{uint64(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{uint32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
-		{jntime, time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
+		{json.Number("1234567890"), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
-		// errors
+
+		// Failure cases
 		{"2006", time.Time{}, true},
-		{jnetime, time.Time{}, true},
+		{json.Number("123.4567890"), time.Time{}, true},
 		{testing.T{}, time.Time{}, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToTimeE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v.UTC(), qt.Equals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToTime(test.input)
-		c.Assert(v.UTC(), qt.Equals, test.expect, errmsg)
-	}
+	runTests(t, testCases, cast.ToTime, cast.ToTimeE)
 }
 
 func TestToDurationE(t *testing.T) {
-	c := qt.New(t)
+	var expected time.Duration = 5
 
-	var td time.Duration = 5
-	var jn json.Number
-	_ = json.Unmarshal([]byte("5"), &jn)
+	testCases := []testCase{
+		{time.Duration(5), expected, false},
+		{int(5), expected, false},
+		{int64(5), expected, false},
+		{int32(5), expected, false},
+		{int16(5), expected, false},
+		{int8(5), expected, false},
+		{uint(5), expected, false},
+		{uint64(5), expected, false},
+		{uint32(5), expected, false},
+		{uint16(5), expected, false},
+		{uint8(5), expected, false},
+		{float64(5), expected, false},
+		{float32(5), expected, false},
+		{json.Number("5"), expected, false},
+		{string("5"), expected, false},
+		{string("5ns"), expected, false},
+		{string("5us"), time.Microsecond * expected, false},
+		{string("5µs"), time.Microsecond * expected, false},
+		{string("5ms"), time.Millisecond * expected, false},
+		{string("5s"), time.Second * expected, false},
+		{string("5m"), time.Minute * expected, false},
+		{string("5h"), time.Hour * expected, false},
 
-	tests := []struct {
-		input  interface{}
-		expect time.Duration
-		iserr  bool
-	}{
-		{time.Duration(5), td, false},
-		{int(5), td, false},
-		{int64(5), td, false},
-		{int32(5), td, false},
-		{int16(5), td, false},
-		{int8(5), td, false},
-		{uint(5), td, false},
-		{uint64(5), td, false},
-		{uint32(5), td, false},
-		{uint16(5), td, false},
-		{uint8(5), td, false},
-		{float64(5), td, false},
-		{float32(5), td, false},
-		{jn, td, false},
-		{string("5"), td, false},
-		{string("5ns"), td, false},
-		{string("5us"), time.Microsecond * td, false},
-		{string("5µs"), time.Microsecond * td, false},
-		{string("5ms"), time.Millisecond * td, false},
-		{string("5s"), time.Second * td, false},
-		{string("5m"), time.Minute * td, false},
-		{string("5h"), time.Hour * td, false},
-		// errors
-		{"test", 0, true},
-		{testing.T{}, 0, true},
+		// Failure cases
+		{"test", time.Duration(0), true},
+		{testing.T{}, time.Duration(0), true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToDurationE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.Equals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToDuration(test.input)
-		c.Assert(v, qt.Equals, test.expect, errmsg)
-	}
+	runTests(t, testCases, cast.ToDuration, cast.ToDurationE)
 }
 
 func TestToTimeWithTimezones(t *testing.T) {
@@ -172,23 +118,23 @@ func TestToTimeWithTimezones(t *testing.T) {
 	swd2016 := time.Date(2016, time.January, 1, 0, 0, 0, 0, swd)
 	loc2016 := time.Date(2016, time.January, 1, 0, 0, 0, 0, time.Local)
 
-	for i, format := range timeFormats {
+	for i, format := range internal.TimeFormats {
 		format := format
-		if format.typ == timeFormatTimeOnly {
+		if format.Typ == internal.TimeFormatTimeOnly {
 			continue
 		}
 
-		nameBase := fmt.Sprintf("%d;timeFormatType=%d;%s", i, format.typ, format.format)
+		nameBase := fmt.Sprintf("%d;timeFormatType=%d;%s", i, format.Typ, format.Format)
 
 		t.Run(path.Join(nameBase), func(t *testing.T) {
-			est2016str := est2016.Format(format.format)
-			swd2016str := swd2016.Format(format.format)
+			est2016str := est2016.Format(format.Format)
+			swd2016str := swd2016.Format(format.Format)
 
 			t.Run("without default location", func(t *testing.T) {
 				c := qt.New(t)
-				converted, err := ToTimeE(est2016str)
+				converted, err := cast.ToTimeE(est2016str)
 				c.Assert(err, qt.IsNil)
-				if format.hasTimezone() {
+				if format.HasTimezone() {
 					// Converting inputs with a timezone should preserve it
 					assertTimeEqual(t, est2016, converted)
 					assertLocationEqual(t, est, converted.Location())
@@ -202,9 +148,9 @@ func TestToTimeWithTimezones(t *testing.T) {
 
 			t.Run("local timezone without a default location", func(t *testing.T) {
 				c := qt.New(t)
-				converted, err := ToTimeE(swd2016str)
+				converted, err := cast.ToTimeE(swd2016str)
 				c.Assert(err, qt.IsNil)
-				if format.hasTimezone() {
+				if format.HasTimezone() {
 					// Converting inputs with a timezone should preserve it
 					assertTimeEqual(t, swd2016, converted)
 					assertLocationEqual(t, swd, converted.Location())
@@ -219,9 +165,9 @@ func TestToTimeWithTimezones(t *testing.T) {
 			t.Run("nil default location", func(t *testing.T) {
 				c := qt.New(t)
 
-				converted, err := ToTimeInDefaultLocationE(est2016str, nil)
+				converted, err := cast.ToTimeInDefaultLocationE(est2016str, nil)
 				c.Assert(err, qt.IsNil)
-				if format.hasTimezone() {
+				if format.HasTimezone() {
 					// Converting inputs with a timezone should preserve it
 					assertTimeEqual(t, est2016, converted)
 					assertLocationEqual(t, est, converted.Location())
@@ -237,9 +183,9 @@ func TestToTimeWithTimezones(t *testing.T) {
 			t.Run("default location not UTC", func(t *testing.T) {
 				c := qt.New(t)
 
-				converted, err := ToTimeInDefaultLocationE(est2016str, irn)
+				converted, err := cast.ToTimeInDefaultLocationE(est2016str, irn)
 				c.Assert(err, qt.IsNil)
-				if format.hasTimezone() {
+				if format.HasTimezone() {
 					// Converting inputs with a timezone should preserve it
 					assertTimeEqual(t, est2016, converted)
 					assertLocationEqual(t, est, converted.Location())
@@ -255,9 +201,9 @@ func TestToTimeWithTimezones(t *testing.T) {
 			t.Run("time in the local timezone default location not UTC", func(t *testing.T) {
 				c := qt.New(t)
 
-				converted, err := ToTimeInDefaultLocationE(swd2016str, irn)
+				converted, err := cast.ToTimeInDefaultLocationE(swd2016str, irn)
 				c.Assert(err, qt.IsNil)
-				if format.hasTimezone() {
+				if format.HasTimezone() {
 					// Converting inputs with a timezone should preserve it
 					assertTimeEqual(t, swd2016, converted)
 					assertLocationEqual(t, swd, converted.Location())
@@ -272,6 +218,17 @@ func TestToTimeWithTimezones(t *testing.T) {
 
 		})
 
+	}
+}
+
+func BenchmarkCommonTimeLayouts(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		for _, commonLayout := range []string{"2019-04-29", "2017-05-30T00:00:00Z"} {
+			_, err := cast.StringToDateInDefaultLocation(commonLayout, time.UTC)
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
 	}
 }
 
