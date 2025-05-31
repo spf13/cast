@@ -8,6 +8,7 @@ package cast_test
 import (
 	"encoding/json"
 	"math"
+	"math/big"
 	"reflect"
 	"testing"
 	"time"
@@ -46,7 +47,7 @@ var numberContexts = map[string]numberContext{
 		generic:     toAny(cast.ToNumber[int]),
 		specificErr: toAnyErr(cast.ToIntE),
 		genericErr:  toAnyErr(cast.ToNumberE[int]),
-		samples:     []any{int(0), int(1), int(8), int(-8), int(8), int(-8), math.MinInt, math.MaxInt, nil, nil},
+		samples:     []any{int(0), int(1), int(8), int(-8), int(8), int(-8), math.MinInt, math.MaxInt, new(big.Int).Sub(big.NewInt(math.MinInt), big.NewInt(1)).String(), new(big.Int).Add(big.NewInt(math.MaxInt), big.NewInt(1)).String()},
 	},
 	"int8": {
 		to:          toAny(cast.To[int8]),
