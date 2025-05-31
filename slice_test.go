@@ -79,63 +79,63 @@ func runSliceTests[T cast.Basic | any](t *testing.T, testCases []testCase, to fu
 				// })
 			})
 
-			t.Run("Pointer", func(t *testing.T) {
-				return
+			// t.Run("Pointer", func(t *testing.T) {
+			// 	return
 
-				t.Run("ToType", func(t *testing.T) {
-					t.Parallel()
+			// 	t.Run("ToType", func(t *testing.T) {
+			// 		t.Parallel()
 
-					c := qt.New(t)
+			// 		c := qt.New(t)
 
-					v := to(&testCase.input)
-					if v == nil {
-						return
-					}
+			// 		v := to(&testCase.input)
+			// 		if v == nil {
+			// 			return
+			// 		}
 
-					c.Assert(v, qt.DeepEquals, testCase.expected)
-				})
+			// 		c.Assert(v, qt.DeepEquals, testCase.expected)
+			// 	})
 
-				// t.Run("To", func(t *testing.T) {
-				// 	return
+			// 	// t.Run("To", func(t *testing.T) {
+			// 	// 	return
 
-				// 	t.Parallel()
+			// 	// 	t.Parallel()
 
-				// 	c := qt.New(t)
+			// 	// 	c := qt.New(t)
 
-				// 	v := cast.To[T](&testCase.input)
-				// 	c.Assert(v, qt.DeepEquals, testCase.expected)
-				// })
+			// 	// 	v := cast.To[T](&testCase.input)
+			// 	// 	c.Assert(v, qt.DeepEquals, testCase.expected)
+			// 	// })
 
-				t.Run("ToTypeE", func(t *testing.T) {
-					t.Parallel()
+			// 	t.Run("ToTypeE", func(t *testing.T) {
+			// 		t.Parallel()
 
-					c := qt.New(t)
+			// 		c := qt.New(t)
 
-					v, err := toErr(&testCase.input)
-					if testCase.expectError {
-						c.Assert(err, qt.IsNotNil)
-					} else {
-						c.Assert(err, qt.IsNil)
-						c.Assert(v, qt.DeepEquals, testCase.expected)
-					}
-				})
+			// 		v, err := toErr(&testCase.input)
+			// 		if testCase.expectError {
+			// 			c.Assert(err, qt.IsNotNil)
+			// 		} else {
+			// 			c.Assert(err, qt.IsNil)
+			// 			c.Assert(v, qt.DeepEquals, testCase.expected)
+			// 		}
+			// 	})
 
-				// t.Run("ToE", func(t *testing.T) {
-				// 	return
+			// 	// t.Run("ToE", func(t *testing.T) {
+			// 	// 	return
 
-				// 	t.Parallel()
+			// 	// 	t.Parallel()
 
-				// 	c := qt.New(t)
+			// 	// 	c := qt.New(t)
 
-				// 	v, err := cast.ToE[T](&testCase.input)
-				// 	if testCase.expectError {
-				// 		c.Assert(err, qt.IsNotNil)
-				// 	} else {
-				// 		c.Assert(err, qt.IsNil)
-				// 		c.Assert(v, qt.DeepEquals, testCase.expected)
-				// 	}
-				// })
-			})
+			// 	// 	v, err := cast.ToE[T](&testCase.input)
+			// 	// 	if testCase.expectError {
+			// 	// 		c.Assert(err, qt.IsNotNil)
+			// 	// 	} else {
+			// 	// 		c.Assert(err, qt.IsNil)
+			// 	// 		c.Assert(v, qt.DeepEquals, testCase.expected)
+			// 	// 	}
+			// 	// })
+			// })
 		})
 	}
 }
