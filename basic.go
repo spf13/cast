@@ -116,8 +116,15 @@ func ToStringE(i any) (string, error) {
 		return s.Error(), nil
 	default:
 		v := reflect.ValueOf(s)
+		var isPtr bool
+
 		for v.Kind() == reflect.Ptr && !v.IsNil() {
-			return ToStringE(v.Elem().Interface())
+			isPtr = true
+			v = v.Elem()
+		}
+
+		if isPtr {
+			return ToStringE(v.Interface())
 		}
 
 		return "", fmt.Errorf("unable to cast %#v of type %T to string", i, i)
