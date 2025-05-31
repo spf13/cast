@@ -3,7 +3,7 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package cast
+package cast_test
 
 import (
 	"encoding/json"
@@ -11,35 +11,30 @@ import (
 	"testing"
 	"time"
 
-	qt "github.com/frankban/quicktest"
+	"github.com/spf13/cast"
 )
 
-func TestToBoolE(t *testing.T) {
-	c := qt.New(t)
-
-	var jf, jt, je json.Number
-	_ = json.Unmarshal([]byte("0"), &jf)
-	_ = json.Unmarshal([]byte("1"), &jt)
-	_ = json.Unmarshal([]byte("1.0"), &je)
-	tests := []struct {
-		input  interface{}
-		expect bool
-		iserr  bool
-	}{
+func TestBool(t *testing.T) {
+	testCases := []testCase{
 		{0, false, false},
-		{int64(0), false, false},
-		{int32(0), false, false},
-		{int16(0), false, false},
+		{int(0), false, false},
 		{int8(0), false, false},
+		{int16(0), false, false},
+		{int32(0), false, false},
+		{int64(0), false, false},
 		{uint(0), false, false},
-		{uint64(0), false, false},
-		{uint32(0), false, false},
-		{uint16(0), false, false},
 		{uint8(0), false, false},
-		{float64(0), false, false},
+		{uint16(0), false, false},
+		{uint32(0), false, false},
+		{uint64(0), false, false},
 		{float32(0), false, false},
+		{float32(0.0), false, false},
+		{float64(0), false, false},
+		{float64(0.0), false, false},
+
 		{time.Duration(0), false, false},
-		{jf, false, false},
+		{json.Number("0"), false, false},
+
 		{nil, false, false},
 		{"false", false, false},
 		{"FALSE", false, false},
@@ -53,74 +48,58 @@ func TestToBoolE(t *testing.T) {
 		{"True", true, false},
 		{"t", true, false},
 		{"T", true, false},
+
 		{1, true, false},
-		{int64(1), true, false},
-		{int32(1), true, false},
-		{int16(1), true, false},
+		{int(1), true, false},
 		{int8(1), true, false},
+		{int16(1), true, false},
+		{int32(1), true, false},
+		{int64(1), true, false},
 		{uint(1), true, false},
-		{uint64(1), true, false},
-		{uint32(1), true, false},
-		{uint16(1), true, false},
 		{uint8(1), true, false},
-		{float64(1), true, false},
+		{uint16(1), true, false},
+		{uint32(1), true, false},
+		{uint64(1), true, false},
 		{float32(1), true, false},
+		{float32(1.0), true, false},
+		{float64(1), true, false},
+		{float64(1.0), true, false},
+
 		{time.Duration(1), true, false},
-		{jt, true, false},
-		{je, true, false},
+		{json.Number("1"), true, false},
+		{json.Number("1.0"), true, false},
+
 		{true, true, false},
 		{-1, true, false},
-		{int64(-1), true, false},
-		{int32(-1), true, false},
-		{int16(-1), true, false},
+		{int(-1), true, false},
 		{int8(-1), true, false},
+		{int16(-1), true, false},
+		{int32(-1), true, false},
+		{int64(-1), true, false},
 
-		// errors
+		// Failure cases
 		{"test", false, true},
 		{testing.T{}, false, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToBoolE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.Equals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToBool(test.input)
-		c.Assert(v, qt.Equals, test.expect, errmsg)
-	}
+	runTests(t, testCases, cast.ToBool, cast.ToBoolE)
 }
 
-func BenchmarkTooBool(b *testing.B) {
+func BenchmarkToBool(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		if !ToBool(true) {
+		if !cast.ToBool(true) {
 			b.Fatal("ToBool returned false")
 		}
 	}
 }
 
-func TestToStringE(t *testing.T) {
-	c := qt.New(t)
-
-	var jn json.Number
-	_ = json.Unmarshal([]byte("8"), &jn)
+func TestString(t *testing.T) {
 	type Key struct {
 		k string
 	}
 	key := &Key{"foo"}
 
-	tests := []struct {
-		input  interface{}
-		expect string
-		iserr  bool
-	}{
+	testCases := []testCase{
 		{int(8), "8", false},
 		{int8(8), "8", false},
 		{int16(8), "8", false},
@@ -133,7 +112,7 @@ func TestToStringE(t *testing.T) {
 		{uint64(8), "8", false},
 		{float32(8.31), "8.31", false},
 		{float64(8.31), "8.31", false},
-		{jn, "8", false},
+		{json.Number("8"), "8", false},
 		{true, "true", false},
 		{false, "false", false},
 		{nil, "", false},
@@ -144,36 +123,16 @@ func TestToStringE(t *testing.T) {
 		{template.JS("(1+2)"), "(1+2)", false},
 		{template.CSS("a"), "a", false},
 		{template.HTMLAttr("a"), "a", false},
-		// errors
+
+		{foo{val: "bar"}, "bar", false},
+		{fu{val: "bar"}, "bar", false},
+
+		// Failure cases
 		{testing.T{}, "", true},
 		{key, "", true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		// Non-E test
-		v := ToString(test.input)
-		c.Assert(v, qt.Equals, test.expect, errmsg)
-
-		// Non-pointer test
-		v, err := ToStringE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil, errmsg)
-		} else {
-			c.Assert(err, qt.IsNil, errmsg)
-			c.Assert(v, qt.Equals, test.expect, errmsg)
-		}
-
-		// Pointer test
-		v, err = ToStringE(&test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil, errmsg)
-		} else {
-			c.Assert(err, qt.IsNil, errmsg)
-			c.Assert(v, qt.Equals, test.expect, errmsg)
-		}
-	}
+	runTests(t, testCases, cast.ToString, cast.ToStringE)
 }
 
 type foo struct {
@@ -184,28 +143,10 @@ func (x foo) String() string {
 	return x.val
 }
 
-func TestStringerToString(t *testing.T) {
-	c := qt.New(t)
-
-	var x foo
-	x.val = "bar"
-	c.Assert(ToString(x), qt.Equals, "bar", qt.Commentf("non-pointer test"))
-	c.Assert(ToString(&x), qt.Equals, "bar", qt.Commentf("pointer test"))
-}
-
 type fu struct {
 	val string
 }
 
 func (x fu) Error() string {
 	return x.val
-}
-
-func TestErrorToString(t *testing.T) {
-	c := qt.New(t)
-
-	var x fu
-	x.val = "bar"
-	c.Assert(ToString(x), qt.Equals, "bar", qt.Commentf("non-pointer test"))
-	c.Assert(ToString(&x), qt.Equals, "bar", qt.Commentf("pointer test"))
 }

@@ -140,6 +140,8 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 		return n, nil
 	}
 
+	i = indirect(i)
+
 	switch s := i.(type) {
 	case string:
 		if s == "" {
@@ -273,6 +275,8 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 	if ok {
 		return n, nil
 	}
+
+	i = indirect(i)
 
 	if !valid {
 		return 0, errNegativeNotAllowed

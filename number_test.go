@@ -238,7 +238,7 @@ func generateNumberTestCases(samples []any) []testCase {
 	return testCases
 }
 
-func TestToNumber(t *testing.T) {
+func TestNumber(t *testing.T) {
 	t.Parallel()
 
 	for typeName, ctx := range numberContexts {
@@ -258,37 +258,101 @@ func TestToNumber(t *testing.T) {
 				t.Run("", func(t *testing.T) {
 					t.Parallel()
 
-					c := qt.New(t)
+					t.Run("Value", func(t *testing.T) {
+						t.Run("ToType", func(t *testing.T) {
+							t.Parallel()
 
-					{
-						v := ctx.specific(testCase.input)
-						c.Assert(v, qt.Equals, testCase.expected)
-					}
+							c := qt.New(t)
 
-					{
-						v := ctx.generic(testCase.input)
-						c.Assert(v, qt.Equals, testCase.expected)
-					}
-
-					{
-						v, err := ctx.specificErr(testCase.input)
-						if testCase.expectError {
-							c.Assert(err, qt.IsNotNil)
-						} else {
-							c.Assert(err, qt.IsNil)
+							v := ctx.specific(testCase.input)
 							c.Assert(v, qt.Equals, testCase.expected)
-						}
-					}
+						})
 
-					{
-						v, err := ctx.genericErr(testCase.input)
-						if testCase.expectError {
-							c.Assert(err, qt.IsNotNil)
-						} else {
-							c.Assert(err, qt.IsNil)
+						t.Run("To", func(t *testing.T) {
+							t.Parallel()
+
+							c := qt.New(t)
+
+							v := ctx.generic(testCase.input)
 							c.Assert(v, qt.Equals, testCase.expected)
-						}
-					}
+						})
+
+						t.Run("ToTypeE", func(t *testing.T) {
+							t.Parallel()
+
+							c := qt.New(t)
+
+							v, err := ctx.specificErr(testCase.input)
+							if testCase.expectError {
+								c.Assert(err, qt.IsNotNil)
+							} else {
+								c.Assert(err, qt.IsNil)
+								c.Assert(v, qt.Equals, testCase.expected)
+							}
+						})
+
+						t.Run("ToE", func(t *testing.T) {
+							t.Parallel()
+
+							c := qt.New(t)
+
+							v, err := ctx.genericErr(testCase.input)
+							if testCase.expectError {
+								c.Assert(err, qt.IsNotNil)
+							} else {
+								c.Assert(err, qt.IsNil)
+								c.Assert(v, qt.Equals, testCase.expected)
+							}
+						})
+
+						t.Run("Pointer", func(t *testing.T) {
+							t.Run("ToType", func(t *testing.T) {
+								t.Parallel()
+
+								c := qt.New(t)
+
+								v := ctx.specific(&testCase.input)
+								c.Assert(v, qt.Equals, testCase.expected)
+							})
+
+							t.Run("To", func(t *testing.T) {
+								t.Parallel()
+
+								c := qt.New(t)
+
+								v := ctx.generic(&testCase.input)
+								c.Assert(v, qt.Equals, testCase.expected)
+							})
+
+							t.Run("ToTypeE", func(t *testing.T) {
+								t.Parallel()
+
+								c := qt.New(t)
+
+								v, err := ctx.specificErr(&testCase.input)
+								if testCase.expectError {
+									c.Assert(err, qt.IsNotNil)
+								} else {
+									c.Assert(err, qt.IsNil)
+									c.Assert(v, qt.Equals, testCase.expected)
+								}
+							})
+
+							t.Run("ToE", func(t *testing.T) {
+								t.Parallel()
+
+								c := qt.New(t)
+
+								v, err := ctx.genericErr(&testCase.input)
+								if testCase.expectError {
+									c.Assert(err, qt.IsNotNil)
+								} else {
+									c.Assert(err, qt.IsNil)
+									c.Assert(v, qt.Equals, testCase.expected)
+								}
+							})
+						})
+					})
 				})
 			}
 		})
