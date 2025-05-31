@@ -24,37 +24,107 @@ func runTests[T cast.Basic](t *testing.T, testCases []testCase, to func(i any) T
 		testCase := testCase
 
 		t.Run("", func(t *testing.T) {
-			c := qt.New(t)
+			t.Parallel()
 
-			{
-				v := to(testCase.input)
-				c.Assert(v, qt.Equals, testCase.expected)
-			}
+			t.Run("Value", func(t *testing.T) {
+				t.Run("ToType", func(t *testing.T) {
+					t.Parallel()
 
-			{
-				v := cast.To[T](testCase.input)
-				c.Assert(v, qt.Equals, testCase.expected)
-			}
+					c := qt.New(t)
 
-			{
-				v, err := toErr(testCase.input)
-				if testCase.expectError {
-					c.Assert(err, qt.IsNotNil)
-				} else {
-					c.Assert(err, qt.IsNil)
+					v := to(testCase.input)
 					c.Assert(v, qt.Equals, testCase.expected)
-				}
-			}
+				})
 
-			{
-				v, err := cast.ToE[T](testCase.input)
-				if testCase.expectError {
-					c.Assert(err, qt.IsNotNil)
-				} else {
-					c.Assert(err, qt.IsNil)
+				t.Run("To", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v := cast.To[T](testCase.input)
 					c.Assert(v, qt.Equals, testCase.expected)
-				}
-			}
+				})
+
+				t.Run("ToTypeE", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v, err := toErr(testCase.input)
+					if testCase.expectError {
+						c.Assert(err, qt.IsNotNil)
+					} else {
+						c.Assert(err, qt.IsNil)
+						c.Assert(v, qt.Equals, testCase.expected)
+					}
+				})
+
+				t.Run("ToE", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v, err := cast.ToE[T](testCase.input)
+					if testCase.expectError {
+						c.Assert(err, qt.IsNotNil)
+					} else {
+						c.Assert(err, qt.IsNil)
+						c.Assert(v, qt.Equals, testCase.expected)
+					}
+				})
+			})
+
+			t.Run("", func(t *testing.T) {
+				t.Parallel()
+
+				t.Run("Value", func(t *testing.T) {
+					t.Run("ToType", func(t *testing.T) {
+						t.Parallel()
+
+						c := qt.New(t)
+
+						v := to(&testCase.input)
+						c.Assert(v, qt.Equals, testCase.expected)
+					})
+
+					t.Run("To", func(t *testing.T) {
+						t.Parallel()
+
+						c := qt.New(t)
+
+						v := cast.To[T](&testCase.input)
+						c.Assert(v, qt.Equals, testCase.expected)
+					})
+
+					t.Run("ToTypeE", func(t *testing.T) {
+						t.Parallel()
+
+						c := qt.New(t)
+
+						v, err := toErr(&testCase.input)
+						if testCase.expectError {
+							c.Assert(err, qt.IsNotNil)
+						} else {
+							c.Assert(err, qt.IsNil)
+							c.Assert(v, qt.Equals, testCase.expected)
+						}
+					})
+
+					t.Run("ToE", func(t *testing.T) {
+						t.Parallel()
+
+						c := qt.New(t)
+
+						v, err := cast.ToE[T](&testCase.input)
+						if testCase.expectError {
+							c.Assert(err, qt.IsNotNil)
+						} else {
+							c.Assert(err, qt.IsNil)
+							c.Assert(v, qt.Equals, testCase.expected)
+						}
+					})
+				})
+			})
 		})
 	}
 }
