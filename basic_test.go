@@ -3,7 +3,7 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package cast
+package cast_test
 
 import (
 	"encoding/json"
@@ -11,15 +11,11 @@ import (
 	"testing"
 	"time"
 
-	qt "github.com/frankban/quicktest"
+	"github.com/spf13/cast"
 )
 
 func TestToBoolE(t *testing.T) {
-	testCases := []struct {
-		input       any
-		expected    any
-		expectError bool
-	}{
+	testCases := []testCase{
 		{0, false, false},
 		{int(0), false, false},
 		{int8(0), false, false},
@@ -86,49 +82,12 @@ func TestToBoolE(t *testing.T) {
 		{testing.T{}, false, true},
 	}
 
-	for _, testCase := range testCases {
-		// TODO: remove after minimum Go version is >=1.22
-		testCase := testCase
-
-		t.Run("", func(t *testing.T) {
-			c := qt.New(t)
-
-			{
-				v := ToBool(testCase.input)
-				c.Assert(v, qt.Equals, testCase.expected)
-			}
-
-			{
-				v := To[bool](testCase.input)
-				c.Assert(v, qt.Equals, testCase.expected)
-			}
-
-			{
-				v, err := ToBoolE(testCase.input)
-				if testCase.expectError {
-					c.Assert(err, qt.IsNotNil)
-				} else {
-					c.Assert(err, qt.IsNil)
-					c.Assert(v, qt.Equals, testCase.expected)
-				}
-			}
-
-			{
-				v, err := ToE[bool](testCase.input)
-				if testCase.expectError {
-					c.Assert(err, qt.IsNotNil)
-				} else {
-					c.Assert(err, qt.IsNil)
-					c.Assert(v, qt.Equals, testCase.expected)
-				}
-			}
-		})
-	}
+	runTests(t, testCases, cast.ToBool, cast.ToBoolE)
 }
 
 func BenchmarkToBool(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		if !ToBool(true) {
+		if !cast.ToBool(true) {
 			b.Fatal("ToBool returned false")
 		}
 	}
@@ -140,11 +99,7 @@ func TestToStringE(t *testing.T) {
 	}
 	key := &Key{"foo"}
 
-	testCases := []struct {
-		input       any
-		expected    any
-		expectError bool
-	}{
+	testCases := []testCase{
 		{int(8), "8", false},
 		{int8(8), "8", false},
 		{int16(8), "8", false},
@@ -177,44 +132,7 @@ func TestToStringE(t *testing.T) {
 		{key, "", true},
 	}
 
-	for _, testCase := range testCases {
-		// TODO: remove after minimum Go version is >=1.22
-		testCase := testCase
-
-		t.Run("", func(t *testing.T) {
-			c := qt.New(t)
-
-			{
-				v := ToString(testCase.input)
-				c.Assert(v, qt.Equals, testCase.expected)
-			}
-
-			{
-				v := To[string](testCase.input)
-				c.Assert(v, qt.Equals, testCase.expected)
-			}
-
-			{
-				v, err := ToStringE(testCase.input)
-				if testCase.expectError {
-					c.Assert(err, qt.IsNotNil)
-				} else {
-					c.Assert(err, qt.IsNil)
-					c.Assert(v, qt.Equals, testCase.expected)
-				}
-			}
-
-			{
-				v, err := ToE[string](testCase.input)
-				if testCase.expectError {
-					c.Assert(err, qt.IsNotNil)
-				} else {
-					c.Assert(err, qt.IsNil)
-					c.Assert(v, qt.Equals, testCase.expected)
-				}
-			}
-		})
-	}
+	runTests(t, testCases, cast.ToString, cast.ToStringE)
 }
 
 type foo struct {
