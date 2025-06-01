@@ -6,6 +6,7 @@
 package cast_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -138,6 +139,51 @@ func runTests[T cast.Basic](t *testing.T, testCases []testCase, to func(i any) T
 			})
 		})
 	}
+}
+
+func Example() {
+	// Cast a value to another type
+	{
+		v, err := cast.ToIntE("1234")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%T(%v)\n", v, v)
+	}
+
+	// Alternatively, you can use the generic [ToE] function for [Basic] types
+	{
+		v, err := cast.ToE[int]("4321")
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%T(%v)\n", v, v)
+	}
+
+	// You can suppress errors by using the non-error versions
+	{
+		v := cast.ToInt("9876")
+		fmt.Printf("%T(%v)\n", v, v)
+	}
+
+	// Similarly, there is a generic [To] function for [Basic] types
+	{
+		v := cast.To[int]("6789")
+		fmt.Printf("%T(%v)\n", v, v)
+	}
+
+	// Finally, you can use [Must] to panic if there is an error.
+	{
+		v := cast.Must[int](cast.ToE[int]("5555"))
+		fmt.Printf("%T(%v)\n", v, v)
+	}
+
+	// Output:
+	// int(1234)
+	// int(4321)
+	// int(9876)
+	// int(6789)
+	// int(5555)
 }
 
 func BenchmarkCast(b *testing.B) {
