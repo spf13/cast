@@ -24,7 +24,12 @@ func indirect(i any) (any, bool) {
 	}
 
 	v := reflect.ValueOf(i)
-	for v.Kind() == reflect.Ptr && !v.IsNil() {
+
+	for v.Kind() == reflect.Ptr || (v.Kind() == reflect.Interface && v.Elem().Kind() == reflect.Ptr) {
+		if v.IsNil() {
+			return nil, true
+		}
+
 		v = v.Elem()
 	}
 

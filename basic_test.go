@@ -15,6 +15,8 @@ import (
 )
 
 func TestBool(t *testing.T) {
+	var ptr *bool
+
 	testCases := []testCase{
 		{0, false, false},
 		{int(0), false, false},
@@ -36,6 +38,7 @@ func TestBool(t *testing.T) {
 		{json.Number("0"), false, false},
 
 		{nil, false, false},
+		{ptr, false, false},
 		{"false", false, false},
 		{"FALSE", false, false},
 		{"False", false, false},
@@ -103,6 +106,8 @@ func TestString(t *testing.T) {
 	}
 	key := &Key{"foo"}
 
+	var ptr *string
+
 	testCases := []testCase{
 		{int(8), "8", false},
 		{int8(8), "8", false},
@@ -120,6 +125,7 @@ func TestString(t *testing.T) {
 		{true, "true", false},
 		{false, "false", false},
 		{nil, "", false},
+		{ptr, "", false},
 		{[]byte("one time"), "one time", false},
 		{"one more time", "one more time", false},
 		{template.HTML("one time"), "one time", false},
