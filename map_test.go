@@ -3,35 +3,158 @@
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file.
 
-package cast
+package cast_test
 
 import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+
+	"github.com/spf13/cast"
 )
 
-func TestStringMapStringSliceE(t *testing.T) {
-	c := qt.New(t)
+func runMapTests[K comparable, V cast.Basic | any](t *testing.T, testCases []testCase, to func(i any) map[K]V, toErr func(i any) (map[K]V, error)) {
+	for _, testCase := range testCases {
+		// TODO: remove after minimum Go version is >=1.22
+		testCase := testCase
 
+		t.Run("", func(t *testing.T) {
+			t.Parallel()
+
+			t.Run("Value", func(t *testing.T) {
+				t.Run("ToType", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v := to(testCase.input)
+					if v == nil {
+						return
+					}
+
+					c.Assert(v, qt.DeepEquals, testCase.expected)
+				})
+
+				// t.Run("To", func(t *testing.T) {
+				// 	return
+
+				// 	t.Parallel()
+
+				// 	c := qt.New(t)
+
+				// 	v := cast.To[T](testCase.input)
+				// 	c.Assert(v, qt.DeepEquals, testCase.expected)
+				// })
+
+				t.Run("ToTypeE", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v, err := toErr(testCase.input)
+					if testCase.expectError {
+						c.Assert(err, qt.IsNotNil)
+					} else {
+						c.Assert(err, qt.IsNil)
+						c.Assert(v, qt.DeepEquals, testCase.expected)
+					}
+				})
+
+				// t.Run("ToE", func(t *testing.T) {
+				// 	return
+
+				// 	t.Parallel()
+
+				// 	c := qt.New(t)
+
+				// 	v, err := cast.ToE[T](testCase.input)
+				// 	if testCase.expectError {
+				// 		c.Assert(err, qt.IsNotNil)
+				// 	} else {
+				// 		c.Assert(err, qt.IsNil)
+				// 		c.Assert(v, qt.DeepEquals, testCase.expected)
+				// 	}
+				// })
+			})
+
+			// t.Run("Pointer", func(t *testing.T) {
+			// 	t.Run("ToType", func(t *testing.T) {
+			// 		t.Parallel()
+
+			// 		c := qt.New(t)
+
+			// 		v := to(&testCase.input)
+			// 		if v == nil {
+			// 			return
+			// 		}
+
+			// 		c.Assert(v, qt.DeepEquals, testCase.expected)
+			// 	})
+
+			// 	// t.Run("To", func(t *testing.T) {
+			// 	// 	return
+
+			// 	// 	t.Parallel()
+
+			// 	// 	c := qt.New(t)
+
+			// 	// 	v := cast.To[T](&testCase.input)
+			// 	// 	c.Assert(v, qt.DeepEquals, testCase.expected)
+			// 	// })
+
+			// 	t.Run("ToTypeE", func(t *testing.T) {
+			// 		t.Parallel()
+
+			// 		c := qt.New(t)
+
+			// 		v, err := toErr(&testCase.input)
+			// 		if testCase.expectError {
+			// 			c.Assert(err, qt.IsNotNil)
+			// 		} else {
+			// 			c.Assert(err, qt.IsNil)
+			// 			c.Assert(v, qt.DeepEquals, testCase.expected)
+			// 		}
+			// 	})
+
+			// 	// t.Run("ToE", func(t *testing.T) {
+			// 	// 	return
+
+			// 	// 	t.Parallel()
+
+			// 	// 	c := qt.New(t)
+
+			// 	// 	v, err := cast.ToE[T](&testCase.input)
+			// 	// 	if testCase.expectError {
+			// 	// 		c.Assert(err, qt.IsNotNil)
+			// 	// 	} else {
+			// 	// 		c.Assert(err, qt.IsNil)
+			// 	// 		c.Assert(v, qt.DeepEquals, testCase.expected)
+			// 	// 	}
+			// 	// })
+			// })
+		})
+	}
+}
+
+func TestStringMapStringSlice(t *testing.T) {
 	// ToStringMapString inputs/outputs
 	var stringMapString = map[string]string{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
-	var stringMapInterface = map[string]interface{}{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
-	var interfaceMapString = map[interface{}]string{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
-	var interfaceMapInterface = map[interface{}]interface{}{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
+	var stringMapInterface = map[string]any{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
+	var interfaceMapString = map[any]string{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
+	var interfaceMapInterface = map[any]any{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
 
 	// ToStringMapStringSlice inputs/outputs
 	var stringMapStringSlice = map[string][]string{"key 1": {"value 1", "value 2", "value 3"}, "key 2": {"value 1", "value 2", "value 3"}, "key 3": {"value 1", "value 2", "value 3"}}
-	var stringMapInterfaceSlice = map[string][]interface{}{"key 1": {"value 1", "value 2", "value 3"}, "key 2": {"value 1", "value 2", "value 3"}, "key 3": {"value 1", "value 2", "value 3"}}
-	var stringMapInterfaceInterfaceSlice = map[string]interface{}{"key 1": []interface{}{"value 1", "value 2", "value 3"}, "key 2": []interface{}{"value 1", "value 2", "value 3"}, "key 3": []interface{}{"value 1", "value 2", "value 3"}}
+	var stringMapInterfaceSlice = map[string][]any{"key 1": {"value 1", "value 2", "value 3"}, "key 2": {"value 1", "value 2", "value 3"}, "key 3": {"value 1", "value 2", "value 3"}}
+	var stringMapInterfaceInterfaceSlice = map[string]any{"key 1": []any{"value 1", "value 2", "value 3"}, "key 2": []any{"value 1", "value 2", "value 3"}, "key 3": []any{"value 1", "value 2", "value 3"}}
 	var stringMapStringSingleSliceFieldsResult = map[string][]string{"key 1": {"value", "1"}, "key 2": {"value", "2"}, "key 3": {"value", "3"}}
-	var interfaceMapStringSlice = map[interface{}][]string{"key 1": {"value 1", "value 2", "value 3"}, "key 2": {"value 1", "value 2", "value 3"}, "key 3": {"value 1", "value 2", "value 3"}}
-	var interfaceMapInterfaceSlice = map[interface{}][]interface{}{"key 1": {"value 1", "value 2", "value 3"}, "key 2": {"value 1", "value 2", "value 3"}, "key 3": {"value 1", "value 2", "value 3"}}
+	var interfaceMapStringSlice = map[any][]string{"key 1": {"value 1", "value 2", "value 3"}, "key 2": {"value 1", "value 2", "value 3"}, "key 3": {"value 1", "value 2", "value 3"}}
+	var interfaceMapInterfaceSlice = map[any][]any{"key 1": {"value 1", "value 2", "value 3"}, "key 2": {"value 1", "value 2", "value 3"}, "key 3": {"value 1", "value 2", "value 3"}}
 
 	var stringMapStringSliceMultiple = map[string][]string{"key 1": {"value 1", "value 2", "value 3"}, "key 2": {"value 1", "value 2", "value 3"}, "key 3": {"value 1", "value 2", "value 3"}}
 	var stringMapStringSliceSingle = map[string][]string{"key 1": {"value 1"}, "key 2": {"value 2"}, "key 3": {"value 3"}}
 
-	var stringMapInterface1 = map[string]interface{}{"key 1": []string{"value 1"}, "key 2": []string{"value 2"}}
+	var stringMapInterface1 = map[string]any{"key 1": []string{"value 1"}, "key 2": []string{"value 2"}}
 	var stringMapInterfaceResult1 = map[string][]string{"key 1": {"value 1"}, "key 2": {"value 2"}}
 
 	var jsonStringMapString = `{"key 1": "value 1", "key 2": "value 2"}`
@@ -42,11 +165,7 @@ func TestStringMapStringSliceE(t *testing.T) {
 		k string
 	}
 
-	tests := []struct {
-		input  interface{}
-		expect map[string][]string
-		iserr  bool
-	}{
+	testCases := []testCase{
 		{stringMapStringSlice, stringMapStringSlice, false},
 		{stringMapInterfaceSlice, stringMapStringSlice, false},
 		{stringMapInterfaceInterfaceSlice, stringMapStringSlice, false},
@@ -61,157 +180,73 @@ func TestStringMapStringSliceE(t *testing.T) {
 		{interfaceMapInterface, stringMapStringSingleSliceFieldsResult, false},
 		{jsonStringMapStringArray, jsonStringMapStringArrayResult, false},
 
-		// errors
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
-		{map[interface{}]interface{}{"foo": testing.T{}}, nil, true},
-		{map[interface{}]interface{}{Key{"foo"}: "bar"}, nil, true}, // ToStringE(Key{"foo"}) should fail
+		{map[any]any{"foo": testing.T{}}, nil, true},
+		{map[any]any{Key{"foo"}: "bar"}, nil, true}, // ToStringE(Key{"foo"}) should fail
 		{jsonStringMapString, nil, true},
 		{"", nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToStringMapStringSliceE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil, errmsg)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil, errmsg)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToStringMapStringSlice(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runMapTests(t, testCases, cast.ToStringMapStringSlice, cast.ToStringMapStringSliceE)
 }
 
-func TestToStringMapE(t *testing.T) {
-	c := qt.New(t)
+func TestStringMap(t *testing.T) {
+	testCases := []testCase{
+		{map[any]any{"tag": "tags", "group": "groups"}, map[string]any{"tag": "tags", "group": "groups"}, false},
+		{map[string]any{"tag": "tags", "group": "groups"}, map[string]any{"tag": "tags", "group": "groups"}, false},
+		{`{"tag": "tags", "group": "groups"}`, map[string]any{"tag": "tags", "group": "groups"}, false},
+		{`{"tag": "tags", "group": true}`, map[string]any{"tag": "tags", "group": true}, false},
 
-	tests := []struct {
-		input  interface{}
-		expect map[string]interface{}
-		iserr  bool
-	}{
-		{map[interface{}]interface{}{"tag": "tags", "group": "groups"}, map[string]interface{}{"tag": "tags", "group": "groups"}, false},
-		{map[string]interface{}{"tag": "tags", "group": "groups"}, map[string]interface{}{"tag": "tags", "group": "groups"}, false},
-		{`{"tag": "tags", "group": "groups"}`, map[string]interface{}{"tag": "tags", "group": "groups"}, false},
-		{`{"tag": "tags", "group": true}`, map[string]interface{}{"tag": "tags", "group": true}, false},
-
-		// errors
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{"", nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToStringMapE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil, errmsg)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil, errmsg)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToStringMap(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runMapTests(t, testCases, cast.ToStringMap, cast.ToStringMapE)
 }
 
-func TestToStringMapBoolE(t *testing.T) {
-	c := qt.New(t)
-
-	tests := []struct {
-		input  interface{}
-		expect map[string]bool
-		iserr  bool
-	}{
-		{map[interface{}]interface{}{"v1": true, "v2": false}, map[string]bool{"v1": true, "v2": false}, false},
-		{map[string]interface{}{"v1": true, "v2": false}, map[string]bool{"v1": true, "v2": false}, false},
+func TestStringMapBool(t *testing.T) {
+	testCases := []testCase{
+		{map[any]any{"v1": true, "v2": false}, map[string]bool{"v1": true, "v2": false}, false},
+		{map[string]any{"v1": true, "v2": false}, map[string]bool{"v1": true, "v2": false}, false},
 		{map[string]bool{"v1": true, "v2": false}, map[string]bool{"v1": true, "v2": false}, false},
 		{`{"v1": true, "v2": false}`, map[string]bool{"v1": true, "v2": false}, false},
 
-		// errors
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{"", nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToStringMapBoolE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil, errmsg)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil, errmsg)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToStringMapBool(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runMapTests(t, testCases, cast.ToStringMapBool, cast.ToStringMapBoolE)
 }
 
-func TestToStringMapIntE(t *testing.T) {
-	c := qt.New(t)
-
-	tests := []struct {
-		input  interface{}
-		expect map[string]int
-		iserr  bool
-	}{
-		{map[interface{}]interface{}{"v1": 1, "v2": 222}, map[string]int{"v1": 1, "v2": 222}, false},
-		{map[string]interface{}{"v1": 342, "v2": 5141}, map[string]int{"v1": 342, "v2": 5141}, false},
+func TestStringMapInt(t *testing.T) {
+	testCases := []testCase{
+		{map[any]any{"v1": 1, "v2": 222}, map[string]int{"v1": 1, "v2": 222}, false},
+		{map[string]any{"v1": 342, "v2": 5141}, map[string]int{"v1": 342, "v2": 5141}, false},
 		{map[string]int{"v1": 33, "v2": 88}, map[string]int{"v1": 33, "v2": 88}, false},
 		{map[string]int32{"v1": int32(33), "v2": int32(88)}, map[string]int{"v1": 33, "v2": 88}, false},
 		{map[string]uint16{"v1": uint16(33), "v2": uint16(88)}, map[string]int{"v1": 33, "v2": 88}, false},
 		{map[string]float64{"v1": float64(8.22), "v2": float64(43.32)}, map[string]int{"v1": 8, "v2": 43}, false},
 		{`{"v1": 67, "v2": 56}`, map[string]int{"v1": 67, "v2": 56}, false},
 
-		// errors
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{"", nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToStringMapIntE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil, errmsg)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil, errmsg)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToStringMapInt(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runMapTests(t, testCases, cast.ToStringMapInt, cast.ToStringMapIntE)
 }
 
-func TestToStringMapInt64E(t *testing.T) {
-	c := qt.New(t)
-
-	tests := []struct {
-		input  interface{}
-		expect map[string]int64
-		iserr  bool
-	}{
-		{map[interface{}]interface{}{"v1": int32(8), "v2": int32(888)}, map[string]int64{"v1": int64(8), "v2": int64(888)}, false},
-		{map[string]interface{}{"v1": int64(45), "v2": int64(67)}, map[string]int64{"v1": 45, "v2": 67}, false},
+func TestStringMapInt64(t *testing.T) {
+	testCases := []testCase{
+		{map[any]any{"v1": int32(8), "v2": int32(888)}, map[string]int64{"v1": int64(8), "v2": int64(888)}, false},
+		{map[string]any{"v1": int64(45), "v2": int64(67)}, map[string]int64{"v1": 45, "v2": 67}, false},
 		{map[string]int64{"v1": 33, "v2": 88}, map[string]int64{"v1": 33, "v2": 88}, false},
 		{map[string]int{"v1": 33, "v2": 88}, map[string]int64{"v1": 33, "v2": 88}, false},
 		{map[string]int32{"v1": int32(33), "v2": int32(88)}, map[string]int64{"v1": 33, "v2": 88}, false},
@@ -219,73 +254,37 @@ func TestToStringMapInt64E(t *testing.T) {
 		{map[string]float64{"v1": float64(8.22), "v2": float64(43.32)}, map[string]int64{"v1": 8, "v2": 43}, false},
 		{`{"v1": 67, "v2": 56}`, map[string]int64{"v1": 67, "v2": 56}, false},
 
-		// errors
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{"", nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToStringMapInt64E(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToStringMapInt64(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runMapTests(t, testCases, cast.ToStringMapInt64, cast.ToStringMapInt64E)
 }
 
-func TestToStringMapStringE(t *testing.T) {
-	c := qt.New(t)
-
+func TestStringMapString(t *testing.T) {
 	var stringMapString = map[string]string{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
-	var stringMapInterface = map[string]interface{}{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
-	var interfaceMapString = map[interface{}]string{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
-	var interfaceMapInterface = map[interface{}]interface{}{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
+	var stringMapInterface = map[string]any{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
+	var interfaceMapString = map[any]string{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
+	var interfaceMapInterface = map[any]any{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}
 	var jsonString = `{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"}`
 	var invalidJsonString = `{"key 1": "value 1", "key 2": "value 2", "key 3": "value 3"`
 	var emptyString = ""
 
-	tests := []struct {
-		input  interface{}
-		expect map[string]string
-		iserr  bool
-	}{
+	testCases := []testCase{
 		{stringMapString, stringMapString, false},
 		{stringMapInterface, stringMapString, false},
 		{interfaceMapString, stringMapString, false},
 		{interfaceMapInterface, stringMapString, false},
 		{jsonString, stringMapString, false},
 
-		// errors
+		// Failure cases
 		{nil, nil, true},
 		{testing.T{}, nil, true},
 		{invalidJsonString, nil, true},
 		{emptyString, nil, true},
 	}
 
-	for i, test := range tests {
-		errmsg := qt.Commentf("i = %d", i) // assert helper message
-
-		v, err := ToStringMapStringE(test.input)
-		if test.iserr {
-			c.Assert(err, qt.IsNotNil)
-			continue
-		}
-
-		c.Assert(err, qt.IsNil)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-
-		// Non-E test
-		v = ToStringMapString(test.input)
-		c.Assert(v, qt.DeepEquals, test.expect, errmsg)
-	}
+	runMapTests(t, testCases, cast.ToStringMapString, cast.ToStringMapStringE)
 }
