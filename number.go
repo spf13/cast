@@ -183,6 +183,10 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 
 		return T(s.Float64()), nil
 	default:
+		if i, ok := resolveAlias(i); ok {
+			return toNumberE(i, parseFn)
+		}
+
 		return 0, fmt.Errorf(errorMsg, i, i, n)
 	}
 }
@@ -333,6 +337,10 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 
 		return T(v), nil
 	default:
+		if i, ok := resolveAlias(i); ok {
+			return toUnsignedNumberE(i, parseFn)
+		}
+
 		return 0, fmt.Errorf(errorMsg, i, i, n)
 	}
 }

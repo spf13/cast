@@ -58,6 +58,10 @@ func ToBoolE(i any) (bool, error) {
 
 		return false, fmt.Errorf(errorMsg, i, i, false)
 	default:
+		if i, ok := resolveAlias(i); ok {
+			return ToBoolE(i)
+		}
+
 		return false, fmt.Errorf(errorMsg, i, i, false)
 	}
 }
@@ -114,7 +118,11 @@ func ToStringE(i any) (string, error) {
 	case error:
 		return s.Error(), nil
 	default:
-		if i, ok := indirect(s); ok {
+		if i, ok := indirect(i); ok {
+			return ToStringE(i)
+		}
+
+		if i, ok := resolveAlias(i); ok {
 			return ToStringE(i)
 		}
 

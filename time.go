@@ -88,6 +88,10 @@ func ToDurationE(i any) (time.Duration, error) {
 
 		return time.ParseDuration(s)
 	default:
+		if i, ok := resolveAlias(i); ok {
+			return ToDurationE(i)
+		}
+
 		return 0, fmt.Errorf(errorMsg, i, i, time.Duration(0))
 	}
 }
