@@ -34,6 +34,8 @@ func TestAlias(t *testing.T) {
 	type MyFloat32 float32
 	type MyFloat64 float64
 
+	var myStruct *MyStruct
+
 	testCases := []struct {
 		input         any
 		expectedValue any
@@ -41,6 +43,9 @@ func TestAlias(t *testing.T) {
 	}{
 		{"string", "string", false},     // Already resolved
 		{MyStruct{}, MyStruct{}, false}, // Non-resolvable
+		{nil, nil, false},
+		{&MyStruct{}, &MyStruct{}, false},
+		{myStruct, myStruct, false},
 
 		{MyString("string"), "string", true},
 		{MyOtherString("string"), "string", true},
