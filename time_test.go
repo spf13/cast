@@ -66,6 +66,8 @@ func TestTime(t *testing.T) {
 }
 
 func TestDuration(t *testing.T) {
+	type MyDuration time.Duration
+
 	var expected time.Duration = 5
 
 	testCases := []testCase{
@@ -91,6 +93,11 @@ func TestDuration(t *testing.T) {
 		{string("5s"), time.Second * expected, false},
 		{string("5m"), time.Minute * expected, false},
 		{string("5h"), time.Hour * expected, false},
+
+		// Aliases
+		{MyInt(5), expected, false},
+		{MyString("5"), expected, false},
+		{MyDuration(5), expected, false},
 
 		// Failure cases
 		{"test", time.Duration(0), true},

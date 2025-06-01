@@ -223,3 +223,19 @@ func BenchmarkCast(b *testing.B) {
 		}
 	})
 }
+
+// Alias types for alias testing
+type MyString string
+type MyBool bool
+type MyInt int
+type MyInt8 int8
+type MyInt16 int16
+type MyInt32 int32
+type MyInt64 int64
+type MyUint uint
+type MyUint8 uint8
+type MyUint16 uint16
+type MyUint32 uint32
+type MyUint64 uint64
+type MyFloat32 float32
+type MyFloat64 float64

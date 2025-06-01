@@ -77,6 +77,10 @@ func TestBool(t *testing.T) {
 		{int32(-1), true, false},
 		{int64(-1), true, false},
 
+		// Alias
+		{MyBool(true), true, false},
+		{MyBool(false), false, false},
+
 		// Failure cases
 		{"test", false, true},
 		{testing.T{}, false, true},
@@ -124,6 +128,10 @@ func TestString(t *testing.T) {
 		{template.CSS("a"), "a", false},
 		{template.HTMLAttr("a"), "a", false},
 
+		// Alias
+		{MyString("foo"), "foo", false},
+
+		// Stringer and error
 		{foo{val: "bar"}, "bar", false},
 		{fu{val: "bar"}, "bar", false},
 
