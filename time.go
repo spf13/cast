@@ -53,6 +53,8 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 		return time.Unix(int64(v), 0), nil
 	case uint64:
 		return time.Unix(int64(v), 0), nil
+	case nil:
+		return time.Time{}, nil
 	default:
 		return time.Time{}, fmt.Errorf(errorMsg, i, i, time.Time{})
 	}
@@ -87,6 +89,8 @@ func ToDurationE(i any) (time.Duration, error) {
 		}
 
 		return time.ParseDuration(s)
+	case nil:
+		return time.Duration(0), nil
 	default:
 		if i, ok := resolveAlias(i); ok {
 			return ToDurationE(i)

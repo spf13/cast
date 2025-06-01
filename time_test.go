@@ -19,6 +19,8 @@ import (
 )
 
 func TestTime(t *testing.T) {
+	var ptr *time.Time
+
 	testCases := []testCase{
 		{"2009-11-10 23:00:00 +0000 UTC", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC), false},   // Time.String()
 		{"Tue Nov 10 23:00:00 2009", time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC), false},        // ANSIC
@@ -56,6 +58,8 @@ func TestTime(t *testing.T) {
 		{json.Number("1234567890"), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 
+		{ptr, time.Time{}, false},
+
 		// Failure cases
 		{"2006", time.Time{}, true},
 		{json.Number("123.4567890"), time.Time{}, true},
@@ -67,6 +71,8 @@ func TestTime(t *testing.T) {
 
 func TestDuration(t *testing.T) {
 	type MyDuration time.Duration
+
+	var ptr *time.Duration
 
 	var expected time.Duration = 5
 
@@ -93,6 +99,9 @@ func TestDuration(t *testing.T) {
 		{string("5s"), time.Second * expected, false},
 		{string("5m"), time.Minute * expected, false},
 		{string("5h"), time.Hour * expected, false},
+
+		{0, time.Duration(0), false},
+		{ptr, time.Duration(0), false},
 
 		// Aliases
 		{MyInt(5), expected, false},
