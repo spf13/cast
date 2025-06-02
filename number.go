@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -149,22 +150,22 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 		}
 
 		v, err := parseFn(s)
-		if err == nil {
-			return v, nil
+		if err != nil {
+			return 0, fmt.Errorf(errorMsgWith, i, i, n, err)
 		}
 
-		return 0, fmt.Errorf(errorMsg, i, i, n)
+		return v, nil
 	case json.Number:
 		if s == "" {
 			return 0, nil
 		}
 
 		v, err := parseFn(string(s))
-		if err == nil {
-			return v, nil
+		if err != nil {
+			return 0, fmt.Errorf(errorMsgWith, i, i, n, err)
 		}
 
-		return 0, fmt.Errorf(errorMsg, i, i, n)
+		return v, nil
 	case float64EProvider:
 		if _, ok := any(n).(float64); !ok {
 			return 0, fmt.Errorf(errorMsg, i, i, n)
@@ -293,22 +294,22 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 		}
 
 		v, err := parseFn(s)
-		if err == nil {
-			return v, nil
+		if err != nil {
+			return 0, fmt.Errorf(errorMsgWith, i, i, n, err)
 		}
 
-		return 0, fmt.Errorf(errorMsg, i, i, n)
+		return v, nil
 	case json.Number:
 		if s == "" {
 			return 0, nil
 		}
 
 		v, err := parseFn(string(s))
-		if err == nil {
-			return v, nil
+		if err != nil {
+			return 0, fmt.Errorf(errorMsgWith, i, i, n, err)
 		}
 
-		return 0, fmt.Errorf(errorMsg, i, i, n)
+		return v, nil
 	case float64EProvider:
 		if _, ok := any(n).(float64); !ok {
 			return 0, fmt.Errorf(errorMsg, i, i, n)
@@ -413,7 +414,7 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(trimDecimal(s), 0, 0)
+	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
 	if err != nil {
 		return 0, err
 	}
@@ -520,13 +521,28 @@ func trimZeroDecimal(s string) string {
 	return s
 }
 
-// trimming decimals seems significantly faster than parsing to float first
-//
-// see BenchmarkDecimal
+var stringNumberRe = regexp.MustCompile(`^([-+]?\d*)(\.\d*)?$`)
+
+// see [BenchmarkDecimal] for details about the implementation
 func trimDecimal(s string) string {
-	// trim the decimal part (if any)
-	if i := strings.Index(s, "."); i >= 0 {
-		s = s[:i]
+	if !strings.Contains(s, ".") {
+		return s
+	}
+
+	matches := stringNumberRe.FindStringSubmatch(s)
+	if matches != nil {
+		// matches[1] is the captured integer part with sign
+		s = matches[1]
+
+		// handle special cases
+		switch s {
+		case "-", "+":
+			s += "0"
+		case "":
+			s = "0"
+		}
+
+		return s
 	}
 
 	return s

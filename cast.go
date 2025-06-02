@@ -9,6 +9,7 @@ package cast
 import "time"
 
 const errorMsg = "unable to cast %#v of type %T to %T"
+const errorMsgWith = "unable to cast %#v of type %T to %T: %w"
 
 // Basic is a type parameter constraint for functions accepting basic types.
 //

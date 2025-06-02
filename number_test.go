@@ -150,6 +150,8 @@ var numberContexts = map[string]numberContext{
 	},
 }
 
+// TODO: separate test and failure cases?
+// Kinda hard to track cases right now.
 func generateNumberTestCases(samples []any) []testCase {
 	zero := samples[0]
 	one := samples[1]
@@ -169,7 +171,9 @@ func generateNumberTestCases(samples []any) []testCase {
 	_ = overflowString
 
 	kind := reflect.TypeOf(zero).Kind()
+	isSint := kind == reflect.Int || kind == reflect.Int8 || kind == reflect.Int16 || kind == reflect.Int32 || kind == reflect.Int64
 	isUint := kind == reflect.Uint || kind == reflect.Uint8 || kind == reflect.Uint16 || kind == reflect.Uint32 || kind == reflect.Uint64
+	isInt := isSint || isUint
 
 	// Some precision is lost when converting from float64 to float32.
 	eightPoint31_32 := eightPoint31
@@ -231,6 +235,27 @@ func generateNumberTestCases(samples []any) []testCase {
 		// Failure cases
 		{"test", zero, true},
 		{testing.T{}, zero, true},
+
+		{"10...17", zero, true},
+		{"10.foobar", zero, true},
+		{"10.0i", zero, true},
+	}
+
+	if isInt {
+		testCases = append(
+			testCases,
+
+			testCase{".5", zero, false},
+			testCase{"+8.", eight, false},
+			testCase{"+.25", zero, false},
+			testCase{"-.25", zero, isUint},
+
+			testCase{"10.0E9", zero, true},
+		)
+	} else if kind == reflect.Float32 {
+		testCases = append(testCases, testCase{"10.0E9", float32(10000000000.000000), false})
+	} else if kind == reflect.Float64 {
+		testCases = append(testCases, testCase{"10.0E9", float64(10000000000.000000), false})
 	}
 
 	if isUint && underflowString != nil {
