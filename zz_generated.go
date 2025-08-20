@@ -6,20 +6,32 @@ import "time"
 
 // ToBool casts any value to a(n) bool type.
 func ToBool(i any) bool {
-	v, _ := ToBoolE(i)
-	return v
+	return To[bool](i)
+}
+
+// ToBoolP casts any value to a(n) bool type with fallback function.
+func ToBoolP(fn func(any) (bool, error), i any) bool {
+	return ToP[bool](fn, i)
 }
 
 // ToString casts any value to a(n) string type.
 func ToString(i any) string {
-	v, _ := ToStringE(i)
-	return v
+	return To[string](i)
+}
+
+// ToStringP casts any value to a(n) string type with fallback function.
+func ToStringP(fn func(any) (string, error), i any) string {
+	return ToP[string](fn, i)
 }
 
 // ToTime casts any value to a(n) time.Time type.
 func ToTime(i any) time.Time {
-	v, _ := ToTimeE(i)
-	return v
+	return To[time.Time](i)
+}
+
+// ToTimeP casts any value to a(n) time.Time type with fallback function.
+func ToTimeP(fn func(any) (time.Time, error), i any) time.Time {
+	return ToP[time.Time](fn, i)
 }
 
 // ToTimeInDefaultLocation casts any value to a(n) time.Time type.
@@ -28,87 +40,151 @@ func ToTimeInDefaultLocation(i any, location *time.Location) time.Time {
 	return v
 }
 
+// ToTimeInDefaultLocationP casts any value to a(n) time.Time type with fallback function.
+func ToTimeInDefaultLocationP(fn func(any, *time.Location) (time.Time, error), i any, location *time.Location) time.Time {
+	v, _ := ToTimeInDefaultLocationPE(fn, i, location)
+	return v
+}
+
 // ToDuration casts any value to a(n) time.Duration type.
 func ToDuration(i any) time.Duration {
-	v, _ := ToDurationE(i)
-	return v
+	return To[time.Duration](i)
+}
+
+// ToDurationP casts any value to a(n) time.Duration type with fallback function.
+func ToDurationP(fn func(any) (time.Duration, error), i any) time.Duration {
+	return ToP[time.Duration](fn, i)
 }
 
 // ToInt casts any value to a(n) int type.
 func ToInt(i any) int {
-	v, _ := ToIntE(i)
-	return v
+	return To[int](i)
+}
+
+// ToIntP casts any value to a(n) int type with fallback function.
+func ToIntP(fn func(any) (int, error), i any) int {
+	return ToP[int](fn, i)
 }
 
 // ToInt8 casts any value to a(n) int8 type.
 func ToInt8(i any) int8 {
-	v, _ := ToInt8E(i)
-	return v
+	return To[int8](i)
+}
+
+// ToInt8P casts any value to a(n) int8 type with fallback function.
+func ToInt8P(fn func(any) (int8, error), i any) int8 {
+	return ToP[int8](fn, i)
 }
 
 // ToInt16 casts any value to a(n) int16 type.
 func ToInt16(i any) int16 {
-	v, _ := ToInt16E(i)
-	return v
+	return To[int16](i)
+}
+
+// ToInt16P casts any value to a(n) int16 type with fallback function.
+func ToInt16P(fn func(any) (int16, error), i any) int16 {
+	return ToP[int16](fn, i)
 }
 
 // ToInt32 casts any value to a(n) int32 type.
 func ToInt32(i any) int32 {
-	v, _ := ToInt32E(i)
-	return v
+	return To[int32](i)
+}
+
+// ToInt32P casts any value to a(n) int32 type with fallback function.
+func ToInt32P(fn func(any) (int32, error), i any) int32 {
+	return ToP[int32](fn, i)
 }
 
 // ToInt64 casts any value to a(n) int64 type.
 func ToInt64(i any) int64 {
-	v, _ := ToInt64E(i)
-	return v
+	return To[int64](i)
+}
+
+// ToInt64P casts any value to a(n) int64 type with fallback function.
+func ToInt64P(fn func(any) (int64, error), i any) int64 {
+	return ToP[int64](fn, i)
 }
 
 // ToUint casts any value to a(n) uint type.
 func ToUint(i any) uint {
-	v, _ := ToUintE(i)
-	return v
+	return To[uint](i)
+}
+
+// ToUintP casts any value to a(n) uint type with fallback function.
+func ToUintP(fn func(any) (uint, error), i any) uint {
+	return ToP[uint](fn, i)
 }
 
 // ToUint8 casts any value to a(n) uint8 type.
 func ToUint8(i any) uint8 {
-	v, _ := ToUint8E(i)
-	return v
+	return To[uint8](i)
+}
+
+// ToUint8P casts any value to a(n) uint8 type with fallback function.
+func ToUint8P(fn func(any) (uint8, error), i any) uint8 {
+	return ToP[uint8](fn, i)
 }
 
 // ToUint16 casts any value to a(n) uint16 type.
 func ToUint16(i any) uint16 {
-	v, _ := ToUint16E(i)
-	return v
+	return To[uint16](i)
+}
+
+// ToUint16P casts any value to a(n) uint16 type with fallback function.
+func ToUint16P(fn func(any) (uint16, error), i any) uint16 {
+	return ToP[uint16](fn, i)
 }
 
 // ToUint32 casts any value to a(n) uint32 type.
 func ToUint32(i any) uint32 {
-	v, _ := ToUint32E(i)
-	return v
+	return To[uint32](i)
+}
+
+// ToUint32P casts any value to a(n) uint32 type with fallback function.
+func ToUint32P(fn func(any) (uint32, error), i any) uint32 {
+	return ToP[uint32](fn, i)
 }
 
 // ToUint64 casts any value to a(n) uint64 type.
 func ToUint64(i any) uint64 {
-	v, _ := ToUint64E(i)
-	return v
+	return To[uint64](i)
+}
+
+// ToUint64P casts any value to a(n) uint64 type with fallback function.
+func ToUint64P(fn func(any) (uint64, error), i any) uint64 {
+	return ToP[uint64](fn, i)
 }
 
 // ToFloat32 casts any value to a(n) float32 type.
 func ToFloat32(i any) float32 {
-	v, _ := ToFloat32E(i)
-	return v
+	return To[float32](i)
+}
+
+// ToFloat32P casts any value to a(n) float32 type with fallback function.
+func ToFloat32P(fn func(any) (float32, error), i any) float32 {
+	return ToP[float32](fn, i)
 }
 
 // ToFloat64 casts any value to a(n) float64 type.
 func ToFloat64(i any) float64 {
-	v, _ := ToFloat64E(i)
-	return v
+	return To[float64](i)
+}
+
+// ToFloat64P casts any value to a(n) float64 type with fallback function.
+func ToFloat64P(fn func(any) (float64, error), i any) float64 {
+	return ToP[float64](fn, i)
 }
 
 // ToStringMapString casts any value to a(n) map[string]string type.
 func ToStringMapString(i any) map[string]string {
 	v, _ := ToStringMapStringE(i)
+	return v
+}
+
+// ToStringMapStringP casts any value to a(n) map[string]string type with fallback function.
+func ToStringMapStringP(fn func(any) (map[string]string, error), i any) map[string]string {
+	v, _ := ToStringMapStringPE(fn, i)
 	return v
 }
 
@@ -118,9 +194,21 @@ func ToStringMapStringSlice(i any) map[string][]string {
 	return v
 }
 
+// ToStringMapStringSliceP casts any value to a(n) map[string][]string type with fallback function.
+func ToStringMapStringSliceP(fn func(any) (map[string][]string, error), i any) map[string][]string {
+	v, _ := ToStringMapStringSlicePE(fn, i)
+	return v
+}
+
 // ToStringMapBool casts any value to a(n) map[string]bool type.
 func ToStringMapBool(i any) map[string]bool {
 	v, _ := ToStringMapBoolE(i)
+	return v
+}
+
+// ToStringMapBoolP casts any value to a(n) map[string]bool type with fallback function.
+func ToStringMapBoolP(fn func(any) (map[string]bool, error), i any) map[string]bool {
+	v, _ := ToStringMapBoolPE(fn, i)
 	return v
 }
 
@@ -130,9 +218,21 @@ func ToStringMapInt(i any) map[string]int {
 	return v
 }
 
+// ToStringMapIntP casts any value to a(n) map[string]int type with fallback function.
+func ToStringMapIntP(fn func(any) (map[string]int, error), i any) map[string]int {
+	v, _ := ToStringMapIntPE(fn, i)
+	return v
+}
+
 // ToStringMapInt64 casts any value to a(n) map[string]int64 type.
 func ToStringMapInt64(i any) map[string]int64 {
 	v, _ := ToStringMapInt64E(i)
+	return v
+}
+
+// ToStringMapInt64P casts any value to a(n) map[string]int64 type with fallback function.
+func ToStringMapInt64P(fn func(any) (map[string]int64, error), i any) map[string]int64 {
+	v, _ := ToStringMapInt64PE(fn, i)
 	return v
 }
 
@@ -142,16 +242,26 @@ func ToStringMap(i any) map[string]any {
 	return v
 }
 
+// ToStringMapP casts any value to a(n) map[string]any type with fallback function.
+func ToStringMapP(fn func(any) (map[string]any, error), i any) map[string]any {
+	v, _ := ToStringMapPE(fn, i)
+	return v
+}
+
 // ToSlice casts any value to a(n) []any type.
 func ToSlice(i any) []any {
 	v, _ := ToSliceE(i)
 	return v
 }
 
-// ToBoolSlice casts any value to a(n) []bool type.
-func ToBoolSlice(i any) []bool {
-	v, _ := ToBoolSliceE(i)
-	return v
+// ToSliceP casts any value to a(n) []any type with fallback function.
+func ToSliceP(fn func(any) ([]any, error), i any) []any {
+	v, err := ToSliceE(i)
+	if err == nil || fn == nil {
+		return v
+	}
+	result, _ := fn(i)
+	return result
 }
 
 // ToStringSlice casts any value to a(n) []string type.
@@ -160,33 +270,19 @@ func ToStringSlice(i any) []string {
 	return v
 }
 
-// ToIntSlice casts any value to a(n) []int type.
-func ToIntSlice(i any) []int {
-	v, _ := ToIntSliceE(i)
-	return v
+// ToStringSliceP casts any value to a(n) []string type with fallback function.
+func ToStringSliceP(fn func(any) ([]string, error), i any) []string {
+	v, err := ToStringSliceE(i)
+	if err == nil || fn == nil {
+		return v
+	}
+	result, _ := fn(i)
+	return result
 }
 
-// ToInt64Slice casts any value to a(n) []int64 type.
-func ToInt64Slice(i any) []int64 {
-	v, _ := ToInt64SliceE(i)
-	return v
-}
-
-// ToUintSlice casts any value to a(n) []uint type.
-func ToUintSlice(i any) []uint {
-	v, _ := ToUintSliceE(i)
-	return v
-}
-
-// ToFloat64Slice casts any value to a(n) []float64 type.
-func ToFloat64Slice(i any) []float64 {
-	v, _ := ToFloat64SliceE(i)
-	return v
-}
-
-// ToDurationSlice casts any value to a(n) []time.Duration type.
-func ToDurationSlice(i any) []time.Duration {
-	v, _ := ToDurationSliceE(i)
+// ToBoolSlice casts any value to a(n) []bool type.
+func ToBoolSlice(i any) []bool {
+	v, _ := ToBoolSliceE(i)
 	return v
 }
 
@@ -195,9 +291,20 @@ func ToBoolSliceE(i any) ([]bool, error) {
 	return toSliceE[bool](i)
 }
 
-// ToDurationSliceE casts any value to a(n) []time.Duration type.
-func ToDurationSliceE(i any) ([]time.Duration, error) {
-	return toSliceE[time.Duration](i)
+// ToBoolSliceP casts any value to a(n) []bool type with fallback function.
+func ToBoolSliceP(fn func(any) ([]bool, error), i any) []bool {
+	v, err := ToBoolSliceE(i)
+	if err == nil || fn == nil {
+		return v
+	}
+	result, _ := fn(i)
+	return result
+}
+
+// ToIntSlice casts any value to a(n) []int type.
+func ToIntSlice(i any) []int {
+	v, _ := ToIntSliceE(i)
+	return v
 }
 
 // ToIntSliceE casts any value to a(n) []int type.
@@ -205,19 +312,20 @@ func ToIntSliceE(i any) ([]int, error) {
 	return toSliceE[int](i)
 }
 
-// ToInt8SliceE casts any value to a(n) []int8 type.
-func ToInt8SliceE(i any) ([]int8, error) {
-	return toSliceE[int8](i)
+// ToIntSliceP casts any value to a(n) []int type with fallback function.
+func ToIntSliceP(fn func(any) ([]int, error), i any) []int {
+	v, err := ToIntSliceE(i)
+	if err == nil || fn == nil {
+		return v
+	}
+	result, _ := fn(i)
+	return result
 }
 
-// ToInt16SliceE casts any value to a(n) []int16 type.
-func ToInt16SliceE(i any) ([]int16, error) {
-	return toSliceE[int16](i)
-}
-
-// ToInt32SliceE casts any value to a(n) []int32 type.
-func ToInt32SliceE(i any) ([]int32, error) {
-	return toSliceE[int32](i)
+// ToInt64Slice casts any value to a(n) []int64 type.
+func ToInt64Slice(i any) []int64 {
+	v, _ := ToInt64SliceE(i)
+	return v
 }
 
 // ToInt64SliceE casts any value to a(n) []int64 type.
@@ -225,37 +333,75 @@ func ToInt64SliceE(i any) ([]int64, error) {
 	return toSliceE[int64](i)
 }
 
+// ToInt64SliceP casts any value to a(n) []int64 type with fallback function.
+func ToInt64SliceP(fn func(any) ([]int64, error), i any) []int64 {
+	v, err := ToInt64SliceE(i)
+	if err == nil || fn == nil {
+		return v
+	}
+	result, _ := fn(i)
+	return result
+}
+
+// ToUintSlice casts any value to a(n) []uint type.
+func ToUintSlice(i any) []uint {
+	v, _ := ToUintSliceE(i)
+	return v
+}
+
 // ToUintSliceE casts any value to a(n) []uint type.
 func ToUintSliceE(i any) ([]uint, error) {
 	return toSliceE[uint](i)
 }
 
-// ToUint8SliceE casts any value to a(n) []uint8 type.
-func ToUint8SliceE(i any) ([]uint8, error) {
-	return toSliceE[uint8](i)
+// ToUintSliceP casts any value to a(n) []uint type with fallback function.
+func ToUintSliceP(fn func(any) ([]uint, error), i any) []uint {
+	v, err := ToUintSliceE(i)
+	if err == nil || fn == nil {
+		return v
+	}
+	result, _ := fn(i)
+	return result
 }
 
-// ToUint16SliceE casts any value to a(n) []uint16 type.
-func ToUint16SliceE(i any) ([]uint16, error) {
-	return toSliceE[uint16](i)
-}
-
-// ToUint32SliceE casts any value to a(n) []uint32 type.
-func ToUint32SliceE(i any) ([]uint32, error) {
-	return toSliceE[uint32](i)
-}
-
-// ToUint64SliceE casts any value to a(n) []uint64 type.
-func ToUint64SliceE(i any) ([]uint64, error) {
-	return toSliceE[uint64](i)
-}
-
-// ToFloat32SliceE casts any value to a(n) []float32 type.
-func ToFloat32SliceE(i any) ([]float32, error) {
-	return toSliceE[float32](i)
+// ToFloat64Slice casts any value to a(n) []float64 type.
+func ToFloat64Slice(i any) []float64 {
+	v, _ := ToFloat64SliceE(i)
+	return v
 }
 
 // ToFloat64SliceE casts any value to a(n) []float64 type.
 func ToFloat64SliceE(i any) ([]float64, error) {
 	return toSliceE[float64](i)
+}
+
+// ToFloat64SliceP casts any value to a(n) []float64 type with fallback function.
+func ToFloat64SliceP(fn func(any) ([]float64, error), i any) []float64 {
+	v, err := ToFloat64SliceE(i)
+	if err == nil || fn == nil {
+		return v
+	}
+	result, _ := fn(i)
+	return result
+}
+
+// ToDurationSlice casts any value to a(n) []time.Duration type.
+func ToDurationSlice(i any) []time.Duration {
+	v, _ := ToDurationSliceE(i)
+	return v
+}
+
+// ToDurationSliceE casts any value to a(n) []time.Duration type.
+func ToDurationSliceE(i any) ([]time.Duration, error) {
+	return toSliceE[time.Duration](i)
+}
+
+// ToDurationSliceP casts any value to a(n) []time.Duration type with fallback function.
+func ToDurationSliceP(fn func(any) ([]time.Duration, error), i any) []time.Duration {
+	v, err := ToDurationSliceE(i)
+	if err == nil || fn == nil {
+		return v
+	}
+	result, _ := fn(i)
+	return result
 }

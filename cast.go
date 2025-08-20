@@ -82,3 +82,18 @@ func To[T Basic](i any) T {
 
 	return v
 }
+
+// ToPE plus casts any value to a [Basic] type with fallback function.
+func ToPE[T Basic](fn func(any) (T, error), i any) (T, error) {
+	v, err := ToE[T](i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
+// ToP plus casts any value to a [Basic] type with fallback function.
+func ToP[T Basic](fn func(any) (T, error), i any) T {
+	v, _ := ToPE[T](fn, i)
+	return v
+}
