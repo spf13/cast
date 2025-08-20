@@ -222,3 +222,57 @@ func jsonStringToObject(s string, v any) error {
 	data := []byte(s)
 	return json.Unmarshal(data, v)
 }
+
+// ToStringMapStringPE plus casts any value to a map[string]string type.
+func ToStringMapStringPE(fn func(any) (map[string]string, error), i any) (map[string]string, error) {
+	v, err := ToStringMapStringE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
+// ToStringMapStringSlicePE plus casts any value to a map[string][]string type.
+func ToStringMapStringSlicePE(fn func(any) (map[string][]string, error), i any) (map[string][]string, error) {
+	v, err := ToStringMapStringSliceE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
+// ToStringMapBoolPE plus casts any value to a map[string]bool type.
+func ToStringMapBoolPE(fn func(any) (map[string]bool, error), i any) (map[string]bool, error) {
+	v, err := ToStringMapBoolE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
+// ToStringMapPE plus casts any value to a map[string]any type.
+func ToStringMapPE(fn func(any) (map[string]any, error), i any) (map[string]any, error) {
+	v, err := ToStringMapE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
+// ToStringMapIntPE plus casts any value to a map[string]int type.
+func ToStringMapIntPE(fn func(any) (map[string]int, error), i any) (map[string]int, error) {
+	v, err := ToStringMapIntE(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}
+
+// ToStringMapInt64PE plus casts any value to a map[string]int64 type.
+func ToStringMapInt64PE(fn func(any) (map[string]int64, error), i any) (map[string]int64, error) {
+	v, err := ToStringMapInt64E(i)
+	if err == nil || fn == nil {
+		return v, err
+	}
+	return fn(i)
+}

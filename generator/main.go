@@ -75,8 +75,10 @@ func main() {
 	for _, fn := range toFuncs {
 		if fn.name == "ToTimeInDefaultLocation" {
 			toFuncWithParams(file, fn.name, fn.returnType, Id("location").Op("*").Qual("time", "Location"))
+			toPFuncWithParams(file, fn.name, fn.returnType, Id("location").Op("*").Qual("time", "Location"))
 		} else {
 			toFunc(file, fn.name, fn.returnType)
+			toPFunc(file, fn.name, fn.returnType)
 		}
 	}
 
@@ -114,6 +116,44 @@ func toFuncWithParams(file *File, funcName string, returnType *Statement, args .
 			}
 
 			g.List(varV, Id("_")).Op(":=").Id(funcName + "E").Call(arguments...)
+			g.Return(varV)
+		})
+}
+
+func toPFunc(file *File, funcName string, returnType *Statement) {
+	toPFuncWithParams(file, funcName, returnType)
+}
+
+func toPFuncWithParams(file *File, funcName string, returnType *Statement, args ...*Statement) {
+	pFuncName := funcName + "P"
+	file.Comment(fmt.Sprintf("%s casts any value to a(n) %s type with fallback function.", pFuncName, returnType.GoString()))
+
+	varI := Id("i")
+	varFn := Id("fn")
+
+	// Build function signature for the fallback function
+	fnParams := []Code{varI.Clone().Any()}
+	for _, arg := range args {
+		fnParams = append(fnParams, arg.Clone())
+	}
+	fnType := Func().Params(fnParams...).Params(returnType, Error())
+
+	arguments := []Code{varFn.Clone().Add(fnType), varI.Clone().Any()}
+	for _, arg := range args {
+		arguments = append(arguments, arg)
+	}
+
+	file.Func().
+		Id(pFuncName).Params(arguments...).Params(returnType).
+		BlockFunc(func(g *Group) {
+			varV := Id("v")
+
+			callArgs := []Code{varFn, varI}
+			for _, arg := range args {
+				callArgs = append(callArgs, (*arg)[0])
+			}
+
+			g.List(varV, Id("_")).Op(":=").Id(funcName + "PE").Call(callArgs...)
 			g.Return(varV)
 		})
 }
