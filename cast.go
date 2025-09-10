@@ -61,6 +61,8 @@ func ToE[T Basic](i any) (T, error) {
 		v, err = ToTimeE(i)
 	case time.Duration:
 		v, err = ToDurationE(i)
+	default:
+		return t, fmt.Errorf("unknown basic type: %T", t)
 	}
 
 	if err != nil {
@@ -70,15 +72,6 @@ func ToE[T Basic](i any) (T, error) {
 	return v.(T), nil
 }
 
-// Must is a helper that wraps a call to a cast function and panics if the error is non-nil.
-func Must[T any](i any, err error) T {
-	if err != nil {
-		panic(err)
-	}
-
-	return i.(T)
-}
-
 // To casts any value to a [Basic] type.
 func To[T Basic](i any) T {
 	v, _ := ToE[T](i)
@@ -86,127 +79,17 @@ func To[T Basic](i any) T {
 	return v
 }
 
-// ValueSetter is an interface that types can implement to provide custom conversion logic.
-// When ToValue is called with a pointer to a type that implements ValueSetter,
-// the SetValue method will be called to perform the conversion.
-type ValueSetter interface {
-	SetValue(any) error
+// Must panics if there is an error, otherwise returns the value.
+func Must[T any](v T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+	return v
 }
 
-// ToValue attempts to convert a value and assign it to the target.
-// If target implements ValueSetter, it will use the custom conversion logic.
-// Otherwise, it falls back to standard cast conversion based on the target type.
-func ToValue(target any, value any) error {
-	if target == nil {
-		return fmt.Errorf("target cannot be nil")
-	}
-
-	// Check if target implements ValueSetter
-	if setter, ok := target.(ValueSetter); ok {
-		return setter.SetValue(value)
-	}
-
-	// Use reflection-like approach based on target type
-	switch t := target.(type) {
-	case *string:
-		v, err := ToStringE(value)
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *bool:
-		v, err := ToBoolE(value)
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *int:
-		v, err := toNumberE[int](value, parseInt[int])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *int8:
-		v, err := toNumberE[int8](value, parseInt[int8])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *int16:
-		v, err := toNumberE[int16](value, parseInt[int16])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *int32:
-		v, err := toNumberE[int32](value, parseInt[int32])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *int64:
-		v, err := toNumberE[int64](value, parseInt[int64])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *uint:
-		v, err := toUnsignedNumberE[uint](value, parseUint[uint])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *uint8:
-		v, err := toUnsignedNumberE[uint8](value, parseUint[uint8])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *uint16:
-		v, err := toUnsignedNumberE[uint16](value, parseUint[uint16])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *uint32:
-		v, err := toUnsignedNumberE[uint32](value, parseUint[uint32])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *uint64:
-		v, err := toUnsignedNumberE[uint64](value, parseUint[uint64])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *float32:
-		v, err := toNumberE[float32](value, parseFloat[float32])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *float64:
-		v, err := toNumberE[float64](value, parseFloat[float64])
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *time.Time:
-		v, err := ToTimeE(value)
-		if err != nil {
-			return err
-		}
-		*t = v
-	case *time.Duration:
-		v, err := ToDurationE(value)
-		if err != nil {
-			return err
-		}
-		*t = v
-	default:
-		return fmt.Errorf("unsupported target type %T", target)
-	}
-
-	return nil
+// ValueSetter is an interface for types that can provide custom conversion logic.
+// When a conversion function encounters a type it cannot handle in its default case,
+// it will check if the type implements ValueSetter and use it for custom conversion.
+type ValueSetter interface {
+	SetValue(any) error
 }

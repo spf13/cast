@@ -62,6 +62,13 @@ func ToBoolE(i any) (bool, error) {
 			return ToBoolE(i)
 		}
 
+		// Try custom conversion interface
+		if setter, ok := i.(ValueSetter); ok {
+			var result bool
+			err := setter.SetValue(&result)
+			return result, err
+		}
+
 		return false, fmt.Errorf(errorMsg, i, i, false)
 	}
 }
@@ -126,8 +133,13 @@ func ToStringE(i any) (string, error) {
 			return ToStringE(i)
 		}
 
+		// Try custom conversion interface
+		if setter, ok := i.(ValueSetter); ok {
+			var result string
+			err := setter.SetValue(&result)
+			return result, err
+		}
+
 		return "", fmt.Errorf(errorMsg, i, i, "")
 	}
 }
-
-
