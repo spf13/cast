@@ -222,5 +222,3 @@ func jsonStringToObject(s string, v any) error {
 	data := []byte(s)
 	return json.Unmarshal(data, v)
 }
-
-

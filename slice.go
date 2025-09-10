@@ -111,7 +111,3 @@ func ToStringSliceE(i any) ([]string, error) {
 		return nil, fmt.Errorf(errorMsg, i, i, a)
 	}
 }
-
-
-
-
