@@ -114,12 +114,3 @@ func StringToDate(s string) (time.Time, error) {
 func StringToDateInDefaultLocation(s string, location *time.Location) (time.Time, error) {
 	return internal.ParseDateWith(s, location, internal.TimeFormats)
 }
-
-// ToTimeInDefaultLocationPE plus casts any value to a time.Time type.
-func ToTimeInDefaultLocationPE(fn func(any, *time.Location) (time.Time, error), i any, location *time.Location) (time.Time, error) {
-	v, err := ToTimeInDefaultLocationE(i, location)
-	if err == nil || fn == nil {
-		return v, err
-	}
-	return fn(i, location)
-}

@@ -118,44 +118,6 @@ func toFuncWithParams(file *File, funcName string, returnType *Statement, args .
 		})
 }
 
-func toPFunc(file *File, funcName string, returnType *Statement) {
-	toPFuncWithParams(file, funcName, returnType)
-}
-
-func toPFuncWithParams(file *File, funcName string, returnType *Statement, args ...*Statement) {
-	pFuncName := funcName + "P"
-	file.Comment(fmt.Sprintf("%s casts any value to a(n) %s type with fallback function.", pFuncName, returnType.GoString()))
-
-	varI := Id("i")
-	varFn := Id("fn")
-
-	// Build function signature for the fallback function
-	fnParams := []Code{varI.Clone().Any()}
-	for _, arg := range args {
-		fnParams = append(fnParams, arg.Clone())
-	}
-	fnType := Func().Params(fnParams...).Params(returnType, Error())
-
-	arguments := []Code{varFn.Clone().Add(fnType), varI.Clone().Any()}
-	for _, arg := range args {
-		arguments = append(arguments, arg)
-	}
-
-	file.Func().
-		Id(pFuncName).Params(arguments...).Params(returnType).
-		BlockFunc(func(g *Group) {
-			varV := Id("v")
-
-			callArgs := []Code{varFn, varI}
-			for _, arg := range args {
-				callArgs = append(callArgs, (*arg)[0])
-			}
-
-			g.List(varV, Id("_")).Op(":=").Id(funcName + "PE").Call(callArgs...)
-			g.Return(varV)
-		})
-}
-
 func toSliceEFunc(file *File, typeName string, returnType *Statement) {
 	funcName := "To" + strings.ToUpper(typeName[:1]) + typeName[1:] + "SliceE"
 	sliceReturnType := Index().Add(returnType)
