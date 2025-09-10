@@ -23,3 +23,6 @@ _testmain.go
 *.test
 
 *.bench
+
+# IDE
+.idea/

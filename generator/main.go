@@ -75,10 +75,8 @@ func main() {
 	for _, fn := range toFuncs {
 		if fn.name == "ToTimeInDefaultLocation" {
 			toFuncWithParams(file, fn.name, fn.returnType, Id("location").Op("*").Qual("time", "Location"))
-			toPFuncWithParams(file, fn.name, fn.returnType, Id("location").Op("*").Qual("time", "Location"))
 		} else {
 			toFunc(file, fn.name, fn.returnType)
-			toPFunc(file, fn.name, fn.returnType)
 		}
 	}
 
