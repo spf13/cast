@@ -46,36 +46,7 @@ type float interface {
 
 // ToNumberE casts any value to a [Number] type.
 func ToNumberE[T Number](i any) (T, error) {
-	var t T
-
-	switch any(t).(type) {
-	case int:
-		return toSignedNumberE[T](i, parseNumber[T])
-	case int8:
-		return toSignedNumberE[T](i, parseNumber[T])
-	case int16:
-		return toSignedNumberE[T](i, parseNumber[T])
-	case int32:
-		return toSignedNumberE[T](i, parseNumber[T])
-	case int64:
-		return toSignedNumberE[T](i, parseNumber[T])
-	case uint:
-		return toUnsignedNumberE[T](i, parseNumber[T])
-	case uint8:
-		return toUnsignedNumberE[T](i, parseNumber[T])
-	case uint16:
-		return toUnsignedNumberE[T](i, parseNumber[T])
-	case uint32:
-		return toUnsignedNumberE[T](i, parseNumber[T])
-	case uint64:
-		return toUnsignedNumberE[T](i, parseNumber[T])
-	case float32:
-		return toSignedNumberE[T](i, parseNumber[T])
-	case float64:
-		return toSignedNumberE[T](i, parseNumber[T])
-	default:
-		return 0, fmt.Errorf("unknown number type: %T", t)
-	}
+	return toNumberE[T](i, 0)
 }
 
 // ToNumber casts any value to a [Number] type.
@@ -83,6 +54,58 @@ func ToNumber[T Number](i any) T {
 	v, _ := ToNumberE[T](i)
 
 	return v
+}
+
+// ToNumberBaseE casts any value to a [Number] type.
+//
+// For integer types the second parameter is used as a base instead of auto detection.
+func ToNumberBaseE[T Number](i any, base int) (T, error) {
+	return toNumberE[T](i, base)
+}
+
+// ToNumberBase casts any value to a [Number] type.
+//
+// For integer types the second parameter is used as a base instead of auto detection.
+func ToNumberBase[T Number](i any, base int) T {
+	v, _ := ToNumberBaseE[T](i, base)
+
+	return v
+}
+
+// toNumberE casts any value to a [Number] type.
+//
+// For integer types the second parameter is used as a base.
+func toNumberE[T Number](i any, base int) (T, error) {
+	var t T
+
+	switch any(t).(type) {
+	case int:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case int8:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case int16:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case int32:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case int64:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case uint:
+		return toUnsignedNumberE[T](i, parseNumberBase[T](base))
+	case uint8:
+		return toUnsignedNumberE[T](i, parseNumberBase[T](base))
+	case uint16:
+		return toUnsignedNumberE[T](i, parseNumberBase[T](base))
+	case uint32:
+		return toUnsignedNumberE[T](i, parseNumberBase[T](base))
+	case uint64:
+		return toUnsignedNumberE[T](i, parseNumberBase[T](base))
+	case float32:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case float64:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	default:
+		return 0, fmt.Errorf("unknown number type: %T", t)
+	}
 }
 
 // toSignedNumber's semantics differ from other "to" functions.
