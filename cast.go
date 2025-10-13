@@ -34,15 +34,15 @@ func ToE[T Basic](i any) (T, error) {
 	case bool:
 		v, err = ToBoolE(i)
 	case int:
-		v, err = toNumberE[int](i, parseInt[int](0, strconv.IntSize))
+		v, err = toSignedNumberE[int](i, parseInt[int](0, strconv.IntSize))
 	case int8:
-		v, err = toNumberE[int8](i, parseInt[int8](0, 8))
+		v, err = toSignedNumberE[int8](i, parseInt[int8](0, 8))
 	case int16:
-		v, err = toNumberE[int16](i, parseInt[int16](0, 16))
+		v, err = toSignedNumberE[int16](i, parseInt[int16](0, 16))
 	case int32:
-		v, err = toNumberE[int32](i, parseInt[int32](0, 32))
+		v, err = toSignedNumberE[int32](i, parseInt[int32](0, 32))
 	case int64:
-		v, err = toNumberE[int64](i, parseInt[int64](0, 64))
+		v, err = toSignedNumberE[int64](i, parseInt[int64](0, 64))
 	case uint:
 		v, err = toUnsignedNumberE[uint](i, parseUint[uint](0, strconv.IntSize))
 	case uint8:
@@ -54,9 +54,9 @@ func ToE[T Basic](i any) (T, error) {
 	case uint64:
 		v, err = toUnsignedNumberE[uint64](i, parseUint[uint64](0, 64))
 	case float32:
-		v, err = toNumberE[float32](i, parseFloat[float32])
+		v, err = toSignedNumberE[float32](i, parseFloat[float32])
 	case float64:
-		v, err = toNumberE[float64](i, parseFloat[float64])
+		v, err = toSignedNumberE[float64](i, parseFloat[float64])
 	case time.Time:
 		v, err = ToTimeE(i)
 	case time.Duration:
