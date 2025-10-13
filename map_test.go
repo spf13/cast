@@ -181,12 +181,12 @@ func TestStringMapStringSlice(t *testing.T) {
 		{jsonStringMapStringArray, jsonStringMapStringArrayResult, false},
 
 		// Failure cases
-		{nil, nil, true},
-		{testing.T{}, nil, true},
-		{map[any]any{"foo": testing.T{}}, nil, true},
-		{map[any]any{Key{"foo"}: "bar"}, nil, true}, // ToStringE(Key{"foo"}) should fail
-		{jsonStringMapString, nil, true},
-		{"", nil, true},
+		{nil, map[string][]string{}, true},
+		{testing.T{}, map[string][]string{}, true},
+		{map[any]any{"foo": testing.T{}}, map[string][]string{}, true},
+		{map[any]any{Key{"foo"}: "bar"}, map[string][]string{}, true}, // ToStringE(Key{"foo"}) should fail
+		{jsonStringMapString, map[string][]string{"key 1": nil, "key 2": nil}, true},
+		{"", map[string][]string{}, true},
 	}
 
 	runMapTests(t, testCases, cast.ToStringMapStringSlice, cast.ToStringMapStringSliceE)
@@ -200,9 +200,9 @@ func TestStringMap(t *testing.T) {
 		{`{"tag": "tags", "group": true}`, map[string]any{"tag": "tags", "group": true}, false},
 
 		// Failure cases
-		{nil, nil, true},
-		{testing.T{}, nil, true},
-		{"", nil, true},
+		{nil, map[string]any{}, true},
+		{testing.T{}, map[string]any{}, true},
+		{"", map[string]any{}, true},
 	}
 
 	runMapTests(t, testCases, cast.ToStringMap, cast.ToStringMapE)
@@ -216,9 +216,9 @@ func TestStringMapBool(t *testing.T) {
 		{`{"v1": true, "v2": false}`, map[string]bool{"v1": true, "v2": false}, false},
 
 		// Failure cases
-		{nil, nil, true},
-		{testing.T{}, nil, true},
-		{"", nil, true},
+		{nil, map[string]bool{}, true},
+		{testing.T{}, map[string]bool{}, true},
+		{"", map[string]bool{}, true},
 	}
 
 	runMapTests(t, testCases, cast.ToStringMapBool, cast.ToStringMapBoolE)
@@ -235,9 +235,9 @@ func TestStringMapInt(t *testing.T) {
 		{`{"v1": 67, "v2": 56}`, map[string]int{"v1": 67, "v2": 56}, false},
 
 		// Failure cases
-		{nil, nil, true},
-		{testing.T{}, nil, true},
-		{"", nil, true},
+		{nil, map[string]int{}, true},
+		{testing.T{}, map[string]int{}, true},
+		{"", map[string]int{}, true},
 	}
 
 	runMapTests(t, testCases, cast.ToStringMapInt, cast.ToStringMapIntE)
@@ -255,9 +255,9 @@ func TestStringMapInt64(t *testing.T) {
 		{`{"v1": 67, "v2": 56}`, map[string]int64{"v1": 67, "v2": 56}, false},
 
 		// Failure cases
-		{nil, nil, true},
-		{testing.T{}, nil, true},
-		{"", nil, true},
+		{nil, map[string]int64{}, true},
+		{testing.T{}, map[string]int64{}, true},
+		{"", map[string]int64{}, true},
 	}
 
 	runMapTests(t, testCases, cast.ToStringMapInt64, cast.ToStringMapInt64E)
@@ -280,10 +280,10 @@ func TestStringMapString(t *testing.T) {
 		{jsonString, stringMapString, false},
 
 		// Failure cases
-		{nil, nil, true},
-		{testing.T{}, nil, true},
-		{invalidJsonString, nil, true},
-		{emptyString, nil, true},
+		{nil, map[string]string{}, true},
+		{testing.T{}, map[string]string{}, true},
+		{invalidJsonString, map[string]string{}, true},
+		{emptyString, map[string]string{}, true},
 	}
 
 	runMapTests(t, testCases, cast.ToStringMapString, cast.ToStringMapStringE)
