@@ -369,10 +369,6 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 	}
 }
 
-func parseNumber[T Number](s string) (T, error) {
-	return parseNumberBase[T](0)(s)
-}
-
 func parseNumberBase[T Number](base int) func(s string) (T, error) {
 	return func(s string) (T, error) {
 		var t T
