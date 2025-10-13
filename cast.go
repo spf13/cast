@@ -6,7 +6,10 @@
 // Package cast provides easy and safe casting in Go.
 package cast
 
-import "time"
+import (
+	"strconv"
+	"time"
+)
 
 const errorMsg = "unable to cast %#v of type %T to %T"
 const errorMsgWith = "unable to cast %#v of type %T to %T: %w"
@@ -31,25 +34,25 @@ func ToE[T Basic](i any) (T, error) {
 	case bool:
 		v, err = ToBoolE(i)
 	case int:
-		v, err = toNumberE[int](i, parseInt[int])
+		v, err = toNumberE[int](i, parseInt[int](0, strconv.IntSize))
 	case int8:
-		v, err = toNumberE[int8](i, parseInt[int8])
+		v, err = toNumberE[int8](i, parseInt[int8](0, 8))
 	case int16:
-		v, err = toNumberE[int16](i, parseInt[int16])
+		v, err = toNumberE[int16](i, parseInt[int16](0, 16))
 	case int32:
-		v, err = toNumberE[int32](i, parseInt[int32])
+		v, err = toNumberE[int32](i, parseInt[int32](0, 32))
 	case int64:
-		v, err = toNumberE[int64](i, parseInt[int64])
+		v, err = toNumberE[int64](i, parseInt[int64](0, 64))
 	case uint:
-		v, err = toUnsignedNumberE[uint](i, parseUint[uint])
+		v, err = toUnsignedNumberE[uint](i, parseUint[uint](0, strconv.IntSize))
 	case uint8:
-		v, err = toUnsignedNumberE[uint8](i, parseUint[uint8])
+		v, err = toUnsignedNumberE[uint8](i, parseUint[uint8](0, 8))
 	case uint16:
-		v, err = toUnsignedNumberE[uint16](i, parseUint[uint16])
+		v, err = toUnsignedNumberE[uint16](i, parseUint[uint16](0, 16))
 	case uint32:
-		v, err = toUnsignedNumberE[uint32](i, parseUint[uint32])
+		v, err = toUnsignedNumberE[uint32](i, parseUint[uint32](0, 32))
 	case uint64:
-		v, err = toUnsignedNumberE[uint64](i, parseUint[uint64])
+		v, err = toUnsignedNumberE[uint64](i, parseUint[uint64](0, 64))
 	case float32:
 		v, err = toNumberE[float32](i, parseFloat[float32])
 	case float64:
