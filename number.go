@@ -347,60 +347,66 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 }
 
 func parseNumber[T Number](s string) (T, error) {
-	var t T
+	return parseNumberBase[T](0)(s)
+}
 
-	switch any(t).(type) {
-	case int:
-		v, err := parseInt[int](0, strconv.IntSize)(s)
+func parseNumberBase[T Number](base int) func(s string) (T, error) {
+	return func(s string) (T, error) {
+		var t T
 
-		return T(v), err
-	case int8:
-		v, err := parseInt[int8](0, 8)(s)
+		switch any(t).(type) {
+		case int:
+			v, err := parseInt[int](base, strconv.IntSize)(s)
 
-		return T(v), err
-	case int16:
-		v, err := parseInt[int16](0, 16)(s)
+			return T(v), err
+		case int8:
+			v, err := parseInt[int8](base, 8)(s)
 
-		return T(v), err
-	case int32:
-		v, err := parseInt[int32](0, 32)(s)
+			return T(v), err
+		case int16:
+			v, err := parseInt[int16](base, 16)(s)
 
-		return T(v), err
-	case int64:
-		v, err := parseInt[int64](0, 64)(s)
+			return T(v), err
+		case int32:
+			v, err := parseInt[int32](base, 32)(s)
 
-		return T(v), err
-	case uint:
-		v, err := parseUint[uint](0, strconv.IntSize)(s)
+			return T(v), err
+		case int64:
+			v, err := parseInt[int64](base, 64)(s)
 
-		return T(v), err
-	case uint8:
-		v, err := parseUint[uint8](0, 8)(s)
+			return T(v), err
+		case uint:
+			v, err := parseUint[uint](base, strconv.IntSize)(s)
 
-		return T(v), err
-	case uint16:
-		v, err := parseUint[uint16](0, 16)(s)
+			return T(v), err
+		case uint8:
+			v, err := parseUint[uint8](base, 8)(s)
 
-		return T(v), err
-	case uint32:
-		v, err := parseUint[uint32](0, 32)(s)
+			return T(v), err
+		case uint16:
+			v, err := parseUint[uint16](base, 16)(s)
 
-		return T(v), err
-	case uint64:
-		v, err := parseUint[uint64](0, 64)(s)
+			return T(v), err
+		case uint32:
+			v, err := parseUint[uint32](base, 32)(s)
 
-		return T(v), err
-	case float32:
-		v, err := strconv.ParseFloat(s, 32)
+			return T(v), err
+		case uint64:
+			v, err := parseUint[uint64](base, 64)(s)
 
-		return T(v), err
-	case float64:
-		v, err := strconv.ParseFloat(s, 64)
+			return T(v), err
+		case float32:
+			v, err := strconv.ParseFloat(s, 32)
 
-		return T(v), err
+			return T(v), err
+		case float64:
+			v, err := strconv.ParseFloat(s, 64)
 
-	default:
-		return 0, fmt.Errorf("unknown number type: %T", t)
+			return T(v), err
+
+		default:
+			return 0, fmt.Errorf("unknown number type: %T", t)
+		}
 	}
 }
 
