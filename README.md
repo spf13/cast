@@ -74,6 +74,31 @@ the code for a complete set.
     cast.ToInt(eight)              // 8
     cast.ToInt(nil)                // 0
 
+## Development
+
+The project uses [just](https://just.systems/) to run development tasks.
+
+> [!NOTE]
+> For an optimal developer experience, it is recommended to install [devenv](https://devenv.sh/) and [direnv](https://direnv.net/docs/installation.html).
+
+Run the test suite:
+
+```shell
+just test
+```
+
+Run linters:
+
+```shell
+just lint
+```
+
+Some linter violations can automatically be fixed:
+
+```shell
+just fmt
+```
+
 ## License
 
 The project is licensed under the [MIT License](LICENSE).
