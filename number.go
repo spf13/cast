@@ -46,36 +46,7 @@ type float interface {
 
 // ToNumberE casts any value to a [Number] type.
 func ToNumberE[T Number](i any) (T, error) {
-	var t T
-
-	switch any(t).(type) {
-	case int:
-		return toNumberE[T](i, parseNumber[T])
-	case int8:
-		return toNumberE[T](i, parseNumber[T])
-	case int16:
-		return toNumberE[T](i, parseNumber[T])
-	case int32:
-		return toNumberE[T](i, parseNumber[T])
-	case int64:
-		return toNumberE[T](i, parseNumber[T])
-	case uint:
-		return toUnsignedNumberE[T](i, parseNumber[T])
-	case uint8:
-		return toUnsignedNumberE[T](i, parseNumber[T])
-	case uint16:
-		return toUnsignedNumberE[T](i, parseNumber[T])
-	case uint32:
-		return toUnsignedNumberE[T](i, parseNumber[T])
-	case uint64:
-		return toUnsignedNumberE[T](i, parseNumber[T])
-	case float32:
-		return toNumberE[T](i, parseNumber[T])
-	case float64:
-		return toNumberE[T](i, parseNumber[T])
-	default:
-		return 0, fmt.Errorf("unknown number type: %T", t)
-	}
+	return toNumberE[T](i, 0)
 }
 
 // ToNumber casts any value to a [Number] type.
@@ -85,10 +56,62 @@ func ToNumber[T Number](i any) T {
 	return v
 }
 
-// toNumber's semantics differ from other "to" functions.
+// ToNumberBaseE casts any value to a [Number] type.
+//
+// For integer types the second parameter is used as a base instead of auto detection.
+func ToNumberBaseE[T Number](i any, base int) (T, error) {
+	return toNumberE[T](i, base)
+}
+
+// ToNumberBase casts any value to a [Number] type.
+//
+// For integer types the second parameter is used as a base instead of auto detection.
+func ToNumberBase[T Number](i any, base int) T {
+	v, _ := ToNumberBaseE[T](i, base)
+
+	return v
+}
+
+// toNumberE casts any value to a [Number] type.
+//
+// For integer types the second parameter is used as a base.
+func toNumberE[T Number](i any, base int) (T, error) {
+	var t T
+
+	switch any(t).(type) {
+	case int:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case int8:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case int16:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case int32:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case int64:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case uint:
+		return toUnsignedNumberE[T](i, parseNumberBase[T](base))
+	case uint8:
+		return toUnsignedNumberE[T](i, parseNumberBase[T](base))
+	case uint16:
+		return toUnsignedNumberE[T](i, parseNumberBase[T](base))
+	case uint32:
+		return toUnsignedNumberE[T](i, parseNumberBase[T](base))
+	case uint64:
+		return toUnsignedNumberE[T](i, parseNumberBase[T](base))
+	case float32:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	case float64:
+		return toSignedNumberE[T](i, parseNumberBase[T](base))
+	default:
+		return 0, fmt.Errorf("unknown number type: %T", t)
+	}
+}
+
+// toSignedNumber's semantics differ from other "to" functions.
 // It returns false as the second parameter if the conversion fails.
 // This is to signal other callers that they should proceed with their own conversions.
-func toNumber[T Number](i any) (T, bool) {
+func toSignedNumber[T Number](i any) (T, bool) {
 	i, _ = indirect(i)
 
 	switch s := i.(type) {
@@ -135,8 +158,8 @@ func toNumber[T Number](i any) (T, bool) {
 	return 0, false
 }
 
-func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
-	n, ok := toNumber[T](i)
+func toSignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
+	n, ok := toSignedNumber[T](i)
 	if ok {
 		return n, nil
 	}
@@ -185,7 +208,7 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 		return T(s.Float64()), nil
 	default:
 		if i, ok := resolveAlias(i); ok {
-			return toNumberE(i, parseFn)
+			return toSignedNumberE(i, parseFn)
 		}
 
 		return 0, fmt.Errorf(errorMsg, i, i, n)
@@ -346,80 +369,86 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 	}
 }
 
-func parseNumber[T Number](s string) (T, error) {
-	var t T
+func parseNumberBase[T Number](base int) func(s string) (T, error) {
+	return func(s string) (T, error) {
+		var t T
 
-	switch any(t).(type) {
-	case int:
-		v, err := parseInt[int](s)
+		switch any(t).(type) {
+		case int:
+			v, err := parseInt[int](base, strconv.IntSize)(s)
 
-		return T(v), err
-	case int8:
-		v, err := parseInt[int8](s)
+			return T(v), err
+		case int8:
+			v, err := parseInt[int8](base, 8)(s)
 
-		return T(v), err
-	case int16:
-		v, err := parseInt[int16](s)
+			return T(v), err
+		case int16:
+			v, err := parseInt[int16](base, 16)(s)
 
-		return T(v), err
-	case int32:
-		v, err := parseInt[int32](s)
+			return T(v), err
+		case int32:
+			v, err := parseInt[int32](base, 32)(s)
 
-		return T(v), err
-	case int64:
-		v, err := parseInt[int64](s)
+			return T(v), err
+		case int64:
+			v, err := parseInt[int64](base, 64)(s)
 
-		return T(v), err
-	case uint:
-		v, err := parseUint[uint](s)
+			return T(v), err
+		case uint:
+			v, err := parseUint[uint](base, strconv.IntSize)(s)
 
-		return T(v), err
-	case uint8:
-		v, err := parseUint[uint8](s)
+			return T(v), err
+		case uint8:
+			v, err := parseUint[uint8](base, 8)(s)
 
-		return T(v), err
-	case uint16:
-		v, err := parseUint[uint16](s)
+			return T(v), err
+		case uint16:
+			v, err := parseUint[uint16](base, 16)(s)
 
-		return T(v), err
-	case uint32:
-		v, err := parseUint[uint32](s)
+			return T(v), err
+		case uint32:
+			v, err := parseUint[uint32](base, 32)(s)
 
-		return T(v), err
-	case uint64:
-		v, err := parseUint[uint64](s)
+			return T(v), err
+		case uint64:
+			v, err := parseUint[uint64](base, 64)(s)
 
-		return T(v), err
-	case float32:
-		v, err := strconv.ParseFloat(s, 32)
+			return T(v), err
+		case float32:
+			v, err := strconv.ParseFloat(s, 32)
 
-		return T(v), err
-	case float64:
-		v, err := strconv.ParseFloat(s, 64)
+			return T(v), err
+		case float64:
+			v, err := strconv.ParseFloat(s, 64)
 
-		return T(v), err
+			return T(v), err
 
-	default:
-		return 0, fmt.Errorf("unknown number type: %T", t)
+		default:
+			return 0, fmt.Errorf("unknown number type: %T", t)
+		}
 	}
 }
 
-func parseInt[T integer](s string) (T, error) {
-	v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
-	if err != nil {
-		return 0, err
-	}
+func parseInt[T integer](base int, bitSize int) func(s string) (T, error) {
+	return func(s string) (T, error) {
+		v, err := strconv.ParseInt(trimDecimal(s), base, bitSize)
+		if err != nil {
+			return 0, err
+		}
 
-	return T(v), nil
+		return T(v), nil
+	}
 }
 
-func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
-	if err != nil {
-		return 0, err
-	}
+func parseUint[T unsigned](base int, bitSize int) func(s string) (T, error) {
+	return func(s string) (T, error) {
+		v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), base, bitSize)
+		if err != nil {
+			return 0, err
+		}
 
-	return T(v), nil
+		return T(v), nil
+	}
 }
 
 func parseFloat[T float](s string) (T, error) {
@@ -444,64 +473,64 @@ func parseFloat[T float](s string) (T, error) {
 	return v.(T), err
 }
 
-// ToFloat64E casts an interface to a float64 type.
-func ToFloat64E(i any) (float64, error) {
-	return toNumberE[float64](i, parseFloat[float64])
-}
-
-// ToFloat32E casts an interface to a float32 type.
-func ToFloat32E(i any) (float32, error) {
-	return toNumberE[float32](i, parseFloat[float32])
-}
-
-// ToInt64E casts an interface to an int64 type.
-func ToInt64E(i any) (int64, error) {
-	return toNumberE[int64](i, parseInt[int64])
-}
-
-// ToInt32E casts an interface to an int32 type.
-func ToInt32E(i any) (int32, error) {
-	return toNumberE[int32](i, parseInt[int32])
-}
-
-// ToInt16E casts an interface to an int16 type.
-func ToInt16E(i any) (int16, error) {
-	return toNumberE[int16](i, parseInt[int16])
+// ToIntE casts an interface to an int type.
+func ToIntE(i any) (int, error) {
+	return toSignedNumberE[int](i, parseInt[int](0, strconv.IntSize))
 }
 
 // ToInt8E casts an interface to an int8 type.
 func ToInt8E(i any) (int8, error) {
-	return toNumberE[int8](i, parseInt[int8])
+	return toSignedNumberE[int8](i, parseInt[int8](0, 8))
 }
 
-// ToIntE casts an interface to an int type.
-func ToIntE(i any) (int, error) {
-	return toNumberE[int](i, parseInt[int])
+// ToInt16E casts an interface to an int16 type.
+func ToInt16E(i any) (int16, error) {
+	return toSignedNumberE[int16](i, parseInt[int16](0, 16))
+}
+
+// ToInt32E casts an interface to an int32 type.
+func ToInt32E(i any) (int32, error) {
+	return toSignedNumberE[int32](i, parseInt[int32](0, 32))
+}
+
+// ToInt64E casts an interface to an int64 type.
+func ToInt64E(i any) (int64, error) {
+	return toSignedNumberE[int64](i, parseInt[int64](0, 64))
 }
 
 // ToUintE casts an interface to a uint type.
 func ToUintE(i any) (uint, error) {
-	return toUnsignedNumberE[uint](i, parseUint[uint])
-}
-
-// ToUint64E casts an interface to a uint64 type.
-func ToUint64E(i any) (uint64, error) {
-	return toUnsignedNumberE[uint64](i, parseUint[uint64])
-}
-
-// ToUint32E casts an interface to a uint32 type.
-func ToUint32E(i any) (uint32, error) {
-	return toUnsignedNumberE[uint32](i, parseUint[uint32])
-}
-
-// ToUint16E casts an interface to a uint16 type.
-func ToUint16E(i any) (uint16, error) {
-	return toUnsignedNumberE[uint16](i, parseUint[uint16])
+	return toUnsignedNumberE[uint](i, parseUint[uint](0, strconv.IntSize))
 }
 
 // ToUint8E casts an interface to a uint type.
 func ToUint8E(i any) (uint8, error) {
-	return toUnsignedNumberE[uint8](i, parseUint[uint8])
+	return toUnsignedNumberE[uint8](i, parseUint[uint8](0, 8))
+}
+
+// ToUint16E casts an interface to a uint16 type.
+func ToUint16E(i any) (uint16, error) {
+	return toUnsignedNumberE[uint16](i, parseUint[uint16](0, 16))
+}
+
+// ToUint32E casts an interface to a uint32 type.
+func ToUint32E(i any) (uint32, error) {
+	return toUnsignedNumberE[uint32](i, parseUint[uint32](0, 32))
+}
+
+// ToUint64E casts an interface to a uint64 type.
+func ToUint64E(i any) (uint64, error) {
+	return toUnsignedNumberE[uint64](i, parseUint[uint64](0, 64))
+}
+
+// ToFloat32E casts an interface to a float32 type.
+func ToFloat32E(i any) (float32, error) {
+	return toSignedNumberE[float32](i, parseFloat[float32])
+}
+
+// ToFloat64E casts an interface to a float64 type.
+func ToFloat64E(i any) (float64, error) {
+	return toSignedNumberE[float64](i, parseFloat[float64])
 }
 
 func trimZeroDecimal(s string) string {
