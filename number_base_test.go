@@ -11,14 +11,14 @@ import (
 	qt "github.com/frankban/quicktest"
 )
 
-type baseTestCase struct {
+type integerBaseTestCase struct {
 	input       any
 	base        int
 	expected    any
 	expectError bool
 }
 
-func generateNumberBaseTestCases(samples []any) []baseTestCase {
+func generateIntegerBaseTestCases(samples []any) []integerBaseTestCase {
 	zero := samples[0]
 	// one := samples[1]
 	eight := samples[2]
@@ -49,7 +49,7 @@ func generateNumberBaseTestCases(samples []any) []baseTestCase {
 	// 	eightPoint31Negative_32 = float64(float32(eightPoint31Negative.(float64)))
 	// }
 
-	testCases := []baseTestCase{
+	testCases := []integerBaseTestCase{
 		{"08", 10, eight, false},
 		{"0008", 10, eight, false},
 		{"010", 8, eight, false},
@@ -61,7 +61,7 @@ func generateNumberBaseTestCases(samples []any) []baseTestCase {
 	return testCases
 }
 
-func TestNumberBase(t *testing.T) {
+func TestIntegerBase(t *testing.T) {
 	t.Parallel()
 
 	for typeName, ctx := range numberContexts {
@@ -69,14 +69,14 @@ func TestNumberBase(t *testing.T) {
 		typeName := typeName
 		ctx := ctx
 
-		if typeName == "float32" || typeName == "float64" {
+		if ctx.base == nil || ctx.baseErr == nil {
 			continue
 		}
 
 		t.Run(typeName, func(t *testing.T) {
 			t.Parallel()
 
-			testCases := generateNumberBaseTestCases(ctx.samples)
+			testCases := generateIntegerBaseTestCases(ctx.samples)
 
 			for _, testCase := range testCases {
 				// TODO: remove after minimum Go version is >=1.22

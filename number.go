@@ -32,7 +32,14 @@ type Number interface {
 	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64 | float32 | float64
 }
 
-type integer interface {
+// Integer is a type parameter constraint for functions accepting integer types.
+//
+// It represents the supported signed and unsigned integer types this package can cast to.
+type Integer interface {
+	int | int8 | int16 | int32 | int64 | uint | uint8 | uint16 | uint32 | uint64
+}
+
+type signedInteger interface {
 	int | int8 | int16 | int32 | int64
 }
 
@@ -56,18 +63,18 @@ func ToNumber[T Number](i any) T {
 	return v
 }
 
-// ToNumberBaseE casts any value to a [Number] type.
+// ToIntegerBaseE casts any value to an [Integer] type.
 //
-// For integer types the second parameter is used as a base instead of auto detection.
-func ToNumberBaseE[T Number](i any, base int) (T, error) {
+// The second parameter is used as a base instead of auto detection.
+func ToIntegerBaseE[T Integer](i any, base int) (T, error) {
 	return toNumberE[T](i, base)
 }
 
-// ToNumberBase casts any value to a [Number] type.
+// ToIntegerBase casts any value to an [Integer] type.
 //
-// For integer types the second parameter is used as a base instead of auto detection.
-func ToNumberBase[T Number](i any, base int) T {
-	v, _ := ToNumberBaseE[T](i, base)
+// The second parameter is used as a base instead of auto detection.
+func ToIntegerBase[T Integer](i any, base int) T {
+	v, _ := ToIntegerBaseE[T](i, base)
 
 	return v
 }
@@ -429,7 +436,7 @@ func parseNumberBase[T Number](base int) func(s string) (T, error) {
 	}
 }
 
-func parseInt[T integer](base int, bitSize int) func(s string) (T, error) {
+func parseInt[T signedInteger](base int, bitSize int) func(s string) (T, error) {
 	return func(s string) (T, error) {
 		v, err := strconv.ParseInt(trimDecimal(s), base, bitSize)
 		if err != nil {
