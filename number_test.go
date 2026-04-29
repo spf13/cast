@@ -262,7 +262,7 @@ func generateNumberTestCases(samples []any) []testCase {
 		testCases = append(testCases, testCase{underflowString, zero, true})
 	}
 
-	if kind == reflect.Uint64 && isUint && overflowString != nil {
+	if isUint && overflowString != nil {
 		testCases = append(testCases, testCase{overflowString, zero, true})
 	}
 
