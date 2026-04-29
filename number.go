@@ -96,14 +96,29 @@ func toNumber[T Number](i any) (T, bool) {
 	case T:
 		return s, true
 	case int:
+		if int64Overflow[T](int64(s)) {
+			return 0, false
+		}
 		return T(s), true
 	case int8:
+		if int64Overflow[T](int64(s)) {
+			return 0, false
+		}
 		return T(s), true
 	case int16:
+		if int64Overflow[T](int64(s)) {
+			return 0, false
+		}
 		return T(s), true
 	case int32:
+		if int64Overflow[T](int64(s)) {
+			return 0, false
+		}
 		return T(s), true
 	case int64:
+		if int64Overflow[T](s) {
+			return 0, false
+		}
 		return T(s), true
 	case uint:
 		return T(s), true
@@ -353,6 +368,24 @@ func float64Overflow[T Number](v float64) bool {
 		return v > float64(math.MaxUint64) || v < 0
 	case uint:
 		return v > float64(^uint(0)) || v < 0
+	}
+	return false
+}
+
+func int64Overflow[T Number](v int64) bool {
+	var t T
+	switch any(t).(type) {
+	case int8:
+		return v > math.MaxInt8 || v < math.MinInt8
+	case int16:
+		return v > math.MaxInt16 || v < math.MinInt16
+	case int32:
+		return v > math.MaxInt32 || v < math.MinInt32
+	case int64:
+		return false
+	case int:
+		maxInt := int64(^uint(0) >> 1)
+		return v > maxInt || v < -maxInt-1
 	}
 	return false
 }
