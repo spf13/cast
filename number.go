@@ -499,7 +499,7 @@ func ToUint16E(i any) (uint16, error) {
 	return toUnsignedNumberE[uint16](i, parseUint[uint16])
 }
 
-// ToUint8E casts an interface to a uint type.
+// ToUint8E casts an interface to a uint8 type.
 func ToUint8E(i any) (uint8, error) {
 	return toUnsignedNumberE[uint8](i, parseUint[uint8])
 }
