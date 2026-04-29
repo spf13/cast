@@ -258,11 +258,11 @@ func generateNumberTestCases(samples []any) []testCase {
 		testCases = append(testCases, testCase{"10.0E9", float64(10000000000.000000), false})
 	}
 
-	if isUint && underflowString != nil {
+	if (isUint || isSint) && underflowString != nil {
 		testCases = append(testCases, testCase{underflowString, zero, true})
 	}
 
-	if kind == reflect.Uint64 && isUint && overflowString != nil {
+	if (isUint || isSint) && overflowString != nil {
 		testCases = append(testCases, testCase{overflowString, zero, true})
 	}
 
