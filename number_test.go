@@ -464,3 +464,24 @@ func BenchmarkNumber(b *testing.B) {
 		})
 	}
 }
+
+func TestToUint64HexString(t *testing.T) {
+	t.Parallel()
+
+	got, err := cast.ToUint64E("882d5422d5fffff")
+	if err != nil {
+		t.Fatal(err)
+	}
+	const want uint64 = 613286979481632767
+	if got != want {
+		t.Fatalf("ToUint64E hex string: got %d, want %d", got, want)
+	}
+
+	got, err = cast.ToUint64E("0x882d5422d5fffff")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != want {
+		t.Fatalf("ToUint64E 0x hex string: got %d, want %d", got, want)
+	}
+}

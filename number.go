@@ -484,9 +484,23 @@ func ToUintE(i any) (uint, error) {
 	return toUnsignedNumberE[uint](i, parseUint[uint])
 }
 
+func parseUint64(s string) (uint64, error) {
+	s = strings.TrimLeft(trimDecimal(s), "+")
+	v, err := strconv.ParseUint(s, 0, 64)
+	if err == nil {
+		return v, nil
+	}
+	for _, r := range s {
+		if (r < '0' || r > '9') && (r < 'a' || r > 'f') && (r < 'A' || r > 'F') {
+			return 0, err
+		}
+	}
+	return strconv.ParseUint(s, 16, 64)
+}
+
 // ToUint64E casts an interface to a uint64 type.
 func ToUint64E(i any) (uint64, error) {
-	return toUnsignedNumberE[uint64](i, parseUint[uint64])
+	return toUnsignedNumberE[uint64](i, parseUint64)
 }
 
 // ToUint32E casts an interface to a uint32 type.
