@@ -114,6 +114,9 @@ func ToStringE(i any) (string, error) {
 	case nil:
 		return "", nil
 	case fmt.Stringer:
+		if stringerIsNil(s) {
+			return "", nil
+		}
 		return s.String(), nil
 	case error:
 		return s.Error(), nil

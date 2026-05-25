@@ -107,6 +107,7 @@ func TestString(t *testing.T) {
 	key := &Key{"foo"}
 
 	var ptr *string
+	var nilTime *time.Time
 
 	testCases := []testCase{
 		{int(8), "8", false},
@@ -126,6 +127,7 @@ func TestString(t *testing.T) {
 		{false, "false", false},
 		{nil, "", false},
 		{ptr, "", false},
+		{nilTime, "", false},
 		{[]byte("one time"), "one time", false},
 		{"one more time", "one more time", false},
 		{template.HTML("one time"), "one time", false},
