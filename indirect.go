@@ -6,6 +6,7 @@
 package cast
 
 import (
+	"fmt"
 	"reflect"
 )
 
@@ -34,4 +35,18 @@ func indirect(i any) (any, bool) {
 	}
 
 	return v.Interface(), true
+}
+
+func stringerIsNil(s fmt.Stringer) bool {
+	if s == nil {
+		return true
+	}
+
+	v := reflect.ValueOf(s)
+	switch v.Kind() {
+	case reflect.Interface, reflect.Ptr:
+		return v.IsNil()
+	default:
+		return false
+	}
 }
