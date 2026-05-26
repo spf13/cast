@@ -414,12 +414,38 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
-	if err != nil {
-		return 0, err
+	s = strings.TrimLeft(trimDecimal(s), "+")
+	v, err := strconv.ParseUint(s, 0, 0)
+	if err == nil {
+		return T(v), nil
+	}
+	if isLikelyHexString(s) {
+		v, err = strconv.ParseUint(s, 16, 0)
+		if err == nil {
+			return T(v), nil
+		}
 	}
 
-	return T(v), nil
+	return 0, err
+}
+
+func isLikelyHexString(s string) bool {
+	if s == "" {
+		return false
+	}
+	hasLetter := false
+	for _, r := range s {
+		switch {
+		case r >= '0' && r <= '9':
+		case r >= 'a' && r <= 'f':
+			hasLetter = true
+		case r >= 'A' && r <= 'F':
+			hasLetter = true
+		default:
+			return false
+		}
+	}
+	return hasLetter
 }
 
 func parseFloat[T float](s string) (T, error) {
