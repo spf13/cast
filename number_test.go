@@ -390,6 +390,21 @@ func TestNumber(t *testing.T) {
 	}
 }
 
+func TestIssue334_HexStringToUint64(t *testing.T) {
+	c := qt.New(t)
+
+	const hex = "882d5422d5fffff"
+	const want uint64 = 613286979481632767
+
+	c.Assert(cast.ToUint64(hex), qt.Equals, want)
+
+	got, err := cast.ToUint64E(hex)
+	c.Assert(err, qt.IsNil)
+	c.Assert(got, qt.Equals, want)
+
+	c.Assert(cast.ToUint64("0x"+hex), qt.Equals, want)
+}
+
 func BenchmarkNumber(b *testing.B) {
 	type testCase struct {
 		name     string
