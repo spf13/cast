@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cast/internal"
 )
 
-// ToTimeE any value to a [time.Time] type.
+// ToTimeE casts any value to a [time.Time] type.
 func ToTimeE(i any) (time.Time, error) {
 	return ToTimeInDefaultLocationE(i, time.UTC)
 }
