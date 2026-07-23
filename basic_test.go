@@ -164,3 +164,12 @@ type fu struct {
 func (x fu) Error() string {
 	return x.val
 }
+
+func TestToBoolTrimSpace(t *testing.T) {
+	if v, err := cast.ToBoolE(" true "); err != nil || !v {
+		t.Fatalf("ToBoolE spaces: %v %v", v, err)
+	}
+	if v, err := cast.ToBoolE(" false "); err != nil || v {
+		t.Fatalf("ToBoolE false spaces: %v %v", v, err)
+	}
+}

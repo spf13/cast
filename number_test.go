@@ -464,3 +464,15 @@ func BenchmarkNumber(b *testing.B) {
 		})
 	}
 }
+
+func TestToNumberTrimSpace(t *testing.T) {
+	if v, err := cast.ToIntE(" 42 "); err != nil || v != 42 {
+		t.Fatalf("ToIntE spaces: %v %v", v, err)
+	}
+	if v, err := cast.ToFloat64E(" 3.5 "); err != nil || v != 3.5 {
+		t.Fatalf("ToFloat64E spaces: %v %v", v, err)
+	}
+	if v, err := cast.ToUintE(" 7 "); err != nil || v != 7 {
+		t.Fatalf("ToUintE spaces: %v %v", v, err)
+	}
+}

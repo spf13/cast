@@ -145,6 +145,7 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 
 	switch s := i.(type) {
 	case string:
+		s = strings.TrimSpace(s)
 		if s == "" {
 			return 0, nil
 		}
@@ -289,6 +290,7 @@ func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, err
 
 	switch s := i.(type) {
 	case string:
+		s = strings.TrimSpace(s)
 		if s == "" {
 			return 0, nil
 		}

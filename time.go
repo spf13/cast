@@ -84,6 +84,10 @@ func ToDurationE(i any) (time.Duration, error) {
 
 		return time.Duration(v), nil
 	case string:
+		s = strings.TrimSpace(s)
+		if s == "" {
+			return 0, nil
+		}
 		if !strings.ContainsAny(s, "nsuµmh") {
 			return time.ParseDuration(s + "ns")
 		}

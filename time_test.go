@@ -290,3 +290,9 @@ func locationEqual(a, b *time.Location) bool {
 
 	return tA.Equal(tB)
 }
+
+func TestToDurationTrimSpace(t *testing.T) {
+	if v, err := cast.ToDurationE(" 1s "); err != nil || v != time.Second {
+		t.Fatalf("ToDurationE spaces: %v %v", v, err)
+	}
+}

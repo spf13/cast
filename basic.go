@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"html/template"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -49,7 +50,7 @@ func ToBoolE(i any) (bool, error) {
 	case time.Duration:
 		return b != 0, nil
 	case string:
-		return strconv.ParseBool(b)
+		return strconv.ParseBool(strings.TrimSpace(b))
 	case json.Number:
 		v, err := ToInt64E(b)
 		if err == nil {
