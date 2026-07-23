@@ -414,12 +414,44 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
+	s = strings.TrimLeft(trimDecimal(s), "+")
+	v, err := strconv.ParseUint(s, 0, 0)
 	if err != nil {
+		// Accept bare hex (no 0x prefix), e.g. "882d5422d5fffff" (#334).
+		if isHexString(s) {
+			if hv, herr := strconv.ParseUint(s, 16, 0); herr == nil {
+				return T(hv), nil
+			}
+		}
 		return 0, err
 	}
 
 	return T(v), nil
+}
+
+func isHexString(s string) bool {
+	if s == "" {
+		return false
+	}
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch {
+		case c >= '0' && c <= '9', c >= 'a' && c <= 'f', c >= 'A' && c <= 'F':
+		default:
+			return false
+		}
+	}
+	// Require at least one a-f so pure decimals stay base-10 via ParseUint base 0.
+	// Bare hex without letters is ambiguous with decimal; callers can use 0x.
+	hasLetter := false
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') {
+			hasLetter = true
+			break
+		}
+	}
+	return hasLetter
 }
 
 func parseFloat[T float](s string) (T, error) {

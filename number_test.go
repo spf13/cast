@@ -464,3 +464,16 @@ func BenchmarkNumber(b *testing.B) {
 		})
 	}
 }
+
+func TestToUint64HexString(t *testing.T) {
+	// #334: bare hex strings should cast to uint64.
+	c := qt.New(t)
+	got, err := cast.ToUint64E("882d5422d5fffff")
+	c.Assert(err, qt.IsNil)
+	c.Assert(got, qt.Equals, uint64(0x882d5422d5fffff))
+	c.Assert(cast.ToUint64("882d5422d5fffff"), qt.Equals, uint64(0x882d5422d5fffff))
+	// 0x prefix still works
+	got, err = cast.ToUint64E("0x10")
+	c.Assert(err, qt.IsNil)
+	c.Assert(got, qt.Equals, uint64(16))
+}
