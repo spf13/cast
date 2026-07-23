@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,6 +31,23 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 	case time.Time:
 		return v, nil
 	case string:
+		// Prefer named date formats; fall back to Unix seconds for numeric strings.
+		// Require 10+ digits so short values like "2006" stay date formats, not seconds.
+		if tm, err := StringToDateInDefaultLocation(v, location); err == nil {
+			return tm, nil
+		}
+		if n, err := strconv.ParseInt(v, 10, 64); err == nil {
+			if len(v) >= 10 || n <= -1_000_000_000 {
+				return time.Unix(n, 0), nil
+			}
+		}
+		if f, err := strconv.ParseFloat(v, 64); err == nil {
+			sec := int64(f)
+			if absInt64(sec) >= 1_000_000_000 {
+				nsec := int64((f - float64(sec)) * 1e9)
+				return time.Unix(sec, nsec), nil
+			}
+		}
 		return StringToDateInDefaultLocation(v, location)
 	case json.Number:
 		// Originally this used ToInt64E, but adding string float conversion broke ToTime.
@@ -53,6 +71,12 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 		return time.Unix(int64(v), 0), nil
 	case uint64:
 		return time.Unix(int64(v), 0), nil
+	case float32:
+		return time.Unix(int64(v), 0), nil
+	case float64:
+		sec := int64(v)
+		nsec := int64((v - float64(sec)) * 1e9)
+		return time.Unix(sec, nsec), nil
 	case nil:
 		return time.Time{}, nil
 	default:
@@ -113,4 +137,11 @@ func StringToDate(s string) (time.Time, error) {
 // or the local timezone if nil.
 func StringToDateInDefaultLocation(s string, location *time.Location) (time.Time, error) {
 	return internal.ParseDateWith(s, location, internal.TimeFormats)
+}
+
+func absInt64(n int64) int64 {
+	if n < 0 {
+		return -n
+	}
+	return n
 }
