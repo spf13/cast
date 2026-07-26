@@ -7,6 +7,7 @@ package cast_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"testing"
 	"time"
@@ -149,12 +150,65 @@ func TestString(t *testing.T) {
 	runTests(t, testCases, cast.ToString, cast.ToStringE)
 }
 
+func TestStringers(t *testing.T) {
+	timestamp := time.Date(2024, time.September, 23, 7, 27, 3, 0, time.UTC)
+
+	testCases := []struct {
+		name     string
+		input    fmt.Stringer
+		expected string
+	}{
+		{"non-nil pointer", &pointerStringer{val: "bar"}, "bar"},
+		{"nil pointer", (*pointerStringer)(nil), ""},
+		{"non-nil time", &timestamp, timestamp.String()},
+		{"nil time", (*time.Time)(nil), ""},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			actual, err := cast.ToStringE(testCase.input)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if actual != testCase.expected {
+				t.Fatalf("expected %q, got %q", testCase.expected, actual)
+			}
+		})
+	}
+}
+
+func TestStringerPanic(t *testing.T) {
+	const expected = "stringer panic"
+
+	defer func() {
+		if got := recover(); got != expected {
+			t.Fatalf("expected panic %q, got %q", expected, got)
+		}
+	}()
+
+	_, _ = cast.ToStringE(panicStringer{})
+}
+
 type foo struct {
 	val string
 }
 
 func (x foo) String() string {
 	return x.val
+}
+
+type pointerStringer struct {
+	val string
+}
+
+func (x *pointerStringer) String() string {
+	return x.val
+}
+
+type panicStringer struct{}
+
+func (panicStringer) String() string {
+	panic("stringer panic")
 }
 
 type fu struct {
