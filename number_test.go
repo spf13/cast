@@ -464,3 +464,54 @@ func BenchmarkNumber(b *testing.B) {
 		})
 	}
 }
+
+// TestTypedNumericOverflow verifies that out-of-range typed numeric values
+// are rejected with an error instead of silently wrapping (issue #356).
+// The string path already rejected these values; the typed numeric fast
+// path used unchecked Go conversions.
+func TestTypedNumericOverflow(t *testing.T) {
+	c := qt.New(t)
+
+	for name, tc := range map[string]struct {
+		convert func(any) error
+		input   any
+	}{
+		"uint64 max to int64":      {func(i any) error { _, err := cast.ToInt64E(i); return err }, uint64(math.MaxUint64)},
+		"float64 2^63 to int64":    {func(i any) error { _, err := cast.ToInt64E(i); return err }, float64(math.MaxInt64)},
+		"float64 1e300 to int64":   {func(i any) error { _, err := cast.ToInt64E(i); return err }, 1e300},
+		"inf to int64":             {func(i any) error { _, err := cast.ToInt64E(i); return err }, math.Inf(1)},
+		"nan to int64":             {func(i any) error { _, err := cast.ToInt64E(i); return err }, math.NaN()},
+		"float64 1e300 to int8":    {func(i any) error { _, err := cast.ToInt8E(i); return err }, 1e300},
+		"nan to uint64":            {func(i any) error { _, err := cast.ToUint64E(i); return err }, math.NaN()},
+		"int64 300 to int8":        {func(i any) error { _, err := cast.ToInt8E(i); return err }, int64(300)},
+		"uint64 300 to uint8":      {func(i any) error { _, err := cast.ToUint8E(i); return err }, uint64(300)},
+		"uint64 max to int":        {func(i any) error { _, err := cast.ToIntE(i); return err }, uint64(math.MaxUint64)},
+		"float64 -1e300 to uint64": {func(i any) error { _, err := cast.ToUint64E(i); return err }, -1e300},
+	} {
+		t.Run(name, func(t *testing.T) {
+			c.Assert(tc.convert(tc.input), qt.IsNotNil, qt.Commentf("conversion of %v should error", tc.input))
+		})
+	}
+}
+
+// TestTypedNumericInRange verifies that in-range values still convert
+// successfully, including float truncation semantics (-128.9 -> -128).
+func TestTypedNumericInRange(t *testing.T) {
+	c := qt.New(t)
+
+	v64, err := cast.ToInt64E(int64(42))
+	c.Assert(err, qt.IsNil)
+	c.Assert(v64, qt.Equals, int64(42))
+
+	v64, err = cast.ToInt64E(3.7)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v64, qt.Equals, int64(3))
+
+	v8, err := cast.ToInt8E(-128.9)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v8, qt.Equals, int8(-128))
+
+	vu64, err := cast.ToUint64E(uint64(7))
+	c.Assert(err, qt.IsNil)
+	c.Assert(vu64, qt.Equals, uint64(7))
+}
