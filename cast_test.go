@@ -222,6 +222,18 @@ func BenchmarkCast(b *testing.B) {
 			cast.ToStringSlice([]int{123456789, 123456789, 123456789, 123456789})
 		}
 	})
+
+	b.Run("IntSlice", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			cast.ToIntSlice([]string{"1", "2", "3", "4"})
+		}
+	})
+
+	b.Run("Duration", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			cast.ToDuration("10s")
+		}
+	})
 }
 
 // Alias types for alias testing
