@@ -471,6 +471,142 @@ func TestCasterImmutability(t *testing.T) {
 	c.Assert(cast.Default, qt.Equals, cast.Caster{})
 }
 
+func TestCasterBase(t *testing.T) {
+	t.Parallel()
+
+	t.Run("IsShorthand", func(t *testing.T) {
+		t.Parallel()
+
+		c := qt.New(t)
+
+		for _, base := range []int{-1, 0, 1, 2, 8, 10, 16, 36, 37} {
+			c.Assert(cast.Base(base), qt.Equals, cast.Caster{}.WithBase(base), qt.Commentf("base %d", base))
+			c.Assert(cast.Base(base), qt.Equals, cast.Default.WithBase(base), qt.Commentf("base %d", base))
+		}
+
+		c.Assert(cast.Base(0), qt.Equals, cast.Caster{})
+
+		// Composes like any other Caster.
+		fixed := time.FixedZone("UTC+3", 3*60*60)
+		composed := cast.Base(10).WithLocation(fixed)
+		c.Assert(composed, qt.Equals, cast.Caster{}.WithBase(10).WithLocation(fixed))
+		c.Assert(composed.To[int]("08"), qt.Equals, 8)
+		c.Assert(composed.To[time.Time]("2006-01-02 15:04:05").Location(), qt.Equals, fixed)
+	})
+
+	// Inputs reported in the issues linked from spf13/cast#315. Each entry
+	// records what the existing (base 0, auto-detecting) functions return today
+	// and what the reporter expected; Base(10) must produce the latter.
+	t.Run("LeadingZero", func(t *testing.T) {
+		t.Parallel()
+
+		c := qt.New(t)
+
+		type leadingZeroCase struct {
+			issue    string
+			input    string
+			existing any // value returned by the base-0 path; nil means it errors
+			expected any // value under Base(10)
+		}
+
+		intCases := []leadingZeroCase{
+			{"#74", "0123", 83, 123},
+			{"#96", "08", nil, 8},
+			{"#96", "09", nil, 9},
+			{"#112", "00100", 64, 100},
+			{"#112", "012345678", nil, 12345678},
+			{"#133", "0100", 64, 100},
+			{"#147", "08", nil, 8},
+			{"#152", "0890", nil, 890},
+			{"#214", "018", nil, 18},
+			{"#214", "019", nil, 19},
+			{"#216", "00011", 9, 11},
+			{"#290", "08", nil, 8},
+		}
+
+		for _, testCase := range intCases {
+			comment := qt.Commentf("%s: %q", testCase.issue, testCase.input)
+
+			got, err := cast.Base(10).ToE[int](testCase.input)
+			c.Assert(err, qt.IsNil, comment)
+			c.Assert(got, qt.Equals, testCase.expected, comment)
+			c.Assert(cast.Base(10).To[int](testCase.input), qt.Equals, testCase.expected, comment)
+
+			// Base(0) is still the auto-detecting behavior the issues complain about.
+			legacy, err := cast.Base(0).ToE[int](testCase.input)
+			if testCase.existing == nil {
+				c.Assert(err, qt.IsNotNil, comment)
+			} else {
+				c.Assert(err, qt.IsNil, comment)
+				c.Assert(legacy, qt.Equals, testCase.existing, comment)
+			}
+
+			existing, _ := cast.ToIntE(testCase.input)
+			c.Assert(legacy, qt.Equals, existing, comment)
+		}
+
+		// #202 (int32), #232 (uint32), #228 (uint64), #162 (int64).
+		v32, err := cast.Base(10).ToE[int32]("08")
+		c.Assert(err, qt.IsNil)
+		c.Assert(v32, qt.Equals, int32(8))
+
+		u32, err := cast.Base(10).ToE[uint32]("0134444")
+		c.Assert(err, qt.IsNil)
+		c.Assert(u32, qt.Equals, uint32(134444))
+		c.Assert(cast.ToUint32("0134444"), qt.Equals, uint32(47396)) // octal, the reported value
+
+		u64, err := cast.Base(10).ToE[uint64]("0123")
+		c.Assert(err, qt.IsNil)
+		c.Assert(u64, qt.Equals, uint64(123))
+
+		i64, err := cast.Base(10).ToE[int64]("16025123132364928")
+		c.Assert(err, qt.IsNil)
+		c.Assert(i64, qt.Equals, int64(16025123132364928))
+	})
+
+	t.Run("OtherBases", func(t *testing.T) {
+		t.Parallel()
+
+		c := qt.New(t)
+
+		for _, testCase := range []struct {
+			base     int
+			input    string
+			expected int
+		}{
+			{2, "1010", 10},
+			{2, "-1010", -10},
+			{8, "17", 15},
+			{8, "010", 8},
+			{10, "+7", 7},
+			{10, "-8", -8},
+			{16, "ff", 255},
+			{16, "0x1f", 0}, // prefixes are only understood by base 0
+			{16, "08", 8},
+			{36, "zz", 1295},
+			{0, "0x1f", 31},
+			{0, "0b101", 5},
+			{0, "0o17", 15},
+		} {
+			comment := qt.Commentf("base %d: %q", testCase.base, testCase.input)
+
+			c.Assert(cast.Base(testCase.base).To[int](testCase.input), qt.Equals, testCase.expected, comment)
+		}
+
+		// Unsigned targets share the base but strip a leading "+", like ToUintE does.
+		c.Assert(cast.Base(10).To[uint8]("+7"), qt.Equals, uint8(7))
+		c.Assert(cast.Base(16).To[uint16]("ffff"), qt.Equals, uint16(65535))
+
+		// Floats ignore the base entirely.
+		c.Assert(cast.Base(16).To[float64]("8.31"), qt.Equals, 8.31)
+		c.Assert(cast.Base(2).To[float32]("8.31"), qt.Equals, float32(8.31))
+
+		// Non-string inputs never consult the base.
+		c.Assert(cast.Base(2).To[int](42), qt.Equals, 42)
+		c.Assert(cast.Base(2).To[int](true), qt.Equals, 1)
+	})
+}
+
 func TestCasterInvalidBase(t *testing.T) {
 	t.Parallel()
 

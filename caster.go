@@ -21,7 +21,8 @@ import (
 //
 // Configuration is applied through value-semantics builder methods such as
 // [Caster.WithBase] and [Caster.WithLocation], each of which returns a modified
-// copy and leaves the receiver untouched.
+// copy and leaves the receiver untouched. [Base] is a shortcut for the most
+// common configuration.
 type Caster struct {
 	base     int
 	location *time.Location
@@ -29,6 +30,20 @@ type Caster struct {
 
 // Default is a zero-value [Caster].
 var Default Caster
+
+// Base returns a [Caster] that parses integer strings in the given base.
+//
+// It is shorthand for Caster{}.WithBase(base) and is the intended fix for
+// inputs with a leading zero, which base auto-detection treats as octal:
+//
+//	cast.ToInt("08")              // 0, "08" is not valid octal
+//	cast.Base(10).To[int]("08")   // 8
+//
+// Base always starts from the zero value; it does not read [Default].
+// See [Caster.WithBase] for the semantics of the base argument.
+func Base(base int) Caster {
+	return Caster{}.WithBase(base)
+}
 
 // WithBase returns a copy of c that parses integer strings in the given base.
 //
