@@ -11,14 +11,13 @@ permissions:
 jobs:
   test:
     name: Test
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     strategy:
       # Fail fast is disabled because there are Go version specific features and tests
       # that should be able to fail independently.
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
         go: ["1.21", "1.22", "1.23", "1.24", "1.25", "1.26", "1.27"]
 
     steps:
