@@ -18,14 +18,14 @@ func indirect(i any) (any, bool) {
 		return nil, false
 	}
 
-	if t := reflect.TypeOf(i); t.Kind() != reflect.Ptr {
+	if t := reflect.TypeOf(i); t.Kind() != reflect.Pointer {
 		// Avoid creating a reflect.Value if it's not a pointer.
 		return i, false
 	}
 
 	v := reflect.ValueOf(i)
 
-	for v.Kind() == reflect.Ptr || (v.Kind() == reflect.Interface && v.Elem().Kind() == reflect.Ptr) {
+	for v.Kind() == reflect.Pointer || (v.Kind() == reflect.Interface && v.Elem().Kind() == reflect.Pointer) {
 		if v.IsNil() {
 			return nil, true
 		}
