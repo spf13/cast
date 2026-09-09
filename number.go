@@ -405,18 +405,32 @@ func parseNumber[T Number](s string) (T, error) {
 }
 
 func parseInt[T integer](s string) (T, error) {
-	v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
+	s = trimDecimal(s)
+	// Try base-10 first so that leading-zero strings like "08" parse as
+	// decimal 8 instead of being rejected as invalid octal.
+	v, err := strconv.ParseInt(s, 10, 0)
 	if err != nil {
-		return 0, err
+		// Fall back to base-0 (auto-detect) to support "0x", "0o", "0b" prefixes.
+		v, err = strconv.ParseInt(s, 0, 0)
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	return T(v), nil
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
+	s = strings.TrimLeft(trimDecimal(s), "+")
+	// Try base-10 first so that leading-zero strings like "08" parse as
+	// decimal 8 instead of being rejected as invalid octal.
+	v, err := strconv.ParseUint(s, 10, 0)
 	if err != nil {
-		return 0, err
+		// Fall back to base-0 (auto-detect) to support "0x", "0o", "0b" prefixes.
+		v, err = strconv.ParseUint(s, 0, 0)
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	return T(v), nil
