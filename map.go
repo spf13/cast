@@ -179,7 +179,6 @@ func toStringMapIntE[T int | int64](i any, fn func(any) T, fnE func(any) (T, err
 		return m, fmt.Errorf(errorMsg, i, i, m)
 	}
 
-	mVal := reflect.ValueOf(m)
 	v := reflect.ValueOf(i)
 
 	for _, keyVal := range v.MapKeys() {
@@ -188,7 +187,7 @@ func toStringMapIntE[T int | int64](i any, fn func(any) T, fnE func(any) (T, err
 			return m, fmt.Errorf(errorMsg, i, i, m)
 		}
 
-		mVal.SetMapIndex(keyVal, reflect.ValueOf(val))
+		m[ToString(keyVal.Interface())] = val
 	}
 
 	return m, nil
