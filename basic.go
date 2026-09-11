@@ -114,6 +114,10 @@ func ToStringE(i any) (string, error) {
 	case nil:
 		return "", nil
 	case fmt.Stringer:
+		if value, ok := indirect(s); ok && value == nil {
+			return "", nil
+		}
+
 		return s.String(), nil
 	case error:
 		return s.Error(), nil
