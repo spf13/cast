@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -95,28 +96,76 @@ func toNumber[T Number](i any) (T, bool) {
 	case T:
 		return s, true
 	case int:
+		if !numberFitsFromInt64[T](int64(s)) {
+			return 0, false
+		}
+
 		return T(s), true
 	case int8:
+		if !numberFitsFromInt64[T](int64(s)) {
+			return 0, false
+		}
+
 		return T(s), true
 	case int16:
+		if !numberFitsFromInt64[T](int64(s)) {
+			return 0, false
+		}
+
 		return T(s), true
 	case int32:
+		if !numberFitsFromInt64[T](int64(s)) {
+			return 0, false
+		}
+
 		return T(s), true
 	case int64:
+		if !numberFitsFromInt64[T](s) {
+			return 0, false
+		}
+
 		return T(s), true
 	case uint:
+		if !numberFitsFromUint64[T](uint64(s)) {
+			return 0, false
+		}
+
 		return T(s), true
 	case uint8:
+		if !numberFitsFromUint64[T](uint64(s)) {
+			return 0, false
+		}
+
 		return T(s), true
 	case uint16:
+		if !numberFitsFromUint64[T](uint64(s)) {
+			return 0, false
+		}
+
 		return T(s), true
 	case uint32:
+		if !numberFitsFromUint64[T](uint64(s)) {
+			return 0, false
+		}
+
 		return T(s), true
 	case uint64:
+		if !numberFitsFromUint64[T](s) {
+			return 0, false
+		}
+
 		return T(s), true
 	case float32:
+		if !numberFitsFromFloat64[T](float64(s)) {
+			return 0, false
+		}
+
 		return T(s), true
 	case float64:
+		if !numberFitsFromFloat64[T](s) {
+			return 0, false
+		}
+
 		return T(s), true
 	case bool:
 		if s {
@@ -203,10 +252,18 @@ func toUnsignedNumber[T Number](i any) (T, bool, bool) {
 			return 0, false, false
 		}
 
+		if !numberFitsFromInt64[T](int64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case int8:
 		if s < 0 {
 			return 0, false, false
+		}
+
+		if !numberFitsFromInt64[T](int64(s)) {
+			return 0, true, false
 		}
 
 		return T(s), true, true
@@ -215,10 +272,18 @@ func toUnsignedNumber[T Number](i any) (T, bool, bool) {
 			return 0, false, false
 		}
 
+		if !numberFitsFromInt64[T](int64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case int32:
 		if s < 0 {
 			return 0, false, false
+		}
+
+		if !numberFitsFromInt64[T](int64(s)) {
+			return 0, true, false
 		}
 
 		return T(s), true, true
@@ -227,26 +292,58 @@ func toUnsignedNumber[T Number](i any) (T, bool, bool) {
 			return 0, false, false
 		}
 
+		if !numberFitsFromInt64[T](s) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case uint:
+		if !numberFitsFromUint64[T](uint64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case uint8:
+		if !numberFitsFromUint64[T](uint64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case uint16:
+		if !numberFitsFromUint64[T](uint64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case uint32:
+		if !numberFitsFromUint64[T](uint64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case uint64:
+		if !numberFitsFromUint64[T](s) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case float32:
 		if s < 0 {
 			return 0, false, false
 		}
 
+		if !numberFitsFromFloat64[T](float64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case float64:
 		if s < 0 {
 			return 0, false, false
+		}
+
+		if !numberFitsFromFloat64[T](s) {
+			return 0, true, false
 		}
 
 		return T(s), true, true
@@ -273,6 +370,119 @@ func toUnsignedNumber[T Number](i any) (T, bool, bool) {
 	}
 
 	return 0, true, false
+}
+
+// numberFitsFromInt64 reports whether the int64 value v can be converted to T
+// without wrapping. The string conversion paths already reject out-of-range
+// values (strconv), but the typed numeric fast paths used unchecked Go
+// conversions. Float targets always fit: cast intentionally allows lossy
+// integer-to-float conversions.
+func numberFitsFromInt64[T Number](v int64) bool {
+	switch any(T(0)).(type) {
+	case int8:
+		return v >= math.MinInt8 && v <= math.MaxInt8
+	case int16:
+		return v >= math.MinInt16 && v <= math.MaxInt16
+	case int32:
+		return v >= math.MinInt32 && v <= math.MaxInt32
+	case int64:
+		return true
+	case int:
+		if strconv.IntSize == 32 {
+			return v >= math.MinInt32 && v <= math.MaxInt32
+		}
+
+		return true
+	case uint8:
+		return v >= 0 && v <= math.MaxUint8
+	case uint16:
+		return v >= 0 && v <= math.MaxUint16
+	case uint32:
+		return v >= 0 && v <= math.MaxUint32
+	case uint64:
+		return v >= 0
+	case uint:
+		return v >= 0 && (strconv.IntSize == 64 || v <= math.MaxUint32)
+	case float32, float64:
+		return true
+	}
+
+	return false
+}
+
+func numberFitsFromUint64[T Number](v uint64) bool {
+	switch any(T(0)).(type) {
+	case int8:
+		return v <= math.MaxInt8
+	case int16:
+		return v <= math.MaxInt16
+	case int32:
+		return v <= math.MaxInt32
+	case int64:
+		return v <= math.MaxInt64
+	case int:
+		if strconv.IntSize == 32 {
+			return v <= math.MaxInt32
+		}
+
+		return v <= math.MaxInt64
+	case uint8:
+		return v <= math.MaxUint8
+	case uint16:
+		return v <= math.MaxUint16
+	case uint32:
+		return v <= math.MaxUint32
+	case uint64:
+		return true
+	case uint:
+		return strconv.IntSize == 64 || v <= math.MaxUint32
+	case float32, float64:
+		return true
+	}
+
+	return false
+}
+
+func numberFitsFromFloat64[T Number](v float64) bool {
+	if math.IsNaN(v) || math.IsInf(v, 0) {
+		return false
+	}
+
+	switch any(T(0)).(type) {
+	case int8:
+		// truncation may land inside the range: -128.9 truncates to -128
+		return v > math.MinInt8-1 && v < math.MaxInt8+1
+	case int16:
+		return v > math.MinInt16-1 && v < math.MaxInt16+1
+	case int32:
+		return v > math.MinInt32-1 && v < math.MaxInt32+1
+	case int64:
+		return v >= -9223372036854775808 && v < 9223372036854775808
+	case int:
+		if strconv.IntSize == 32 {
+			return v > math.MinInt32-1 && v < math.MaxInt32+1
+		}
+
+		return v >= -9223372036854775808 && v < 9223372036854775808
+	case uint8:
+		return v >= 0 && v < math.MaxUint8+1
+	case uint16:
+		return v >= 0 && v < math.MaxUint16+1
+	case uint32:
+		return v >= 0 && v < math.MaxUint32+1
+	case uint64:
+		return v >= 0 && v < 18446744073709551616
+	case uint:
+		if strconv.IntSize == 32 {
+			return v >= 0 && v < math.MaxUint32+1
+		}
+
+		return v >= 0 && v < 18446744073709551616
+	case float32, float64:
+		return true
+	}
+
+	return false
 }
 
 func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
