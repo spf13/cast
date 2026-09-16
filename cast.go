@@ -6,7 +6,10 @@
 // Package cast provides easy and safe casting in Go.
 package cast
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 const errorMsg = "unable to cast %#v of type %T to %T"
 const errorMsgWith = "unable to cast %#v of type %T to %T: %w"
@@ -58,6 +61,8 @@ func ToE[T Basic](i any) (T, error) {
 		v, err = ToTimeE(i)
 	case time.Duration:
 		v, err = ToDurationE(i)
+	default:
+		return t, fmt.Errorf("unknown basic type: %T", t)
 	}
 
 	if err != nil {
@@ -67,18 +72,24 @@ func ToE[T Basic](i any) (T, error) {
 	return v.(T), nil
 }
 
-// Must is a helper that wraps a call to a cast function and panics if the error is non-nil.
-func Must[T any](i any, err error) T {
-	if err != nil {
-		panic(err)
-	}
-
-	return i.(T)
-}
-
 // To casts any value to a [Basic] type.
 func To[T Basic](i any) T {
 	v, _ := ToE[T](i)
 
 	return v
+}
+
+// Must panics if there is an error, otherwise returns the value.
+func Must[T any](v T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
+// ValueSetter is an interface for types that can provide custom conversion logic.
+// When a conversion function encounters a type it cannot handle in its default case,
+// it will check if the type implements ValueSetter and use it for custom conversion.
+type ValueSetter interface {
+	SetValue(any) error
 }

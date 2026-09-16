@@ -28,6 +28,13 @@ func ToSliceE(i any) ([]any, error) {
 
 		return s, nil
 	default:
+		// Try custom conversion interface
+		if setter, ok := i.(ValueSetter); ok {
+			var result []any
+			err := setter.SetValue(&result)
+			return result, err
+		}
+
 		return s, fmt.Errorf(errorMsg, i, i, s)
 	}
 }

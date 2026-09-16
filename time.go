@@ -56,6 +56,13 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 	case nil:
 		return time.Time{}, nil
 	default:
+		// Try custom conversion interface
+		if setter, ok := i.(ValueSetter); ok {
+			var result time.Time
+			err := setter.SetValue(&result)
+			return result, err
+		}
+
 		return time.Time{}, fmt.Errorf(errorMsg, i, i, time.Time{})
 	}
 }
@@ -94,6 +101,13 @@ func ToDurationE(i any) (time.Duration, error) {
 	default:
 		if i, ok := resolveAlias(i); ok {
 			return ToDurationE(i)
+		}
+
+		// Try custom conversion interface
+		if setter, ok := i.(ValueSetter); ok {
+			var result time.Duration
+			err := setter.SetValue(&result)
+			return result, err
 		}
 
 		return 0, fmt.Errorf(errorMsg, i, i, time.Duration(0))

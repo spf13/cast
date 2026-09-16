@@ -188,6 +188,13 @@ func toNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
 			return toNumberE(i, parseFn)
 		}
 
+		// Try custom conversion interface
+		if setter, ok := i.(ValueSetter); ok {
+			var result T
+			err := setter.SetValue(&result)
+			return result, err
+		}
+
 		return 0, fmt.Errorf(errorMsg, i, i, n)
 	}
 }
