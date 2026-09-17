@@ -405,8 +405,12 @@ func parseNumber[T Number](s string) (T, error) {
 }
 
 func parseInt[T integer](s string) (T, error) {
-	v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
+	trimmed := trimDecimal(s)
+	v, err := strconv.ParseInt(trimmed, 0, 0)
 	if err != nil {
+		if v10, err10 := strconv.ParseInt(trimmed, 10, 0); err10 == nil {
+			return T(v10), nil
+		}
 		return 0, err
 	}
 
@@ -414,8 +418,12 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
+	trimmed := strings.TrimLeft(trimDecimal(s), "+")
+	v, err := strconv.ParseUint(trimmed, 0, 0)
 	if err != nil {
+		if v10, err10 := strconv.ParseUint(trimmed, 10, 0); err10 == nil {
+			return T(v10), nil
+		}
 		return 0, err
 	}
 

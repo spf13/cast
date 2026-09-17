@@ -464,3 +464,36 @@ func BenchmarkNumber(b *testing.B) {
 		})
 	}
 }
+
+func TestIssue147LeadingZeros(t *testing.T) {
+	c := qt.New(t)
+
+	// Issue #147: cast.ToInt("08") returned 0
+	// Strings with leading zeros should fall back to decimal parsing if not valid octal
+	c.Assert(cast.ToInt("08"), qt.Equals, 8)
+	c.Assert(cast.ToInt("09"), qt.Equals, 9)
+	c.Assert(cast.ToInt("-08"), qt.Equals, -8)
+	c.Assert(cast.ToInt("+09"), qt.Equals, 9)
+	c.Assert(cast.ToInt("007"), qt.Equals, 7)
+	c.Assert(cast.ToInt64("08"), qt.Equals, int64(8))
+	c.Assert(cast.ToInt64("09"), qt.Equals, int64(9))
+	c.Assert(cast.ToUint("08"), qt.Equals, uint(8))
+	c.Assert(cast.ToUint("09"), qt.Equals, uint(9))
+	c.Assert(cast.ToUint64("08"), qt.Equals, uint64(8))
+
+	v, err := cast.ToIntE("08")
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.Equals, 8)
+
+	v64, err := cast.ToInt64E("09")
+	c.Assert(err, qt.IsNil)
+	c.Assert(v64, qt.Equals, int64(9))
+
+	u, err := cast.ToUintE("08")
+	c.Assert(err, qt.IsNil)
+	c.Assert(u, qt.Equals, uint(8))
+
+	// Invalid strings should still fail
+	_, err = cast.ToIntE("08abc")
+	c.Assert(err, qt.IsNotNil)
+}
