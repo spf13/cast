@@ -167,8 +167,6 @@ func generateNumberTestCases(samples []any) []testCase {
 
 	_ = min
 	_ = max
-	_ = underflowString
-	_ = overflowString
 
 	kind := reflect.TypeOf(zero).Kind()
 	isSint := kind == reflect.Int || kind == reflect.Int8 || kind == reflect.Int16 || kind == reflect.Int32 || kind == reflect.Int64
@@ -258,11 +256,11 @@ func generateNumberTestCases(samples []any) []testCase {
 		testCases = append(testCases, testCase{"10.0E9", float64(10000000000.000000), false})
 	}
 
-	if isUint && underflowString != nil {
+	if isInt && underflowString != nil {
 		testCases = append(testCases, testCase{underflowString, zero, true})
 	}
 
-	if kind == reflect.Uint64 && isUint && overflowString != nil {
+	if isInt && overflowString != nil {
 		testCases = append(testCases, testCase{overflowString, zero, true})
 	}
 
@@ -388,6 +386,35 @@ func TestNumber(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestIntegerStringOutOfRange(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	_, err := cast.ToInt8E("128")
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToInt8E("-129")
+	c.Assert(err, qt.IsNotNil)
+	v, err := cast.ToInt8E("127")
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.Equals, int8(127))
+
+	_, err = cast.ToUint8E("256")
+	c.Assert(err, qt.IsNotNil)
+	v8, err := cast.ToUint8E("255")
+	c.Assert(err, qt.IsNil)
+	c.Assert(v8, qt.Equals, uint8(255))
+
+	_, err = cast.ToInt16E("32768")
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToUint16E("65536")
+	c.Assert(err, qt.IsNotNil)
+
+	_, err = cast.ToInt32E("2147483648")
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToUint32E("4294967296")
+	c.Assert(err, qt.IsNotNil)
 }
 
 func BenchmarkNumber(b *testing.B) {

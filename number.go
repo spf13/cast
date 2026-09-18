@@ -405,7 +405,7 @@ func parseNumber[T Number](s string) (T, error) {
 }
 
 func parseInt[T integer](s string) (T, error) {
-	v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
+	v, err := strconv.ParseInt(trimDecimal(s), 0, intBitSize[T]())
 	if err != nil {
 		return 0, err
 	}
@@ -414,12 +414,48 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
+	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, uintBitSize[T]())
 	if err != nil {
 		return 0, err
 	}
 
 	return T(v), nil
+}
+
+func intBitSize[T integer]() int {
+	var z T
+	switch any(z).(type) {
+	case int8:
+		return 8
+	case int16:
+		return 16
+	case int32:
+		return 32
+	case int64:
+		return 64
+	case int:
+		return strconv.IntSize
+	default:
+		return 0
+	}
+}
+
+func uintBitSize[T unsigned]() int {
+	var z T
+	switch any(z).(type) {
+	case uint8:
+		return 8
+	case uint16:
+		return 16
+	case uint32:
+		return 32
+	case uint64:
+		return 64
+	case uint:
+		return strconv.IntSize
+	default:
+		return 0
+	}
 }
 
 func parseFloat[T float](s string) (T, error) {
