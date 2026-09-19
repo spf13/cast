@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -202,11 +203,17 @@ func toUnsignedNumber[T Number](i any) (T, bool, bool) {
 		if s < 0 {
 			return 0, false, false
 		}
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
+		}
 
 		return T(s), true, true
 	case int8:
 		if s < 0 {
 			return 0, false, false
+		}
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
 		}
 
 		return T(s), true, true
@@ -214,11 +221,17 @@ func toUnsignedNumber[T Number](i any) (T, bool, bool) {
 		if s < 0 {
 			return 0, false, false
 		}
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
+		}
 
 		return T(s), true, true
 	case int32:
 		if s < 0 {
 			return 0, false, false
+		}
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
 		}
 
 		return T(s), true, true
@@ -226,27 +239,56 @@ func toUnsignedNumber[T Number](i any) (T, bool, bool) {
 		if s < 0 {
 			return 0, false, false
 		}
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
+		}
 
 		return T(s), true, true
 	case uint:
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case uint8:
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case uint16:
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case uint32:
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case uint64:
+		if uint64Overflow[T](s) {
+			return 0, true, false
+		}
+
 		return T(s), true, true
 	case float32:
 		if s < 0 {
 			return 0, false, false
+		}
+		if float64Overflow[T](float64(s)) {
+			return 0, true, false
 		}
 
 		return T(s), true, true
 	case float64:
 		if s < 0 {
 			return 0, false, false
+		}
+		if float64Overflow[T](s) {
+			return 0, true, false
 		}
 
 		return T(s), true, true
@@ -262,17 +304,57 @@ func toUnsignedNumber[T Number](i any) (T, bool, bool) {
 		if s < 0 {
 			return 0, false, false
 		}
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
+		}
 
 		return T(s), true, true
 	case time.Month:
 		if s < 0 {
 			return 0, false, false
 		}
+		if uint64Overflow[T](uint64(s)) {
+			return 0, true, false
+		}
 
 		return T(s), true, true
 	}
 
 	return 0, true, false
+}
+
+func uint64Overflow[T Number](v uint64) bool {
+	var t T
+	switch any(t).(type) {
+	case uint8:
+		return v > math.MaxUint8
+	case uint16:
+		return v > math.MaxUint16
+	case uint32:
+		return v > math.MaxUint32
+	case uint64:
+		return false
+	case uint:
+		return v > uint64(^uint(0))
+	}
+	return false
+}
+
+func float64Overflow[T Number](v float64) bool {
+	var t T
+	switch any(t).(type) {
+	case uint8:
+		return v > float64(math.MaxUint8) || v < 0
+	case uint16:
+		return v > float64(math.MaxUint16) || v < 0
+	case uint32:
+		return v > float64(math.MaxUint32) || v < 0
+	case uint64:
+		return v > float64(math.MaxUint64) || v < 0
+	case uint:
+		return v > float64(^uint(0)) || v < 0
+	}
+	return false
 }
 
 func toUnsignedNumberE[T Number](i any, parseFn func(string) (T, error)) (T, error) {
@@ -405,7 +487,23 @@ func parseNumber[T Number](s string) (T, error) {
 }
 
 func parseInt[T integer](s string) (T, error) {
-	v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
+	var t T
+	var bitSize int
+
+	switch any(t).(type) {
+	case int:
+		bitSize = 0
+	case int8:
+		bitSize = 8
+	case int16:
+		bitSize = 16
+	case int32:
+		bitSize = 32
+	case int64:
+		bitSize = 64
+	}
+
+	v, err := strconv.ParseInt(trimDecimal(s), 0, bitSize)
 	if err != nil {
 		return 0, err
 	}
@@ -414,7 +512,23 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
+	var t T
+	var bitSize int
+
+	switch any(t).(type) {
+	case uint:
+		bitSize = 0
+	case uint8:
+		bitSize = 8
+	case uint16:
+		bitSize = 16
+	case uint32:
+		bitSize = 32
+	case uint64:
+		bitSize = 64
+	}
+
+	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, bitSize)
 	if err != nil {
 		return 0, err
 	}
