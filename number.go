@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 )
 
 var errNegativeNotAllowed = errors.New("unable to cast negative value")
@@ -405,7 +406,8 @@ func parseNumber[T Number](s string) (T, error) {
 }
 
 func parseInt[T integer](s string) (T, error) {
-	v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
+	var t T
+	v, err := strconv.ParseInt(trimDecimal(s), 0, int(unsafe.Sizeof(t))*8)
 	if err != nil {
 		return 0, err
 	}
@@ -414,7 +416,8 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
+	var t T
+	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, int(unsafe.Sizeof(t))*8)
 	if err != nil {
 		return 0, err
 	}
