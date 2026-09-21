@@ -58,7 +58,21 @@ func toStringMapE[T any](i any, fn func(any) T) (map[string]T, error) {
 
 // ToStringMapStringE casts any value to a map[string]string type.
 func ToStringMapStringE(i any) (map[string]string, error) {
-	return toStringMapE(i, ToString)
+	var firstErr error
+	toString := func(value any) string {
+		result, err := ToStringE(value)
+		if firstErr == nil {
+			firstErr = err
+		}
+		return result
+	}
+
+	result, err := toMapE(i, toString, toString)
+	if err != nil {
+		return result, err
+	}
+
+	return result, firstErr
 }
 
 // ToStringMapStringSliceE casts any value to a map[string][]string type.

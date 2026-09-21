@@ -288,3 +288,127 @@ func TestStringMapString(t *testing.T) {
 
 	runMapTests(t, testCases, cast.ToStringMapString, cast.ToStringMapStringE)
 }
+
+func TestStringMapStringConversionErrors(t *testing.T) {
+	type namedMap map[string]any
+
+	testCases := []struct {
+		name        string
+		input       any
+		expected    map[string]string
+		expectError bool
+	}{
+		{
+			name:        "string keys with multiple invalid values",
+			input:       map[string]any{"slice": []any{1}, "struct": struct{}{}, "number": 123, "nil": nil},
+			expected:    map[string]string{"slice": "", "struct": "", "number": "123", "nil": ""},
+			expectError: true,
+		},
+		{
+			name:        "interface keys with multiple invalid values",
+			input:       map[any]any{"slice": []any{1}, "struct": struct{}{}, 123: true, "nil": nil},
+			expected:    map[string]string{"slice": "", "struct": "", "123": "true", "nil": ""},
+			expectError: true,
+		},
+		{
+			name:        "invalid interface key with string values",
+			input:       map[any]string{struct{}{}: "value", "good": "kept"},
+			expected:    map[string]string{"": "value", "good": "kept"},
+			expectError: true,
+		},
+		{
+			name:        "invalid interface key and value",
+			input:       map[any]any{struct{}{}: "value", "bad": []any{1}, "good": 123},
+			expected:    map[string]string{"": "value", "bad": "", "good": "123"},
+			expectError: true,
+		},
+		{
+			name:     "successful scalars",
+			input:    map[string]any{"string": "value", "bool": true, "int": 123, "float": 1.5, "bytes": []byte("bytes"), "nil": nil},
+			expected: map[string]string{"string": "value", "bool": "true", "int": "123", "float": "1.5", "bytes": "bytes", "nil": ""},
+		},
+		{
+			name:     "string map",
+			input:    map[string]string{"key": "value"},
+			expected: map[string]string{"key": "value"},
+		},
+		{
+			name:  "nil string map",
+			input: map[string]string(nil),
+		},
+		{
+			name:     "nil interface map",
+			input:    map[string]any(nil),
+			expected: map[string]string{},
+		},
+		{
+			name:     "JSON string",
+			input:    `{"key":"value"}`,
+			expected: map[string]string{"key": "value"},
+		},
+		{
+			name:  "JSON null",
+			input: "null",
+		},
+		{
+			name:        "nil input",
+			expected:    map[string]string{},
+			expectError: true,
+		},
+		{
+			name:        "invalid input",
+			input:       struct{}{},
+			expected:    map[string]string{},
+			expectError: true,
+		},
+		{
+			name:        "invalid JSON",
+			input:       `{"key":"value"`,
+			expected:    map[string]string{},
+			expectError: true,
+		},
+		{
+			name:        "unsupported named map",
+			input:       namedMap{"key": "value"},
+			expected:    map[string]string{},
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			c := qt.New(t)
+			result, err := cast.ToStringMapStringE(tc.input)
+			c.Assert(result, qt.DeepEquals, tc.expected)
+			c.Assert(cast.ToStringMapString(tc.input), qt.DeepEquals, tc.expected)
+			c.Assert(err != nil, qt.Equals, tc.expectError)
+		})
+	}
+}
+
+type countingMapStringer struct {
+	value string
+	calls int
+}
+
+func (s *countingMapStringer) String() string {
+	s.calls++
+	return s.value
+}
+
+func TestStringMapStringConvertsOnce(t *testing.T) {
+	c := qt.New(t)
+	key := &countingMapStringer{value: "key"}
+	value := &countingMapStringer{value: "value"}
+	input := map[any]any{key: value, "invalid": []any{1}, "good": "kept"}
+
+	result, err := cast.ToStringMapStringE(input)
+	c.Assert(result, qt.DeepEquals, map[string]string{"key": "value", "invalid": "", "good": "kept"})
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(key.calls, qt.Equals, 1)
+	c.Assert(value.calls, qt.Equals, 1)
+}
