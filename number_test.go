@@ -262,7 +262,11 @@ func generateNumberTestCases(samples []any) []testCase {
 		testCases = append(testCases, testCase{underflowString, zero, true})
 	}
 
-	if kind == reflect.Uint64 && isUint && overflowString != nil {
+	if isSint && underflowString != nil {
+		testCases = append(testCases, testCase{underflowString, zero, true})
+	}
+
+	if isInt && overflowString != nil {
 		testCases = append(testCases, testCase{overflowString, zero, true})
 	}
 
@@ -463,4 +467,41 @@ func BenchmarkNumber(b *testing.B) {
 			})
 		})
 	}
+}
+
+func TestNarrowIntegerOverflow(t *testing.T) {
+	c := qt.New(t)
+
+	v8, err := cast.ToInt8E("128")
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v8, qt.Equals, int8(0))
+	c.Assert(cast.ToInt8("128"), qt.Equals, int8(0))
+
+	v8, err = cast.ToInt8E(int64(128))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v8, qt.Equals, int8(0))
+
+	v8, err = cast.ToInt8E("127")
+	c.Assert(err, qt.IsNil)
+	c.Assert(v8, qt.Equals, int8(127))
+
+	v8, err = cast.ToInt8E("-128")
+	c.Assert(err, qt.IsNil)
+	c.Assert(v8, qt.Equals, int8(-128))
+
+	v8, err = cast.ToInt8E("8.9")
+	c.Assert(err, qt.IsNil)
+	c.Assert(v8, qt.Equals, int8(8))
+
+	u8, err := cast.ToUint8E("256")
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(u8, qt.Equals, uint8(0))
+
+	u8, err = cast.ToUint8E(int(256))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(u8, qt.Equals, uint8(0))
+
+	u8, err = cast.ToUint8E("255")
+	c.Assert(err, qt.IsNil)
+	c.Assert(u8, qt.Equals, uint8(255))
 }

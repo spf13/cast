@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -95,29 +96,29 @@ func toNumber[T Number](i any) (T, bool) {
 	case T:
 		return s, true
 	case int:
-		return T(s), true
+		return narrowSigned[T](int64(s))
 	case int8:
-		return T(s), true
+		return narrowSigned[T](int64(s))
 	case int16:
-		return T(s), true
+		return narrowSigned[T](int64(s))
 	case int32:
-		return T(s), true
+		return narrowSigned[T](int64(s))
 	case int64:
-		return T(s), true
+		return narrowSigned[T](s)
 	case uint:
-		return T(s), true
+		return narrowUnsigned[T](uint64(s))
 	case uint8:
-		return T(s), true
+		return narrowUnsigned[T](uint64(s))
 	case uint16:
-		return T(s), true
+		return narrowUnsigned[T](uint64(s))
 	case uint32:
-		return T(s), true
+		return narrowUnsigned[T](uint64(s))
 	case uint64:
-		return T(s), true
+		return narrowUnsigned[T](s)
 	case float32:
-		return T(s), true
+		return narrowFloat[T](float64(s))
 	case float64:
-		return T(s), true
+		return narrowFloat[T](s)
 	case bool:
 		if s {
 			return 1, true
@@ -127,9 +128,9 @@ func toNumber[T Number](i any) (T, bool) {
 	case nil:
 		return 0, true
 	case time.Weekday:
-		return T(s), true
+		return narrowSigned[T](int64(s))
 	case time.Month:
-		return T(s), true
+		return narrowSigned[T](int64(s))
 	}
 
 	return 0, false
@@ -202,54 +203,59 @@ func toUnsignedNumber[T Number](i any) (T, bool, bool) {
 		if s < 0 {
 			return 0, false, false
 		}
-
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	case int8:
 		if s < 0 {
 			return 0, false, false
 		}
-
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	case int16:
 		if s < 0 {
 			return 0, false, false
 		}
-
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	case int32:
 		if s < 0 {
 			return 0, false, false
 		}
-
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	case int64:
 		if s < 0 {
 			return 0, false, false
 		}
-
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	case uint:
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	case uint8:
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	case uint16:
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	case uint32:
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	case uint64:
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](s)
+		return n, true, ok
 	case float32:
 		if s < 0 {
 			return 0, false, false
 		}
-
-		return T(s), true, true
+		n, ok := narrowFloat[T](float64(s))
+		return n, true, ok
 	case float64:
 		if s < 0 {
 			return 0, false, false
 		}
-
-		return T(s), true, true
+		n, ok := narrowFloat[T](s)
+		return n, true, ok
 	case bool:
 		if s {
 			return 1, true, true
@@ -262,14 +268,14 @@ func toUnsignedNumber[T Number](i any) (T, bool, bool) {
 		if s < 0 {
 			return 0, false, false
 		}
-
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	case time.Month:
 		if s < 0 {
 			return 0, false, false
 		}
-
-		return T(s), true, true
+		n, ok := narrowUnsigned[T](uint64(s))
+		return n, true, ok
 	}
 
 	return 0, true, false
@@ -405,7 +411,7 @@ func parseNumber[T Number](s string) (T, error) {
 }
 
 func parseInt[T integer](s string) (T, error) {
-	v, err := strconv.ParseInt(trimDecimal(s), 0, 0)
+	v, err := strconv.ParseInt(trimDecimal(s), 0, intBitSize[T]())
 	if err != nil {
 		return 0, err
 	}
@@ -414,12 +420,159 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
+	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, uintBitSize[T]())
 	if err != nil {
 		return 0, err
 	}
 
 	return T(v), nil
+}
+
+func intBitSize[T integer]() int {
+	var zero T
+	switch any(zero).(type) {
+	case int:
+		return strconv.IntSize
+	case int8:
+		return 8
+	case int16:
+		return 16
+	case int32:
+		return 32
+	case int64:
+		return 64
+	default:
+		return 0
+	}
+}
+
+func uintBitSize[T unsigned]() int {
+	var zero T
+	switch any(zero).(type) {
+	case uint:
+		return strconv.IntSize
+	case uint8:
+		return 8
+	case uint16:
+		return 16
+	case uint32:
+		return 32
+	case uint64:
+		return 64
+	default:
+		return 0
+	}
+}
+
+// narrowSigned converts v to T. An integer target that cannot hold v fails.
+// Float targets keep the language conversion.
+func narrowSigned[T Number](v int64) (T, bool) {
+	var zero T
+	switch any(zero).(type) {
+	case float32:
+		return any(float32(v)).(T), true
+	case float64:
+		return any(float64(v)).(T), true
+	case int:
+		if v < int64(math.MinInt) || v > int64(math.MaxInt) {
+			return 0, false
+		}
+		return any(int(v)).(T), true
+	case int8:
+		if v < math.MinInt8 || v > math.MaxInt8 {
+			return 0, false
+		}
+		return any(int8(v)).(T), true
+	case int16:
+		if v < math.MinInt16 || v > math.MaxInt16 {
+			return 0, false
+		}
+		return any(int16(v)).(T), true
+	case int32:
+		if v < math.MinInt32 || v > math.MaxInt32 {
+			return 0, false
+		}
+		return any(int32(v)).(T), true
+	case int64:
+		return any(v).(T), true
+	case uint:
+		if v < 0 || uint64(v) > uint64(^uint(0)) {
+			return 0, false
+		}
+		return any(uint(v)).(T), true
+	case uint8:
+		if v < 0 || v > math.MaxUint8 {
+			return 0, false
+		}
+		return any(uint8(v)).(T), true
+	case uint16:
+		if v < 0 || v > math.MaxUint16 {
+			return 0, false
+		}
+		return any(uint16(v)).(T), true
+	case uint32:
+		if v < 0 || v > math.MaxUint32 {
+			return 0, false
+		}
+		return any(uint32(v)).(T), true
+	case uint64:
+		if v < 0 {
+			return 0, false
+		}
+		return any(uint64(v)).(T), true
+	default:
+		return 0, false
+	}
+}
+
+func narrowUnsigned[T Number](v uint64) (T, bool) {
+	if v > math.MaxInt64 {
+		var zero T
+		switch any(zero).(type) {
+		case uint64:
+			return any(v).(T), true
+		case uint:
+			if v <= uint64(^uint(0)) {
+				return any(uint(v)).(T), true
+			}
+			return 0, false
+		default:
+			return 0, false
+		}
+	}
+	return narrowSigned[T](int64(v))
+}
+
+func narrowFloat[T Number](v float64) (T, bool) {
+	if math.IsNaN(v) || math.IsInf(v, 0) {
+		return 0, false
+	}
+
+	var zero T
+	switch any(zero).(type) {
+	case float32:
+		return any(float32(v)).(T), true
+	case float64:
+		return any(v).(T), true
+	case uint64:
+		if v < 0 || v >= float64(math.MaxUint64) {
+			return 0, false
+		}
+		return any(uint64(v)).(T), true
+	case uint:
+		if strconv.IntSize == 64 && v >= 0 && v < float64(math.MaxUint64) {
+			return any(uint(v)).(T), true
+		}
+		if v < 0 || v >= float64(math.MaxInt64) {
+			return 0, false
+		}
+		return narrowSigned[T](int64(v))
+	default:
+		if v < float64(math.MinInt64) || v >= float64(math.MaxInt64) {
+			return 0, false
+		}
+		return narrowSigned[T](int64(v))
+	}
 }
 
 func parseFloat[T float](s string) (T, error) {
