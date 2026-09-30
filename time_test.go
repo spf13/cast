@@ -56,6 +56,9 @@ func TestTime(t *testing.T) {
 		{uint64(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{uint32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{json.Number("1234567890"), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
+		{"1234567890", time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},                 // Unix seconds as string (#102)
+		{"1600285405", time.Date(2020, 9, 16, 19, 43, 25, 0, time.UTC), false},                 // Unix seconds as string (#102)
+		{"-62135596800", time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC), false},                       // Unix seconds before epoch as string
 		{time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 
 		{ptr, time.Time{}, false},

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,7 +31,23 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 	case time.Time:
 		return v, nil
 	case string:
-		return StringToDateInDefaultLocation(v, location)
+		tm, err := StringToDateInDefaultLocation(v, location)
+		if err == nil {
+			return tm, nil
+		}
+		// Integer inputs are treated as Unix seconds. Accept the same for pure
+		// numeric strings (see #102). Require 10+ digits so short values like
+		// "2006" stay date-parse errors rather than becoming timestamps.
+		if n, perr := strconv.ParseInt(v, 10, 64); perr == nil {
+			digits := len(v)
+			if v[0] == '+' || v[0] == '-' {
+				digits--
+			}
+			if digits >= 10 {
+				return time.Unix(n, 0), nil
+			}
+		}
+		return tm, err
 	case json.Number:
 		// Originally this used ToInt64E, but adding string float conversion broke ToTime.
 		// the behavior of ToTime would have changed if we continued using it.
