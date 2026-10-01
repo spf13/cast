@@ -227,6 +227,7 @@ func TestStringMapBool(t *testing.T) {
 func TestStringMapInt(t *testing.T) {
 	testCases := []testCase{
 		{map[any]any{"v1": 1, "v2": 222}, map[string]int{"v1": 1, "v2": 222}, false},
+		{map[any]int{"v1": 1, "v2": 222}, map[string]int{"v1": 1, "v2": 222}, false},
 		{map[string]any{"v1": 342, "v2": 5141}, map[string]int{"v1": 342, "v2": 5141}, false},
 		{map[string]int{"v1": 33, "v2": 88}, map[string]int{"v1": 33, "v2": 88}, false},
 		{map[string]int32{"v1": int32(33), "v2": int32(88)}, map[string]int{"v1": 33, "v2": 88}, false},
@@ -238,6 +239,7 @@ func TestStringMapInt(t *testing.T) {
 		{nil, map[string]int{}, true},
 		{testing.T{}, map[string]int{}, true},
 		{"", map[string]int{}, true},
+		{map[string]string{"v1": "foo"}, map[string]int{}, true},
 	}
 
 	runMapTests(t, testCases, cast.ToStringMapInt, cast.ToStringMapIntE)
@@ -246,6 +248,7 @@ func TestStringMapInt(t *testing.T) {
 func TestStringMapInt64(t *testing.T) {
 	testCases := []testCase{
 		{map[any]any{"v1": int32(8), "v2": int32(888)}, map[string]int64{"v1": int64(8), "v2": int64(888)}, false},
+		{map[any]int64{"v1": int64(8), "v2": int64(888)}, map[string]int64{"v1": int64(8), "v2": int64(888)}, false},
 		{map[string]any{"v1": int64(45), "v2": int64(67)}, map[string]int64{"v1": 45, "v2": 67}, false},
 		{map[string]int64{"v1": 33, "v2": 88}, map[string]int64{"v1": 33, "v2": 88}, false},
 		{map[string]int{"v1": 33, "v2": 88}, map[string]int64{"v1": 33, "v2": 88}, false},
@@ -258,6 +261,7 @@ func TestStringMapInt64(t *testing.T) {
 		{nil, map[string]int64{}, true},
 		{testing.T{}, map[string]int64{}, true},
 		{"", map[string]int64{}, true},
+		{map[string]string{"v1": "foo"}, map[string]int64{}, true},
 	}
 
 	runMapTests(t, testCases, cast.ToStringMapInt64, cast.ToStringMapInt64E)

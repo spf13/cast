@@ -7,6 +7,7 @@ package cast_test
 
 import (
 	"encoding/json"
+	"errors"
 	"math"
 	"math/big"
 	"reflect"
@@ -308,6 +309,15 @@ func TestNumber(t *testing.T) {
 							c.Assert(v, qt.Equals, testCase.expected)
 						})
 
+						t.Run("ToBasic", func(t *testing.T) {
+							t.Parallel()
+
+							c := qt.New(t)
+
+							v := ctx.to(testCase.input)
+							c.Assert(v, qt.Equals, testCase.expected)
+						})
+
 						t.Run("ToTypeE", func(t *testing.T) {
 							t.Parallel()
 
@@ -336,6 +346,20 @@ func TestNumber(t *testing.T) {
 							}
 						})
 
+						t.Run("ToBasicE", func(t *testing.T) {
+							t.Parallel()
+
+							c := qt.New(t)
+
+							v, err := ctx.toErr(testCase.input)
+							if testCase.expectError {
+								c.Assert(err, qt.IsNotNil)
+							} else {
+								c.Assert(err, qt.IsNil)
+								c.Assert(v, qt.Equals, testCase.expected)
+							}
+						})
+
 						t.Run("Pointer", func(t *testing.T) {
 							t.Run("ToType", func(t *testing.T) {
 								t.Parallel()
@@ -352,6 +376,15 @@ func TestNumber(t *testing.T) {
 								c := qt.New(t)
 
 								v := ctx.generic(&testCase.input)
+								c.Assert(v, qt.Equals, testCase.expected)
+							})
+
+							t.Run("ToBasic", func(t *testing.T) {
+								t.Parallel()
+
+								c := qt.New(t)
+
+								v := ctx.to(&testCase.input)
 								c.Assert(v, qt.Equals, testCase.expected)
 							})
 
@@ -375,6 +408,20 @@ func TestNumber(t *testing.T) {
 								c := qt.New(t)
 
 								v, err := ctx.genericErr(&testCase.input)
+								if testCase.expectError {
+									c.Assert(err, qt.IsNotNil)
+								} else {
+									c.Assert(err, qt.IsNil)
+									c.Assert(v, qt.Equals, testCase.expected)
+								}
+							})
+
+							t.Run("ToBasicE", func(t *testing.T) {
+								t.Parallel()
+
+								c := qt.New(t)
+
+								v, err := ctx.toErr(&testCase.input)
 								if testCase.expectError {
 									c.Assert(err, qt.IsNotNil)
 								} else {
@@ -463,4 +510,295 @@ func BenchmarkNumber(b *testing.B) {
 			})
 		})
 	}
+}
+
+type mockFloat64Provider struct {
+	val float64
+}
+
+func (m mockFloat64Provider) Float64() float64 {
+	return m.val
+}
+
+type mockFloat64EProvider struct {
+	val float64
+	err error
+}
+
+func (m mockFloat64EProvider) Float64() (float64, error) {
+	return m.val, m.err
+}
+
+func TestFloat64Providers_Public(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	// mockFloat64Provider success on ToFloat64 / ToFloat64E
+	pValid := mockFloat64Provider{val: 42.5}
+	c.Assert(cast.ToFloat64(pValid), qt.Equals, 42.5)
+	vF64, err := cast.ToFloat64E(pValid)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vF64, qt.Equals, 42.5)
+
+	// Converting float64Provider to non-float64 number fails:
+	_, err = cast.ToIntE(pValid)
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToInt64E(pValid)
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToFloat32E(pValid)
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToUintE(pValid)
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToUint64E(pValid)
+	c.Assert(err, qt.IsNotNil)
+
+	// mockFloat64EProvider success
+	pEValid := mockFloat64EProvider{val: 84.25, err: nil}
+	vFE64, err := cast.ToFloat64E(pEValid)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vFE64, qt.Equals, 84.25)
+	c.Assert(cast.ToFloat64(pEValid), qt.Equals, 84.25)
+
+	// mockFloat64EProvider error
+	pEErr := mockFloat64EProvider{err: errors.New("provider failed")}
+	_, err = cast.ToFloat64E(pEErr)
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(cast.ToFloat64(pEErr), qt.Equals, float64(0))
+
+	// Converting float64EProvider to non-float64 number fails:
+	_, err = cast.ToIntE(pEValid)
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToInt64E(pEValid)
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToFloat32E(pEValid)
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToUintE(pEValid)
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToUint64E(pEValid)
+	c.Assert(err, qt.IsNotNil)
+}
+
+func TestToUnsignedNumber_NegativeTime(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	// Negative time.Weekday
+	v1, err := cast.ToUintE(time.Weekday(-1))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v1, qt.Equals, uint(0))
+	c.Assert(cast.ToUint(time.Weekday(-1)), qt.Equals, uint(0))
+
+	v1_8, err := cast.ToUint8E(time.Weekday(-1))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v1_8, qt.Equals, uint8(0))
+
+	v1_16, err := cast.ToUint16E(time.Weekday(-1))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v1_16, qt.Equals, uint16(0))
+
+	v1_32, err := cast.ToUint32E(time.Weekday(-1))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v1_32, qt.Equals, uint32(0))
+
+	v1_64, err := cast.ToUint64E(time.Weekday(-1))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v1_64, qt.Equals, uint64(0))
+
+	// Negative time.Month
+	v2, err := cast.ToUintE(time.Month(-1))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v2, qt.Equals, uint(0))
+	c.Assert(cast.ToUint(time.Month(-1)), qt.Equals, uint(0))
+
+	v2_8, err := cast.ToUint8E(time.Month(-1))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v2_8, qt.Equals, uint8(0))
+
+	v2_16, err := cast.ToUint16E(time.Month(-1))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v2_16, qt.Equals, uint16(0))
+
+	v2_32, err := cast.ToUint32E(time.Month(-1))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v2_32, qt.Equals, uint32(0))
+
+	v2_64, err := cast.ToUint64E(time.Month(-1))
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(v2_64, qt.Equals, uint64(0))
+}
+
+func TestJSONNumber_Errors(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	invalidJSON := json.Number("not_a_valid_number")
+
+	// Errors in integer casting
+	_, err := cast.ToIntE(invalidJSON)
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(cast.ToInt(invalidJSON), qt.Equals, 0)
+
+	_, err = cast.ToInt64E(invalidJSON)
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(cast.ToInt64(invalidJSON), qt.Equals, int64(0))
+
+	_, err = cast.ToInt32E(invalidJSON)
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToInt16E(invalidJSON)
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToInt8E(invalidJSON)
+	c.Assert(err, qt.IsNotNil)
+
+	// Errors in float casting
+	_, err = cast.ToFloat64E(invalidJSON)
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(cast.ToFloat64(invalidJSON), qt.Equals, float64(0))
+
+	_, err = cast.ToFloat32E(invalidJSON)
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(cast.ToFloat32(invalidJSON), qt.Equals, float32(0))
+
+	// Error in basic.go:ToBoolE (covers basic.go:59!)
+	b, err := cast.ToBoolE(invalidJSON)
+	c.Assert(err, qt.IsNotNil)
+	c.Assert(b, qt.Equals, false)
+	c.Assert(cast.ToBool(invalidJSON), qt.Equals, false)
+
+	// Valid json.Number with ToBoolE
+	b, err = cast.ToBoolE(json.Number("1"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(b, qt.Equals, true)
+
+	b, err = cast.ToBoolE(json.Number("0"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(b, qt.Equals, false)
+}
+
+func TestNumber_FormatsAndOverflow(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	// Hexadecimal
+	c.Assert(cast.ToInt("0x10"), qt.Equals, 16)
+	c.Assert(cast.ToUint("0x10"), qt.Equals, uint(16))
+	c.Assert(cast.ToInt("-0x10"), qt.Equals, -16)
+	c.Assert(cast.ToUint("+0x10"), qt.Equals, uint(16))
+	_, err := cast.ToUintE("-0x10")
+	c.Assert(err, qt.IsNotNil)
+
+	// Octal (0o and legacy 0 prefix)
+	c.Assert(cast.ToInt("0o77"), qt.Equals, 63)
+	c.Assert(cast.ToUint("0o77"), qt.Equals, uint(63))
+	c.Assert(cast.ToInt("-0o77"), qt.Equals, -63)
+	c.Assert(cast.ToInt("077"), qt.Equals, 63)
+	c.Assert(cast.ToUint("077"), qt.Equals, uint(63))
+
+	// Binary
+	c.Assert(cast.ToInt("0b1010"), qt.Equals, 10)
+	c.Assert(cast.ToUint("0b1010"), qt.Equals, uint(10))
+	c.Assert(cast.ToInt("-0b1010"), qt.Equals, -10)
+	_, err = cast.ToUintE("-0b1010")
+	c.Assert(err, qt.IsNotNil)
+
+	// Float overflow (ErrRange)
+	_, err = cast.ToFloat32E("1e40")
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToFloat64E("1e309")
+	c.Assert(err, qt.IsNotNil)
+
+	// Float hex notation
+	c.Assert(cast.ToFloat64("0x10p0"), qt.Equals, float64(16))
+	c.Assert(cast.ToFloat64("0x1p-2"), qt.Equals, float64(0.25))
+
+	// Whitespace rejects
+	_, err = cast.ToIntE(" 123 ")
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToUintE(" 123 ")
+	c.Assert(err, qt.IsNotNil)
+	_, err = cast.ToFloat64E(" 123.45 ")
+	c.Assert(err, qt.IsNotNil)
+
+	// Decimal trim special cases
+	c.Assert(cast.ToInt(".5"), qt.Equals, 0)
+	c.Assert(cast.ToInt("+8."), qt.Equals, 8)
+	c.Assert(cast.ToInt("+0.25"), qt.Equals, 0)
+	c.Assert(cast.ToInt("-0.25"), qt.Equals, 0)
+	c.Assert(cast.ToUint("+8."), qt.Equals, uint(8))
+}
+
+type customStringer struct {
+	text string
+}
+
+func (s customStringer) String() string {
+	return s.text
+}
+
+func TestPointersAndInterfaces(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	// Nil pointers
+	var pi *int
+	c.Assert(cast.ToInt(pi), qt.Equals, 0)
+	vInt, err := cast.ToIntE(pi)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vInt, qt.Equals, 0)
+
+	var pu *uint
+	c.Assert(cast.ToUint(pu), qt.Equals, uint(0))
+	vUint, err := cast.ToUintE(pu)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vUint, qt.Equals, uint(0))
+
+	var pf *float64
+	c.Assert(cast.ToFloat64(pf), qt.Equals, float64(0))
+	vFloat, err := cast.ToFloat64E(pf)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vFloat, qt.Equals, float64(0))
+
+	var ps *string
+	c.Assert(cast.ToString(ps), qt.Equals, "")
+	vStr, err := cast.ToStringE(ps)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vStr, qt.Equals, "")
+
+	var pb *bool
+	c.Assert(cast.ToBool(pb), qt.Equals, false)
+	vBool, err := cast.ToBoolE(pb)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vBool, qt.Equals, false)
+
+	// Multi-level pointers
+	val := 99
+	p1 := &val
+	p2 := &p1
+	p3 := &p2
+	c.Assert(cast.ToInt(p3), qt.Equals, 99)
+	vMulti, err := cast.ToIntE(p3)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vMulti, qt.Equals, 99)
+
+	// Multi-level nil pointer
+	var pNil *int
+	pNil2 := &pNil
+	c.Assert(cast.ToInt(pNil2), qt.Equals, 0)
+
+	// Stringer in ToStringE
+	cs := customStringer{text: "hello world"}
+	c.Assert(cast.ToString(cs), qt.Equals, "hello world")
+	sRes, err := cast.ToStringE(cs)
+	c.Assert(err, qt.IsNil)
+	c.Assert(sRes, qt.Equals, "hello world")
+
+	// Stringer passed to ToIntE fails (cast does not parse Stringer to number)
+	_, err = cast.ToIntE(cs)
+	c.Assert(err, qt.IsNotNil)
+
+	// error interface in ToStringE
+	myErr := errors.New("something went wrong")
+	c.Assert(cast.ToString(myErr), qt.Equals, "something went wrong")
+	eRes, err := cast.ToStringE(myErr)
+	c.Assert(err, qt.IsNil)
+	c.Assert(eRes, qt.Equals, "something went wrong")
 }

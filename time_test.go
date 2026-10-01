@@ -7,6 +7,7 @@ package cast_test
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path"
 	"testing"
@@ -289,4 +290,231 @@ func locationEqual(a, b *time.Location) bool {
 	}
 
 	return tA.Equal(tB)
+}
+
+func TestStringToDate(t *testing.T) {
+	c := qt.New(t)
+
+	t.Run("Valid date formats in UTC", func(t *testing.T) {
+		d, err := cast.StringToDate("2009-11-10 23:00:00 +0000 UTC")
+		c.Assert(err, qt.IsNil)
+		c.Assert(d, qt.Equals, time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC))
+
+		d2, err := cast.StringToDate("2009-11-10")
+		c.Assert(err, qt.IsNil)
+		c.Assert(d2, qt.Equals, time.Date(2009, 11, 10, 0, 0, 0, 0, time.UTC))
+
+		d3, err := cast.StringToDate("2009-11-10T23:00:00Z")
+		c.Assert(err, qt.IsNil)
+		c.Assert(d3, qt.Equals, time.Date(2009, 11, 10, 23, 0, 0, 0, time.UTC))
+
+		d4, err := cast.StringToDate("2016-03-06 15:28:01-00:00")
+		c.Assert(err, qt.IsNil)
+		c.Assert(d4.Equal(time.Date(2016, 3, 6, 15, 28, 1, 0, time.UTC)), qt.IsTrue)
+	})
+
+	t.Run("Invalid date returns error", func(t *testing.T) {
+		_, err := cast.StringToDate("invalid-date")
+		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(err.Error(), qt.Equals, "unable to parse date: invalid-date")
+
+		_, err = cast.StringToDate("")
+		c.Assert(err, qt.Not(qt.IsNil))
+	})
+}
+
+func TestToTimeInDefaultLocation(t *testing.T) {
+	c := qt.New(t)
+
+	loc, err := time.LoadLocation("America/New_York")
+	c.Assert(err, qt.IsNil)
+
+	t.Run("Success with UTC", func(t *testing.T) {
+		d := cast.ToTimeInDefaultLocation("2020-01-01", time.UTC)
+		c.Assert(d, qt.Equals, time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC))
+	})
+
+	t.Run("Success with custom location", func(t *testing.T) {
+		d := cast.ToTimeInDefaultLocation("2020-01-01 10:00:00", loc)
+		c.Assert(d, qt.Equals, time.Date(2020, 1, 1, 10, 0, 0, 0, loc))
+	})
+
+	t.Run("Invalid input returns zero time", func(t *testing.T) {
+		d := cast.ToTimeInDefaultLocation("invalid-time-val", time.UTC)
+		c.Assert(d, qt.Equals, time.Time{})
+	})
+}
+
+type timeMockFloat64Provider struct {
+	val float64
+}
+
+func (m timeMockFloat64Provider) Float64() float64 {
+	return m.val
+}
+
+type timeMockFloat64EProvider struct {
+	val float64
+	err error
+}
+
+func (m timeMockFloat64EProvider) Float64() (float64, error) {
+	return m.val, m.err
+}
+
+func TestDurationProvidersAndEdgeCases(t *testing.T) {
+	c := qt.New(t)
+
+	t.Run("float64Provider success", func(t *testing.T) {
+		d, err := cast.ToDurationE(timeMockFloat64Provider{val: 5000})
+		c.Assert(err, qt.IsNil)
+		c.Assert(d, qt.Equals, time.Duration(5000))
+	})
+
+	t.Run("float64EProvider success", func(t *testing.T) {
+		d, err := cast.ToDurationE(timeMockFloat64EProvider{val: 2500, err: nil})
+		c.Assert(err, qt.IsNil)
+		c.Assert(d, qt.Equals, time.Duration(2500))
+	})
+
+	t.Run("float64EProvider error branch", func(t *testing.T) {
+		d, err := cast.ToDurationE(timeMockFloat64EProvider{val: 0, err: errors.New("provider failure")})
+		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(d, qt.Equals, time.Duration(0))
+		c.Assert(err.Error(), qt.Contains, "time.Duration")
+	})
+
+	t.Run("String durations edge cases", func(t *testing.T) {
+		d, err := cast.ToDurationE("-500")
+		c.Assert(err, qt.IsNil)
+		c.Assert(d, qt.Equals, time.Duration(-500))
+
+		d, err = cast.ToDurationE("-5s")
+		c.Assert(err, qt.IsNil)
+		c.Assert(d, qt.Equals, -5*time.Second)
+
+		_, err = cast.ToDurationE("5m-invalid")
+		c.Assert(err, qt.Not(qt.IsNil))
+
+		_, err = cast.ToDurationE("")
+		c.Assert(err, qt.Not(qt.IsNil))
+	})
+
+	t.Run("Alias unhandled type fallback", func(t *testing.T) {
+		type MyBool bool
+		_, err := cast.ToDurationE(MyBool(true))
+		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(err.Error(), qt.Contains, "unable to cast true of type bool to time.Duration")
+
+		type unhandledStruct struct{}
+		_, err = cast.ToDurationE(unhandledStruct{})
+		c.Assert(err, qt.Not(qt.IsNil))
+		c.Assert(err.Error(), qt.Contains, "to time.Duration")
+	})
+
+	t.Run("Negative numbers to duration", func(t *testing.T) {
+		d, err := cast.ToDurationE(int(-100))
+		c.Assert(err, qt.IsNil)
+		c.Assert(d, qt.Equals, time.Duration(-100))
+
+		d, err = cast.ToDurationE(float64(-200))
+		c.Assert(err, qt.IsNil)
+		c.Assert(d, qt.Equals, time.Duration(-200))
+
+		d, err = cast.ToDurationE(int64(-300))
+		c.Assert(err, qt.IsNil)
+		c.Assert(d, qt.Equals, time.Duration(-300))
+	})
+}
+
+func TestTimeEdgeCases(t *testing.T) {
+	c := qt.New(t)
+
+	t.Run("json.Number zero decimal trimming", func(t *testing.T) {
+		tm, err := cast.ToTimeE(json.Number("1482597504.000000"))
+		c.Assert(err, qt.IsNil)
+		c.Assert(tm, qt.Equals, time.Unix(1482597504, 0))
+	})
+
+	t.Run("json.Number empty or invalid string", func(t *testing.T) {
+		_, err := cast.ToTimeE(json.Number(""))
+		c.Assert(err, qt.Not(qt.IsNil))
+
+		_, err = cast.ToTimeE(json.Number("abc"))
+		c.Assert(err, qt.Not(qt.IsNil))
+	})
+
+	t.Run("Negative timestamp integers", func(t *testing.T) {
+		tm, err := cast.ToTimeE(int64(-1000))
+		c.Assert(err, qt.IsNil)
+		c.Assert(tm, qt.Equals, time.Unix(-1000, 0))
+
+		tm, err = cast.ToTimeE(int(-1000))
+		c.Assert(err, qt.IsNil)
+		c.Assert(tm, qt.Equals, time.Unix(-1000, 0))
+
+		tm, err = cast.ToTimeE(int32(-1000))
+		c.Assert(err, qt.IsNil)
+		c.Assert(tm, qt.Equals, time.Unix(-1000, 0))
+	})
+
+	t.Run("Pointer to int timestamp", func(t *testing.T) {
+		val := 1482597504
+		tm, err := cast.ToTimeE(&val)
+		c.Assert(err, qt.IsNil)
+		c.Assert(tm, qt.Equals, time.Unix(1482597504, 0))
+
+		var nilInt *int
+		tm, err = cast.ToTimeE(nilInt)
+		c.Assert(err, qt.IsNil)
+		c.Assert(tm, qt.Equals, time.Time{})
+	})
+
+	t.Run("Pointer to json.Number", func(t *testing.T) {
+		jn := json.Number("1482597504")
+		tm, err := cast.ToTimeE(&jn)
+		c.Assert(err, qt.IsNil)
+		c.Assert(tm, qt.Equals, time.Unix(1482597504, 0))
+	})
+
+	t.Run("Unsupported types", func(t *testing.T) {
+		_, err := cast.ToTimeE(true)
+		c.Assert(err, qt.Not(qt.IsNil))
+
+		_, err = cast.ToTimeE(float64(1482597504))
+		c.Assert(err, qt.Not(qt.IsNil))
+
+		_, err = cast.ToTimeE([]byte("2020-01-01"))
+		c.Assert(err, qt.Not(qt.IsNil))
+	})
+}
+
+func TestTimeConcurrentSafety(t *testing.T) {
+	c := qt.New(t)
+
+	const goroutines = 50
+	const iterations = 100
+	done := make(chan bool, goroutines)
+
+	for g := 0; g < goroutines; g++ {
+		go func(id int) {
+			defer func() { done <- true }()
+			for i := 0; i < iterations; i++ {
+				_, err1 := cast.ToTimeE("2023-05-15T10:30:00Z")
+				_, err2 := cast.ToDurationE("5s")
+				_, err3 := cast.StringToDate("2023-05-15")
+				_, err4 := cast.ToDurationE(500)
+				d5 := cast.ToTimeInDefaultLocation("2023-05-15 12:00:00", time.UTC)
+				if err1 != nil || err2 != nil || err3 != nil || err4 != nil || d5.IsZero() {
+					t.Errorf("unexpected error in concurrent test")
+					return
+				}
+			}
+		}(g)
+	}
+
+	for g := 0; g < goroutines; g++ {
+		<-done
+	}
+	c.Assert(true, qt.IsTrue)
 }

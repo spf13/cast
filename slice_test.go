@@ -282,3 +282,223 @@ func TestDurationSlice(t *testing.T) {
 
 	runSliceTests(t, testCases, cast.ToDurationSlice, cast.ToDurationSliceE)
 }
+
+func runSliceETests[T cast.Basic](t *testing.T, testCases []testCase, toErr func(i any) ([]T, error)) {
+	for _, testCase := range testCases {
+		// TODO: remove after minimum Go version is >=1.22
+		testCase := testCase
+
+		t.Run("", func(t *testing.T) {
+			t.Parallel()
+
+			t.Run("Value", func(t *testing.T) {
+				t.Run("ToTypeE", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v, err := toErr(testCase.input)
+					if testCase.expectError {
+						c.Assert(err, qt.IsNotNil)
+					} else {
+						c.Assert(err, qt.IsNil)
+						c.Assert(v, qt.DeepEquals, testCase.expected)
+					}
+				})
+			})
+
+			t.Run("Pointer", func(t *testing.T) {
+				t.Run("ToTypeE", func(t *testing.T) {
+					t.Parallel()
+
+					c := qt.New(t)
+
+					v, err := toErr(&testCase.input)
+					if testCase.expectError {
+						c.Assert(err, qt.IsNotNil)
+					} else {
+						c.Assert(err, qt.IsNil)
+						c.Assert(v, qt.DeepEquals, testCase.expected)
+					}
+				})
+			})
+		})
+	}
+}
+
+func TestInt8Slice(t *testing.T) {
+	testCases := []testCase{
+		{[]int8{-128, 0, 127}, []int8{-128, 0, 127}, false},
+		{[]any{int8(1), int(2), "3"}, []int8{1, 2, 3}, false},
+		{[]int{1, 3}, []int8{1, 3}, false},
+		{[]string{"1", "3"}, []int8{1, 3}, false},
+		{[2]int{1, 3}, []int8{1, 3}, false},
+		{[]float64{1.0, 3.0}, []int8{1, 3}, false},
+		{[]bool{true, false}, []int8{1, 0}, false},
+		{[]any{}, []int8{}, false},
+
+		// Failure cases
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+		{[]string{"9223372036854775808"}, nil, true},  // Overflow math.MaxInt64
+		{[]string{"-9223372036854775809"}, nil, true}, // Underflow math.MinInt64
+	}
+
+	runSliceETests(t, testCases, cast.ToInt8SliceE)
+}
+
+func TestInt16Slice(t *testing.T) {
+	testCases := []testCase{
+		{[]int16{-32768, 0, 32767}, []int16{-32768, 0, 32767}, false},
+		{[]any{int16(1), int(2), "3"}, []int16{1, 2, 3}, false},
+		{[]int{1, 3}, []int16{1, 3}, false},
+		{[]string{"1", "3"}, []int16{1, 3}, false},
+		{[2]int{1, 3}, []int16{1, 3}, false},
+		{[]float64{1.0, 3.0}, []int16{1, 3}, false},
+		{[]bool{true, false}, []int16{1, 0}, false},
+		{[]any{}, []int16{}, false},
+
+		// Failure cases
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+		{[]string{"9223372036854775808"}, nil, true},  // Overflow math.MaxInt64
+		{[]string{"-9223372036854775809"}, nil, true}, // Underflow math.MinInt64
+	}
+
+	runSliceETests(t, testCases, cast.ToInt16SliceE)
+}
+
+func TestInt32Slice(t *testing.T) {
+	testCases := []testCase{
+		{[]int32{-2147483648, 0, 2147483647}, []int32{-2147483648, 0, 2147483647}, false},
+		{[]any{int32(1), int(2), "3"}, []int32{1, 2, 3}, false},
+		{[]int{1, 3}, []int32{1, 3}, false},
+		{[]string{"1", "3"}, []int32{1, 3}, false},
+		{[2]int{1, 3}, []int32{1, 3}, false},
+		{[]float64{1.0, 3.0}, []int32{1, 3}, false},
+		{[]bool{true, false}, []int32{1, 0}, false},
+		{[]any{}, []int32{}, false},
+
+		// Failure cases
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+		{[]string{"9223372036854775808"}, nil, true},  // Overflow math.MaxInt64
+		{[]string{"-9223372036854775809"}, nil, true}, // Underflow math.MinInt64
+	}
+
+	runSliceETests(t, testCases, cast.ToInt32SliceE)
+}
+
+func TestUint8Slice(t *testing.T) {
+	testCases := []testCase{
+		{[]uint8{0, 1, 255}, []uint8{0, 1, 255}, false},
+		{[]any{uint8(1), int(2), "3"}, []uint8{1, 2, 3}, false},
+		{[]int{1, 3}, []uint8{1, 3}, false},
+		{[]string{"1", "3"}, []uint8{1, 3}, false},
+		{[2]int{1, 3}, []uint8{1, 3}, false},
+		{[]float64{1.0, 3.0}, []uint8{1, 3}, false},
+		{[]bool{true, false}, []uint8{1, 0}, false},
+		{[]any{}, []uint8{}, false},
+
+		// Failure cases
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+		{[]int{-1}, nil, true},                        // Negative value to uint8
+		{[]string{"-1"}, nil, true},                   // Negative string to uint8
+		{[]string{"18446744073709551616"}, nil, true}, // Overflow math.MaxUint64
+	}
+
+	runSliceETests(t, testCases, cast.ToUint8SliceE)
+}
+
+func TestUint16Slice(t *testing.T) {
+	testCases := []testCase{
+		{[]uint16{0, 1, 65535}, []uint16{0, 1, 65535}, false},
+		{[]any{uint16(1), int(2), "3"}, []uint16{1, 2, 3}, false},
+		{[]int{1, 3}, []uint16{1, 3}, false},
+		{[]string{"1", "3"}, []uint16{1, 3}, false},
+		{[2]int{1, 3}, []uint16{1, 3}, false},
+		{[]float64{1.0, 3.0}, []uint16{1, 3}, false},
+		{[]bool{true, false}, []uint16{1, 0}, false},
+		{[]any{}, []uint16{}, false},
+
+		// Failure cases
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+		{[]int{-1}, nil, true},                        // Negative value to uint16
+		{[]string{"-1"}, nil, true},                   // Negative string to uint16
+		{[]string{"18446744073709551616"}, nil, true}, // Overflow math.MaxUint64
+	}
+
+	runSliceETests(t, testCases, cast.ToUint16SliceE)
+}
+
+func TestUint32Slice(t *testing.T) {
+	testCases := []testCase{
+		{[]uint32{0, 1, 4294967295}, []uint32{0, 1, 4294967295}, false},
+		{[]any{uint32(1), int(2), "3"}, []uint32{1, 2, 3}, false},
+		{[]int{1, 3}, []uint32{1, 3}, false},
+		{[]string{"1", "3"}, []uint32{1, 3}, false},
+		{[2]int{1, 3}, []uint32{1, 3}, false},
+		{[]float64{1.0, 3.0}, []uint32{1, 3}, false},
+		{[]bool{true, false}, []uint32{1, 0}, false},
+		{[]any{}, []uint32{}, false},
+
+		// Failure cases
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+		{[]int{-1}, nil, true},                        // Negative value to uint32
+		{[]string{"-1"}, nil, true},                   // Negative string to uint32
+		{[]string{"18446744073709551616"}, nil, true}, // Overflow math.MaxUint64
+	}
+
+	runSliceETests(t, testCases, cast.ToUint32SliceE)
+}
+
+func TestUint64Slice(t *testing.T) {
+	testCases := []testCase{
+		{[]uint64{0, 1, 18446744073709551615}, []uint64{0, 1, 18446744073709551615}, false},
+		{[]any{uint64(1), int(2), "3"}, []uint64{1, 2, 3}, false},
+		{[]int{1, 3}, []uint64{1, 3}, false},
+		{[]string{"1", "3"}, []uint64{1, 3}, false},
+		{[2]int{1, 3}, []uint64{1, 3}, false},
+		{[]float64{1.0, 3.0}, []uint64{1, 3}, false},
+		{[]bool{true, false}, []uint64{1, 0}, false},
+		{[]any{}, []uint64{}, false},
+
+		// Failure cases
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+		{[]int{-1}, nil, true},                        // Negative value to uint64
+		{[]string{"18446744073709551616"}, nil, true}, // Overflow math.MaxUint64
+		{[]string{"-1"}, nil, true},                   // Negative string to uint64
+	}
+
+	runSliceETests(t, testCases, cast.ToUint64SliceE)
+}
+
+func TestFloat32Slice(t *testing.T) {
+	testCases := []testCase{
+		{[]float32{1.5, 3.5}, []float32{1.5, 3.5}, false},
+		{[]any{float32(1.5), int(2), "3.5"}, []float32{1.5, 2.0, 3.5}, false},
+		{[]int{1, 3}, []float32{1.0, 3.0}, false},
+		{[]string{"1.5", "3.5"}, []float32{1.5, 3.5}, false},
+		{[2]float64{1.5, 3.5}, []float32{1.5, 3.5}, false},
+		{[]bool{true, false}, []float32{1.0, 0.0}, false},
+		{[]any{}, []float32{}, false},
+
+		// Failure cases
+		{nil, nil, true},
+		{testing.T{}, nil, true},
+		{[]string{"foo", "bar"}, nil, true},
+	}
+
+	runSliceETests(t, testCases, cast.ToFloat32SliceE)
+}

@@ -6,6 +6,7 @@
 package cast
 
 import (
+	"errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -184,4 +185,59 @@ func BenchmarkDecimal(b *testing.B) {
 			})
 		})
 	}
+}
+
+type internalMockFloat64Provider struct {
+	val float64
+}
+
+func (m internalMockFloat64Provider) Float64() float64 {
+	return m.val
+}
+
+type internalMockFloat64EProvider struct {
+	val float64
+	err error
+}
+
+func (m internalMockFloat64EProvider) Float64() (float64, error) {
+	return m.val, m.err
+}
+
+func TestTrimZeroDecimal_Additional(t *testing.T) {
+	c := qt.New(t)
+
+	// Triggers fallback line 521 (return s)
+	c.Assert(trimZeroDecimal(""), qt.Equals, "")
+	c.Assert(trimZeroDecimal("0"), qt.Equals, "0")
+	c.Assert(trimZeroDecimal("000"), qt.Equals, "000")
+	c.Assert(trimZeroDecimal("."), qt.Equals, ".")
+	c.Assert(trimZeroDecimal("123"), qt.Equals, "123")
+	c.Assert(trimZeroDecimal("abc"), qt.Equals, "abc")
+}
+
+func TestToUnsignedNumberE_Float64Providers(t *testing.T) {
+	c := qt.New(t)
+
+	// float64Provider positive
+	v, err := toUnsignedNumberE[float64](internalMockFloat64Provider{val: 42.5}, parseFloat[float64])
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.Equals, 42.5)
+
+	// float64Provider negative
+	_, err = toUnsignedNumberE[float64](internalMockFloat64Provider{val: -42.5}, parseFloat[float64])
+	c.Assert(err, qt.Equals, errNegativeNotAllowed)
+
+	// float64EProvider positive
+	v, err = toUnsignedNumberE[float64](internalMockFloat64EProvider{val: 42.5, err: nil}, parseFloat[float64])
+	c.Assert(err, qt.IsNil)
+	c.Assert(v, qt.Equals, 42.5)
+
+	// float64EProvider negative
+	_, err = toUnsignedNumberE[float64](internalMockFloat64EProvider{val: -42.5, err: nil}, parseFloat[float64])
+	c.Assert(err, qt.Equals, errNegativeNotAllowed)
+
+	// float64EProvider error
+	_, err = toUnsignedNumberE[float64](internalMockFloat64EProvider{err: errors.New("err")}, parseFloat[float64])
+	c.Assert(err, qt.IsNotNil)
 }
