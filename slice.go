@@ -17,6 +17,10 @@ func ToSliceE(i any) ([]any, error) {
 
 	var s []any
 
+	if i == nil {
+		return s, fmt.Errorf(errorMsg, i, i, s)
+	}
+
 	switch v := i.(type) {
 	case []any:
 		// TODO: use slices.Clone
@@ -28,6 +32,16 @@ func ToSliceE(i any) ([]any, error) {
 
 		return s, nil
 	default:
+		kind := reflect.TypeOf(i).Kind()
+		if kind == reflect.Slice || kind == reflect.Array {
+			rv := reflect.ValueOf(i)
+			out := make([]any, rv.Len())
+			for idx := 0; idx < rv.Len(); idx++ {
+				out[idx] = rv.Index(idx).Interface()
+			}
+			return out, nil
+		}
+
 		return s, fmt.Errorf(errorMsg, i, i, s)
 	}
 }

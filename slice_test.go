@@ -230,9 +230,18 @@ func TestUintSlice(t *testing.T) {
 }
 
 func TestSlice(t *testing.T) {
+	type user struct {
+		Name string
+	}
+
 	testCases := []testCase{
 		{[]any{1, 3}, []any{1, 3}, false},
 		{[]map[string]any{{"k1": 1}, {"k2": 2}}, []any{map[string]any{"k1": 1}, map[string]any{"k2": 2}}, false},
+		{[]int{1, 2, 3}, []any{1, 2, 3}, false},
+		{[]string{"a", "b"}, []any{"a", "b"}, false},
+		{[3]int{1, 2, 3}, []any{1, 2, 3}, false},
+		{[2]string{"a", "b"}, []any{"a", "b"}, false},
+		{[]user{{"alice"}, {"bob"}}, []any{user{"alice"}, user{"bob"}}, false},
 
 		// Failure cases
 		{nil, nil, true},
