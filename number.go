@@ -414,8 +414,13 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
+	cleaned := strings.TrimLeft(trimDecimal(s), "+")
+	v, err := strconv.ParseUint(cleaned, 0, 0)
 	if err != nil {
+		if vHex, hexErr := strconv.ParseUint(cleaned, 16, 0); hexErr == nil {
+			return T(vHex), nil
+		}
+
 		return 0, err
 	}
 
