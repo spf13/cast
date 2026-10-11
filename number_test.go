@@ -464,3 +464,132 @@ func BenchmarkNumber(b *testing.B) {
 		})
 	}
 }
+
+func TestTypedNumericOverflow(t *testing.T) {
+	c := qt.New(t)
+
+	for name, tc := range map[string]struct {
+		convert func(any) error
+		input   any
+	}{
+		"uint64 max to int64":              {func(i any) error { _, err := cast.ToInt64E(i); return err }, uint64(math.MaxUint64)},
+		"float64 2^63 to int64":            {func(i any) error { _, err := cast.ToInt64E(i); return err }, float64(math.MaxInt64)},
+		"float64 1e300 to int64":           {func(i any) error { _, err := cast.ToInt64E(i); return err }, 1e300},
+		"inf to int64":                     {func(i any) error { _, err := cast.ToInt64E(i); return err }, math.Inf(1)},
+		"neg inf to int64":                 {func(i any) error { _, err := cast.ToInt64E(i); return err }, math.Inf(-1)},
+		"nan to int64":                     {func(i any) error { _, err := cast.ToInt64E(i); return err }, math.NaN()},
+		"float64 1e300 to int8":            {func(i any) error { _, err := cast.ToInt8E(i); return err }, 1e300},
+		"nan to uint64":                    {func(i any) error { _, err := cast.ToUint64E(i); return err }, math.NaN()},
+		"inf to uint64":                    {func(i any) error { _, err := cast.ToUint64E(i); return err }, math.Inf(1)},
+		"int64 300 to int8":                {func(i any) error { _, err := cast.ToInt8E(i); return err }, int64(300)},
+		"int64 -129 to int8":               {func(i any) error { _, err := cast.ToInt8E(i); return err }, int64(-129)},
+		"int64 32768 to int16":             {func(i any) error { _, err := cast.ToInt16E(i); return err }, int64(32768)},
+		"int64 -32769 to int16":            {func(i any) error { _, err := cast.ToInt16E(i); return err }, int64(-32769)},
+		"int64 2147483648 to int32":        {func(i any) error { _, err := cast.ToInt32E(i); return err }, int64(2147483648)},
+		"int64 -2147483649 to int32":       {func(i any) error { _, err := cast.ToInt32E(i); return err }, int64(-2147483649)},
+		"uint64 300 to uint8":              {func(i any) error { _, err := cast.ToUint8E(i); return err }, uint64(300)},
+		"uint64 65536 to uint16":           {func(i any) error { _, err := cast.ToUint16E(i); return err }, uint64(65536)},
+		"uint64 4294967296 to uint32":      {func(i any) error { _, err := cast.ToUint32E(i); return err }, uint64(4294967296)},
+		"uint64 max to int":                {func(i any) error { _, err := cast.ToIntE(i); return err }, uint64(math.MaxUint64)},
+		"float64 -1e300 to uint64":         {func(i any) error { _, err := cast.ToUint64E(i); return err }, -1e300},
+		"float64 128 to int8":              {func(i any) error { _, err := cast.ToInt8E(i); return err }, float64(128.0)},
+		"float64 -129 to int8":             {func(i any) error { _, err := cast.ToInt8E(i); return err }, float64(-129.0)},
+		"float64 256 to uint8":             {func(i any) error { _, err := cast.ToUint8E(i); return err }, float64(256.0)},
+		"float64 32768 to int16":           {func(i any) error { _, err := cast.ToInt16E(i); return err }, float64(32768.0)},
+		"float64 -32769 to int16":          {func(i any) error { _, err := cast.ToInt16E(i); return err }, float64(-32769.0)},
+		"float64 65536 to uint16":          {func(i any) error { _, err := cast.ToUint16E(i); return err }, float64(65536.0)},
+		"float64 2147483648 to int32":      {func(i any) error { _, err := cast.ToInt32E(i); return err }, float64(2147483648.0)},
+		"float64 -2147483649 to int32":     {func(i any) error { _, err := cast.ToInt32E(i); return err }, float64(-2147483649.0)},
+		"float64 4294967296 to uint32":     {func(i any) error { _, err := cast.ToUint32E(i); return err }, float64(4294967296.0)},
+		"generic ToNumberE int8 overflow":  {func(i any) error { _, err := cast.ToNumberE[int8](i); return err }, int64(300)},
+		"generic ToNumberE uint8 overflow": {func(i any) error { _, err := cast.ToNumberE[uint8](i); return err }, uint64(300)},
+		"generic ToE int8 overflow":        {func(i any) error { _, err := cast.ToE[int8](i); return err }, int64(300)},
+		"generic ToE uint8 overflow":       {func(i any) error { _, err := cast.ToE[uint8](i); return err }, uint64(300)},
+		"time.Weekday overflow":            {func(i any) error { _, err := cast.ToInt8E(i); return err }, time.Weekday(300)},
+		"time.Month overflow":              {func(i any) error { _, err := cast.ToInt8E(i); return err }, time.Month(300)},
+	} {
+		t.Run(name, func(t *testing.T) {
+			c.Assert(tc.convert(tc.input), qt.IsNotNil, qt.Commentf("conversion of %v should error", tc.input))
+		})
+	}
+}
+
+func TestTypedNumericInRange(t *testing.T) {
+	c := qt.New(t)
+
+	v64, err := cast.ToInt64E(int64(42))
+	c.Assert(err, qt.IsNil)
+	c.Assert(v64, qt.Equals, int64(42))
+
+	v64, err = cast.ToInt64E(3.7)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v64, qt.Equals, int64(3))
+
+	v8, err := cast.ToInt8E(-128.9)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v8, qt.Equals, int8(-128))
+
+	v8, err = cast.ToInt8E(127.9)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v8, qt.Equals, int8(127))
+
+	v16, err := cast.ToInt16E(-32768.9)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v16, qt.Equals, int16(-32768))
+
+	v16, err = cast.ToInt16E(32767.9)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v16, qt.Equals, int16(32767))
+
+	v32, err := cast.ToInt32E(-2147483648.9)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v32, qt.Equals, int32(-2147483648))
+
+	v32, err = cast.ToInt32E(2147483647.9)
+	c.Assert(err, qt.IsNil)
+	c.Assert(v32, qt.Equals, int32(2147483647))
+
+	vu8, err := cast.ToUint8E(255.9)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vu8, qt.Equals, uint8(255))
+
+	vu16, err := cast.ToUint16E(65535.9)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vu16, qt.Equals, uint16(65535))
+
+	vu32, err := cast.ToUint32E(4294967295.9)
+	c.Assert(err, qt.IsNil)
+	c.Assert(vu32, qt.Equals, uint32(4294967295))
+
+	vu64, err := cast.ToUint64E(uint64(7))
+	c.Assert(err, qt.IsNil)
+	c.Assert(vu64, qt.Equals, uint64(7))
+
+	v16, err = cast.ToInt16E(int32(1000))
+	c.Assert(err, qt.IsNil)
+	c.Assert(v16, qt.Equals, int16(1000))
+
+	v32, err = cast.ToInt32E(int64(100000))
+	c.Assert(err, qt.IsNil)
+	c.Assert(v32, qt.Equals, int32(100000))
+
+	vu8, err = cast.ToUint8E(uint16(200))
+	c.Assert(err, qt.IsNil)
+	c.Assert(vu8, qt.Equals, uint8(200))
+
+	vu16, err = cast.ToUint16E(uint32(50000))
+	c.Assert(err, qt.IsNil)
+	c.Assert(vu16, qt.Equals, uint16(50000))
+
+	vu32, err = cast.ToUint32E(uint64(3000000000))
+	c.Assert(err, qt.IsNil)
+	c.Assert(vu32, qt.Equals, uint32(3000000000))
+
+	vf32, err := cast.ToFloat32E(float64(1.5))
+	c.Assert(err, qt.IsNil)
+	c.Assert(vf32, qt.Equals, float32(1.5))
+
+	vf64, err := cast.ToFloat64E(float32(1.5))
+	c.Assert(err, qt.IsNil)
+	c.Assert(vf64, qt.Equals, float64(1.5))
+}
