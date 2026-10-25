@@ -63,7 +63,7 @@ func ParseDateWith(s string, location *time.Location, formats []TimeFormat) (d t
 			// Some time formats have a zone name, but no offset, so it gets
 			// put in that zone name (not the default one passed in to us), but
 			// without that zone's offset. So set the location manually.
-			if format.Typ <= TimeFormatNamedTimezone {
+			if !format.HasTimezone() {
 				if location == nil {
 					location = time.Local
 				}
