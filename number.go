@@ -414,7 +414,7 @@ func parseInt[T integer](s string) (T, error) {
 }
 
 func parseUint[T unsigned](s string) (T, error) {
-	v, err := strconv.ParseUint(strings.TrimLeft(trimDecimal(s), "+"), 0, 0)
+	v, err := strconv.ParseUint(strings.TrimPrefix(trimDecimal(s), "+"), 0, 0)
 	if err != nil {
 		return 0, err
 	}
@@ -526,6 +526,10 @@ var stringNumberRe = regexp.MustCompile(`^([-+]?\d*)(\.\d*)?$`)
 // see [BenchmarkDecimal] for details about the implementation
 func trimDecimal(s string) string {
 	if !strings.Contains(s, ".") {
+		return s
+	}
+
+	if s == "." || s == "+." || s == "-." {
 		return s
 	}
 

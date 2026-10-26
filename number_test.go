@@ -464,3 +464,15 @@ func BenchmarkNumber(b *testing.B) {
 		})
 	}
 }
+
+func TestInvalidNumberStrings(t *testing.T) {
+	c := qt.New(t)
+
+	for _, s := range []string{".", "-.", "+.", "++5", "+-5"} {
+		_, err := cast.ToIntE(s)
+		c.Assert(err, qt.IsNotNil, qt.Commentf("ToIntE(%q)", s))
+
+		_, err = cast.ToUintE(s)
+		c.Assert(err, qt.IsNotNil, qt.Commentf("ToUintE(%q)", s))
+	}
+}

@@ -69,6 +69,9 @@ func TestTrimDecimal(t *testing.T) {
 		{"10.foobar", "10.foobar"},
 		{"10.0i", "10.0i"},
 		{"10.0E9", "10.0E9"},
+		{".", "."},
+		{"+.", "+."},
+		{"-.", "-."},
 	}
 
 	for _, testCase := range testCases {
