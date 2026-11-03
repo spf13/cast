@@ -8,6 +8,7 @@ package cast
 import (
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
 )
 
@@ -17,13 +18,29 @@ func ToSliceE(i any) ([]any, error) {
 
 	var s []any
 
+	if i == nil {
+		return s, fmt.Errorf(errorMsg, i, i, s)
+	}
+
 	switch v := i.(type) {
 	case []any:
-		// TODO: use slices.Clone
-		return append(s, v...), nil
+		return slices.Clone(v), nil
 	case []map[string]any:
-		for _, u := range v {
-			s = append(s, u)
+		s = make([]any, len(v))
+		for idx, u := range v {
+			s[idx] = u
+		}
+
+		return s, nil
+	}
+
+	kind := reflect.TypeOf(i).Kind()
+	switch kind {
+	case reflect.Slice, reflect.Array:
+		val := reflect.ValueOf(i)
+		s = make([]any, val.Len())
+		for j := 0; j < val.Len(); j++ {
+			s[j] = val.Index(j).Interface()
 		}
 
 		return s, nil
