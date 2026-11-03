@@ -233,6 +233,11 @@ func TestSlice(t *testing.T) {
 	testCases := []testCase{
 		{[]any{1, 3}, []any{1, 3}, false},
 		{[]map[string]any{{"k1": 1}, {"k2": 2}}, []any{map[string]any{"k1": 1}, map[string]any{"k2": 2}}, false},
+		{[]string{"foo", "bar"}, []any{"foo", "bar"}, false},
+		{[]int{1, 2}, []any{1, 2}, false},
+		{[]bool{true, false}, []any{true, false}, false},
+		{[2]string{"a", "b"}, []any{"a", "b"}, false},
+		{[2]int{10, 20}, []any{10, 20}, false},
 
 		// Failure cases
 		{nil, nil, true},
