@@ -244,6 +244,7 @@ func TestSlice(t *testing.T) {
 
 func TestStringSlice(t *testing.T) {
 	testCases := []testCase{
+		{"one\ttwo three", []string{"one", "two", "three"}, false},
 		{[]int{1, 2}, []string{"1", "2"}, false},
 		{[]int8{int8(1), int8(2)}, []string{"1", "2"}, false},
 		{[]int32{int32(1), int32(2)}, []string{"1", "2"}, false},

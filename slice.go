@@ -89,8 +89,9 @@ func ToStringSliceE(i any) ([]string, error) {
 	}
 
 	var a []string
+	value, _ := indirect(i)
 
-	switch v := i.(type) {
+	switch v := value.(type) {
 	case string:
 		return strings.Fields(v), nil
 	case any:
