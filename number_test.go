@@ -464,3 +464,15 @@ func BenchmarkNumber(b *testing.B) {
 		})
 	}
 }
+
+func TestToIntLeadingZeroDecimalFallback(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+	cases := map[string]int{"08": 8, "09": 9, "018": 18, "019": 19}
+	for s, expected := range cases {
+		c.Assert(cast.ToInt(s), qt.Equals, expected)
+		c.Assert(cast.ToInt64(s), qt.Equals, int64(expected))
+		c.Assert(cast.ToUint(s), qt.Equals, uint(expected))
+	}
+}
