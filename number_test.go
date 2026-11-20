@@ -464,3 +464,19 @@ func BenchmarkNumber(b *testing.B) {
 		})
 	}
 }
+
+func TestIssue217(t *testing.T) {
+	c := qt.New(t)
+
+	v32, err := cast.ToUint32E("4294967295")
+	c.Assert(err, qt.IsNil)
+	c.Assert(v32, qt.Equals, uint32(math.MaxUint32))
+
+	v64, err := cast.ToUint64E("18446744073709551615")
+	c.Assert(err, qt.IsNil)
+	c.Assert(v64, qt.Equals, uint64(math.MaxUint64))
+
+	vi64, err := cast.ToInt64E("9223372036854775807")
+	c.Assert(err, qt.IsNil)
+	c.Assert(vi64, qt.Equals, int64(math.MaxInt64))
+}
