@@ -6,6 +6,7 @@
 package cast_test
 
 import (
+	"bytes"
 	"errors"
 	"testing"
 	"time"
@@ -266,6 +267,26 @@ func TestStringSlice(t *testing.T) {
 	}
 
 	runSliceTests(t, testCases, cast.ToStringSlice, cast.ToStringSliceE)
+}
+
+func TestStringSliceScalarMethods(t *testing.T) {
+	testCases := []struct {
+		name  string
+		input any
+	}{
+		{"Stringer", bytes.NewBufferString("alpha beta")},
+		{"Error", errors.New("alpha beta")},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			c := qt.New(t)
+			value, err := cast.ToStringSliceE(testCase.input)
+			c.Assert(err, qt.IsNil)
+			c.Assert(value, qt.DeepEquals, []string{"alpha beta"})
+			c.Assert(cast.ToStringSlice(testCase.input), qt.DeepEquals, []string{"alpha beta"})
+		})
+	}
 }
 
 func TestDurationSlice(t *testing.T) {

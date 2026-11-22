@@ -95,7 +95,7 @@ func ToStringSliceE(i any) ([]string, error) {
 	case string:
 		return strings.Fields(v), nil
 	case any:
-		str, err := ToStringE(v)
+		str, err := ToStringE(i)
 		if err != nil {
 			return nil, fmt.Errorf(errorMsg, i, i, a)
 		}
