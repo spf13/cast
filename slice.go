@@ -89,12 +89,13 @@ func ToStringSliceE(i any) ([]string, error) {
 	}
 
 	var a []string
+	value, _ := indirect(i)
 
-	switch v := i.(type) {
+	switch v := value.(type) {
 	case string:
 		return strings.Fields(v), nil
 	case any:
-		str, err := ToStringE(v)
+		str, err := ToStringE(i)
 		if err != nil {
 			return nil, fmt.Errorf(errorMsg, i, i, a)
 		}
