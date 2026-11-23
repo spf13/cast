@@ -8,6 +8,7 @@ package cast_test
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"path"
 	"testing"
 	"time"
@@ -114,6 +115,26 @@ func TestDuration(t *testing.T) {
 	}
 
 	runTests(t, testCases, cast.ToDuration, cast.ToDurationE)
+}
+
+func TestDurationRejectsUnrepresentableFloats(t *testing.T) {
+	for _, value := range []float64{math.NaN(), math.Inf(1), math.Inf(-1), 1 << 63, -1 << 64} {
+		if got, err := cast.ToDurationE(value); err == nil || got != 0 {
+			t.Errorf("ToDurationE(%v) = %v, %v; want a zero duration and an error", value, got, err)
+		}
+	}
+
+	for _, tt := range []struct {
+		input float64
+		want  time.Duration
+	}{
+		{-1 << 63, -1 << 63},
+		{17.75, 17 * time.Nanosecond},
+	} {
+		if got, err := cast.ToDurationE(tt.input); err != nil || got != tt.want {
+			t.Errorf("ToDurationE(%v) = %v, %v; want %v", tt.input, got, err, tt.want)
+		}
+	}
 }
 
 func TestTimeWithTimezones(t *testing.T) {
