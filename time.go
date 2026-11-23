@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -82,6 +83,9 @@ func ToDurationE(i any) (time.Duration, error) {
 			return 0, errors.New(strings.ReplaceAll(err.Error(), " float64", "time.Duration"))
 		}
 
+		if math.IsNaN(v) || v < -1<<63 || v >= 1<<63 {
+			return 0, fmt.Errorf(errorMsg, i, i, time.Duration(0))
+		}
 		return time.Duration(v), nil
 	case string:
 		if !strings.ContainsAny(s, "nsuµmh") {
