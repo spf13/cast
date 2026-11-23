@@ -56,6 +56,9 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 	case nil:
 		return time.Time{}, nil
 	default:
+		if value, ok := resolveAlias(i); ok {
+			return ToTimeInDefaultLocationE(value, location)
+		}
 		return time.Time{}, fmt.Errorf(errorMsg, i, i, time.Time{})
 	}
 }

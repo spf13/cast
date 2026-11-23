@@ -69,6 +69,26 @@ func TestTime(t *testing.T) {
 	runTests(t, testCases, cast.ToTime, cast.ToTimeE)
 }
 
+func TestTimeFromNamedTypes(t *testing.T) {
+	type unixSeconds int64
+	type localDate string
+
+	seconds := unixSeconds(1234567890)
+	got, err := cast.ToTimeE(&seconds)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertTimeEqual(t, time.Unix(int64(seconds), 0), got)
+
+	location := time.FixedZone("local", 5*60*60)
+	got, err = cast.ToTimeInDefaultLocationE(localDate("2026-01-12"), location)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertTimeEqual(t, time.Date(2026, 1, 12, 0, 0, 0, 0, location), got)
+	assertLocationEqual(t, location, got.Location())
+}
+
 func TestDuration(t *testing.T) {
 	type MyDuration time.Duration
 
