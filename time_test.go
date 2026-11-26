@@ -52,9 +52,13 @@ func TestTime(t *testing.T) {
 		{int(1482597504), time.Date(2016, 12, 24, 16, 38, 24, 0, time.UTC), false},
 		{int64(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{int32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
+		{int16(12345), time.Unix(12345, 0), false},
+		{int8(123), time.Unix(123, 0), false},
 		{uint(1482597504), time.Date(2016, 12, 24, 16, 38, 24, 0, time.UTC), false},
 		{uint64(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{uint32(1234567890), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
+		{uint16(12345), time.Unix(12345, 0), false},
+		{uint8(123), time.Unix(123, 0), false},
 		{json.Number("1234567890"), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 		{time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), time.Date(2009, 2, 13, 23, 31, 30, 0, time.UTC), false},
 

@@ -43,11 +43,19 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 		return time.Unix(s, 0), nil
 	case int:
 		return time.Unix(int64(v), 0), nil
+	case int8:
+		return time.Unix(int64(v), 0), nil
+	case int16:
+		return time.Unix(int64(v), 0), nil
 	case int32:
 		return time.Unix(int64(v), 0), nil
 	case int64:
 		return time.Unix(v, 0), nil
 	case uint:
+		return time.Unix(int64(v), 0), nil
+	case uint8:
+		return time.Unix(int64(v), 0), nil
+	case uint16:
 		return time.Unix(int64(v), 0), nil
 	case uint32:
 		return time.Unix(int64(v), 0), nil
